@@ -139,11 +139,12 @@ class Builder:
         F = [(0, 1, 3, 2), (4, 6, 7, 5), (0, 4, 5, 1), (2, 3, 7, 6), (0, 2, 6, 4), (1, 5, 7, 3)]
         self.add(part, mat, vs, F)
 
-    def beam(self, part, mat, a, b, w, h=None):
+    def beam(self, part, mat, a, b, w, h=None, pad=0.35):
+        """box from a to b; pad extends each end by pad*w so joints close up"""
         a, b = Vector(a), Vector(b)
         d = b - a
         q = d.to_track_quat('Z', 'Y')
-        self.box(part, mat, (a + b) / 2, (w, h or w, d.length), q)
+        self.box(part, mat, (a + b) / 2, (w, h or w, d.length + 2 * pad * w), q)
 
     def crystal(self, part, mat, base, direction, length, radius, sides=4, spin=0.0):
         d = Vector(direction).normalized()
@@ -182,7 +183,7 @@ class Builder:
         fn(1, 'R')
 
     # ---------------- voxel body ------------------------------------------
-    def body(self, pattern, seed, bumps=0.07):
+    def body(self, pattern, seed, bumps=0.03):
         solid = {}
         for k in range(LAYERS):
             z = (k + 0.5) * VOX
@@ -196,6 +197,21 @@ class Builder:
         surface = [p for p in solid if any((p[0] + d[0], p[1] + d[1], p[2] + d[2]) not in solid for d in nb)]
         for p in surface:
             solid[p] = pattern(Ctx(*p, seed))
+        # clean-up: a voxel whose colour no surface neighbour shares takes the
+        # most common neighbour colour (removes lone speckles)
+        for _ in range(2):
+            fix = {}
+            for p in surface:
+                cnt = defaultdict(int)
+                for dx in (-1, 0, 1):
+                    for dy in (-1, 0, 1):
+                        for dz in (-1, 0, 1):
+                            m = solid.get((p[0] + dx, p[1] + dy, p[2] + dz))
+                            if m and (dx, dy, dz) != (0, 0, 0):
+                                cnt[m] += 1
+                if cnt and cnt.get(solid[p], 0) == 0:
+                    fix[p] = max(cnt, key=cnt.get)
+            solid.update(fix)
         # raised bricks for the chunky look
         rnd = random.Random(seed)
         for p in surface:
@@ -240,14 +256,14 @@ class Builder:
             self.add('Body', mat, verts, faces)
 
     # ---------------- emblem ----------------------------------------------
-    def emblem(self, fill_fn, core_fn, mats, zc=0.92, px=0.06, ext=0.48, outline=1):
+    def emblem(self, fill_fn, core_fn, mats, zc=0.92, px=0.06, ext=0.48, outline=1, scale=0.85):
         """fill_fn/core_fn(x, z) -> bool in emblem-local coords.
         mats = (outline, fill, core).  Outline/core sit at y=-1.04, fill at -0.98."""
         n = int(ext / px)
         cells = {}
         for a in range(-n, n):
             for b in range(-n - 2, n + 2):
-                x, z = (a + 0.5) * px, (b + 0.5) * px
+                x, z = (a + 0.5) * px / scale, (b + 0.5) * px / scale
                 if fill_fn(x, z):
                     cells[(a, b)] = 'core' if core_fn and core_fn(x, z) else 'fill'
         fills = set(cells)
@@ -347,6 +363,21 @@ def rect(x0, x1, z0, z1):
 
 def C(r, g, b, emit=0.0, metal=0.0):
     return {'rgb': [r, g, b], 'emit': emit, 'metal': metal}
+
+
+def stepped_fin(B, s, sd, light, mid, dark, length=1.05, height=1.1, z0=0.6, cells=10):
+    """stepped triangular fin in the XZ plane on side s (-1 / 1)"""
+    step = length / (cells - 1)
+    for i in range(cells):
+        for j in range(cells):
+            u, v = i / (cells - 1), j / (cells - 1)      # u outward, v up
+            top = 0.9 - 0.25 * u + 0.35 * u * u
+            bot = 0.15 + 0.55 * u
+            if bot <= v <= top:
+                edge = v > top - 1.5 / cells
+                m = light if edge else (dark if i % 3 == 2 else mid)
+                B.box(f'Fin_{sd}', m, (s * (0.72 + u * length), 0.15, z0 + v * height),
+                      (step * 1.02, 0.08, height / (cells - 1) * 1.02))
 
 
 # ==========================================================================
@@ -627,24 +658,10 @@ def Abyssray(B):
     B.emblem(clam, pearl, ('ClamOutline', 'Clam', 'Pearl'))
     for a in (-60, -25, 25, 60):          # shell ridges
         d = Vector((math.sin(math.radians(a)), 0, math.cos(math.radians(a))))
-        o = Vector((0, -1.0, 0.92 - 0.2))
-        B.beam('Emblem', 'ClamOutline', o + d * 0.2, o + d * 0.4, 0.05, 0.05)
+        o = Vector((0, -1.0, 0.92 - 0.17))
+        B.beam('Emblem', 'ClamOutline', o + d * 0.17, o + d * 0.33, 0.05, 0.05, 0)
 
-    def fin(s, sd):
-        # stepped triangular fin in the XZ plane
-        for i in range(10):
-            for j in range(10):
-                u, v = i / 9, j / 9          # u outward, v up
-                top = 0.9 - 0.25 * u + 0.35 * u * u
-                bot = 0.15 + 0.55 * u
-                if bot <= v <= top:
-                    m = 'FinLight' if (i + j) % 4 == 0 or v > top - 0.12 else 'Fin'
-                    if i % 3 == 2 and v < top - 0.12:
-                        m = 'FinDark'
-                    x = s * (0.72 + u * 1.05)
-                    z = 0.6 + v * 1.1
-                    B.box(f'Fin_{sd}', m, (x, 0.15, z), (0.12, 0.08, 0.12))
-    B.mirror(fin)
+    B.mirror(lambda s, sd: stepped_fin(B, s, sd, 'FinLight', 'Fin', 'FinDark'))
     rnd = random.Random(59)
     for x, y, z, r in [(-0.9, -0.4, 2.05, 0.09), (0.95, -0.35, 2.15, 0.08), (-0.55, -0.6, 2.35, 0.06),
                        (0.6, -0.55, 2.3, 0.06), (-1.3, -0.4, 0.35, 0.09), (1.3, -0.4, 0.4, 0.08),
@@ -682,9 +699,9 @@ def Bogtoad(B):
             d = math.hypot(x, y)
             if d > 0.62 or (y < 0 and abs(x) < 0.06 + (-y) * 0.15):
                 continue
-            m = 'LilyPadDark' if d > 0.52 or (i + j) % 5 == 0 else 'LilyPad'
-            B.box('LilyPad', m, (x, y, 2.0 + 0.04 * (d < 0.3)), (0.08, 0.08, 0.08))
-    B.box('LilyPad', 'LilyPadDark', (0, 0, 1.93), (0.2, 0.2, 0.1))
+            m = 'LilyPadDark' if d > 0.5 else 'LilyPad'
+            B.box('LilyPad', m, (x, y, 1.98 - 0.08 * (d > 0.42)), (0.08, 0.08, 0.1))
+    B.box('LilyPad', 'LilyPadDark', (0, 0, 1.9), (0.3, 0.3, 0.1))
     rnd = random.Random(65)
     for n in range(9):
         phi = rnd.uniform(-math.pi, math.pi)
@@ -693,18 +710,8 @@ def Bogtoad(B):
         p, nrm = surf(phi, rnd.uniform(0.4, 1.5), 0.02)
         B.sphere('SlimeBlobs', 'SlimeLight', p, rnd.uniform(0.09, 0.14), 1)
 
-    def fin(s, sd):
-        for r in range(4):
-            a = Vector((s * 0.78, 0.15, 0.8))
-            ang = math.radians(-10 + r * 18)
-            b = a + Vector((s * math.cos(ang), 0, math.sin(ang))) * (0.55 - abs(r - 1.5) * 0.08)
-            B.beam(f'Fin_{sd}', 'FinDark', a, b, 0.07)
-            if r < 3:
-                ang2 = math.radians(-10 + (r + 0.5) * 18)
-                c = a + Vector((s * math.cos(ang2), 0, math.sin(ang2))) * 0.25
-                B.box(f'Fin_{sd}', 'Fin', c, (0.35, 0.05, 0.14),
-                      Matrix.Rotation(-s * ang2, 3, 'Y'))
-    B.mirror(fin)
+    B.mirror(lambda s, sd: stepped_fin(B, s, sd, 'Fin', 'Fin', 'FinDark',
+                                       length=0.6, height=0.65, z0=0.55, cells=6))
     return pal
 
 

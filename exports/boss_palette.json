@@ -1,0 +1,902 @@
+{
+ "Abyssray_Bubble": {
+  "emit": 0.4,
+  "metal": 0.0,
+  "rgb": [
+   0.4,
+   0.85,
+   1.0
+  ]
+ },
+ "Abyssray_Clam": {
+  "emit": 0.0,
+  "metal": 0.0,
+  "rgb": [
+   0.92,
+   0.92,
+   0.96
+  ]
+ },
+ "Abyssray_ClamOutline": {
+  "emit": 0.0,
+  "metal": 0.0,
+  "rgb": [
+   0.62,
+   0.68,
+   0.8
+  ]
+ },
+ "Abyssray_Fin": {
+  "emit": 0.2,
+  "metal": 0.0,
+  "rgb": [
+   0.15,
+   0.7,
+   1.0
+  ]
+ },
+ "Abyssray_FinDark": {
+  "emit": 0.0,
+  "metal": 0.0,
+  "rgb": [
+   0.03,
+   0.35,
+   0.85
+  ]
+ },
+ "Abyssray_FinLight": {
+  "emit": 0.3,
+  "metal": 0.0,
+  "rgb": [
+   0.55,
+   0.9,
+   1.0
+  ]
+ },
+ "Abyssray_Foam": {
+  "emit": 0.0,
+  "metal": 0.0,
+  "rgb": [
+   0.92,
+   0.96,
+   1.0
+  ]
+ },
+ "Abyssray_Pearl": {
+  "emit": 0.5,
+  "metal": 0.0,
+  "rgb": [
+   0.98,
+   0.95,
+   1.0
+  ]
+ },
+ "Abyssray_Shell": {
+  "emit": 0.0,
+  "metal": 0.0,
+  "rgb": [
+   0.01,
+   0.12,
+   0.5
+  ]
+ },
+ "Abyssray_ShellDark": {
+  "emit": 0.0,
+  "metal": 0.0,
+  "rgb": [
+   0.005,
+   0.06,
+   0.3
+  ]
+ },
+ "Abyssray_Wave": {
+  "emit": 0.0,
+  "metal": 0.0,
+  "rgb": [
+   0.05,
+   0.55,
+   0.95
+  ]
+ },
+ "Abyssray_WaveLight": {
+  "emit": 0.0,
+  "metal": 0.0,
+  "rgb": [
+   0.3,
+   0.82,
+   1.0
+  ]
+ },
+ "Bogtoad_Emblem": {
+  "emit": 1.2,
+  "metal": 0.0,
+  "rgb": [
+   0.45,
+   0.95,
+   0.15
+  ]
+ },
+ "Bogtoad_EmblemCore": {
+  "emit": 2.0,
+  "metal": 0.0,
+  "rgb": [
+   0.95,
+   1.0,
+   0.4
+  ]
+ },
+ "Bogtoad_EmblemOutline": {
+  "emit": 0.3,
+  "metal": 0.0,
+  "rgb": [
+   0.05,
+   0.4,
+   0.03
+  ]
+ },
+ "Bogtoad_Fin": {
+  "emit": 0.1,
+  "metal": 0.0,
+  "rgb": [
+   0.3,
+   0.75,
+   0.08
+  ]
+ },
+ "Bogtoad_FinDark": {
+  "emit": 0.0,
+  "metal": 0.0,
+  "rgb": [
+   0.12,
+   0.45,
+   0.04
+  ]
+ },
+ "Bogtoad_LilyPad": {
+  "emit": 0.0,
+  "metal": 0.0,
+  "rgb": [
+   0.1,
+   0.6,
+   0.05
+  ]
+ },
+ "Bogtoad_LilyPadDark": {
+  "emit": 0.0,
+  "metal": 0.0,
+  "rgb": [
+   0.05,
+   0.38,
+   0.03
+  ]
+ },
+ "Bogtoad_Moss": {
+  "emit": 0.0,
+  "metal": 0.0,
+  "rgb": [
+   0.12,
+   0.48,
+   0.04
+  ]
+ },
+ "Bogtoad_Slime": {
+  "emit": 0.3,
+  "metal": 0.0,
+  "rgb": [
+   0.35,
+   0.85,
+   0.08
+  ]
+ },
+ "Bogtoad_SlimeLight": {
+  "emit": 0.4,
+  "metal": 0.0,
+  "rgb": [
+   0.6,
+   0.95,
+   0.2
+  ]
+ },
+ "Bogtoad_Soil": {
+  "emit": 0.0,
+  "metal": 0.0,
+  "rgb": [
+   0.16,
+   0.08,
+   0.03
+  ]
+ },
+ "Bogtoad_SoilDark": {
+  "emit": 0.0,
+  "metal": 0.0,
+  "rgb": [
+   0.09,
+   0.045,
+   0.018
+  ]
+ },
+ "Crystaltusk_Gem": {
+  "emit": 1.2,
+  "metal": 0.0,
+  "rgb": [
+   0.25,
+   0.8,
+   1.0
+  ]
+ },
+ "Crystaltusk_GemCore": {
+  "emit": 2.0,
+  "metal": 0.0,
+  "rgb": [
+   0.8,
+   0.97,
+   1.0
+  ]
+ },
+ "Crystaltusk_GemOutline": {
+  "emit": 0.6,
+  "metal": 0.0,
+  "rgb": [
+   0.05,
+   0.45,
+   0.95
+  ]
+ },
+ "Crystaltusk_Ice": {
+  "emit": 0.4,
+  "metal": 0.0,
+  "rgb": [
+   0.3,
+   0.75,
+   1.0
+  ]
+ },
+ "Crystaltusk_IceLight": {
+  "emit": 0.4,
+  "metal": 0.0,
+  "rgb": [
+   0.7,
+   0.92,
+   1.0
+  ]
+ },
+ "Crystaltusk_Shell": {
+  "emit": 0.0,
+  "metal": 0.0,
+  "rgb": [
+   0.04,
+   0.28,
+   0.85
+  ]
+ },
+ "Crystaltusk_ShellDark": {
+  "emit": 0.0,
+  "metal": 0.0,
+  "rgb": [
+   0.02,
+   0.15,
+   0.6
+  ]
+ },
+ "Crystaltusk_Snow": {
+  "emit": 0.0,
+  "metal": 0.0,
+  "rgb": [
+   0.92,
+   0.95,
+   1.0
+  ]
+ },
+ "Crystaltusk_SnowShade": {
+  "emit": 0.0,
+  "metal": 0.0,
+  "rgb": [
+   0.7,
+   0.78,
+   0.9
+  ]
+ },
+ "Crystaltusk_Tusk": {
+  "emit": 0.0,
+  "metal": 0.0,
+  "rgb": [
+   0.93,
+   0.95,
+   0.98
+  ]
+ },
+ "Crystaltusk_TuskShade": {
+  "emit": 0.0,
+  "metal": 0.0,
+  "rgb": [
+   0.68,
+   0.75,
+   0.86
+  ]
+ },
+ "Elderstag_Antler": {
+  "emit": 0.0,
+  "metal": 0.0,
+  "rgb": [
+   0.33,
+   0.19,
+   0.08
+  ]
+ },
+ "Elderstag_AntlerDark": {
+  "emit": 0.0,
+  "metal": 0.0,
+  "rgb": [
+   0.2,
+   0.11,
+   0.05
+  ]
+ },
+ "Elderstag_Emblem": {
+  "emit": 1.4,
+  "metal": 0.0,
+  "rgb": [
+   1.0,
+   0.8,
+   0.3
+  ]
+ },
+ "Elderstag_EmblemCore": {
+  "emit": 2.0,
+  "metal": 0.0,
+  "rgb": [
+   1.0,
+   0.95,
+   0.7
+  ]
+ },
+ "Elderstag_EmblemOutline": {
+  "emit": 0.5,
+  "metal": 0.0,
+  "rgb": [
+   0.75,
+   0.45,
+   0.08
+  ]
+ },
+ "Elderstag_Gold": {
+  "emit": 0.0,
+  "metal": 1.0,
+  "rgb": [
+   1.0,
+   0.72,
+   0.15
+  ]
+ },
+ "Elderstag_GoldDark": {
+  "emit": 0.0,
+  "metal": 1.0,
+  "rgb": [
+   0.75,
+   0.45,
+   0.08
+  ]
+ },
+ "Elderstag_Ivory": {
+  "emit": 0.0,
+  "metal": 0.0,
+  "rgb": [
+   0.92,
+   0.92,
+   0.85
+  ]
+ },
+ "Elderstag_Leaf": {
+  "emit": 0.0,
+  "metal": 0.0,
+  "rgb": [
+   0.15,
+   0.6,
+   0.08
+  ]
+ },
+ "Elderstag_LeafCrystal": {
+  "emit": 0.3,
+  "metal": 0.0,
+  "rgb": [
+   0.3,
+   0.85,
+   0.15
+  ]
+ },
+ "Elderstag_Shell": {
+  "emit": 0.0,
+  "metal": 0.0,
+  "rgb": [
+   0.03,
+   0.3,
+   0.06
+  ]
+ },
+ "Elderstag_ShellDark": {
+  "emit": 0.0,
+  "metal": 0.0,
+  "rgb": [
+   0.015,
+   0.17,
+   0.035
+  ]
+ },
+ "Granitram_Gem": {
+  "emit": 1.2,
+  "metal": 0.0,
+  "rgb": [
+   1.0,
+   0.72,
+   0.08
+  ]
+ },
+ "Granitram_GemCore": {
+  "emit": 2.0,
+  "metal": 0.0,
+  "rgb": [
+   1.0,
+   0.95,
+   0.5
+  ]
+ },
+ "Granitram_GemOutline": {
+  "emit": 0.6,
+  "metal": 0.0,
+  "rgb": [
+   0.85,
+   0.4,
+   0.02
+  ]
+ },
+ "Granitram_Horn": {
+  "emit": 0.0,
+  "metal": 0.0,
+  "rgb": [
+   0.3,
+   0.17,
+   0.08
+  ]
+ },
+ "Granitram_HornDark": {
+  "emit": 0.0,
+  "metal": 0.0,
+  "rgb": [
+   0.17,
+   0.09,
+   0.04
+  ]
+ },
+ "Granitram_Moss": {
+  "emit": 0.0,
+  "metal": 0.0,
+  "rgb": [
+   0.14,
+   0.58,
+   0.05
+  ]
+ },
+ "Granitram_MossLight": {
+  "emit": 0.0,
+  "metal": 0.0,
+  "rgb": [
+   0.35,
+   0.8,
+   0.1
+  ]
+ },
+ "Granitram_Stone": {
+  "emit": 0.0,
+  "metal": 0.0,
+  "rgb": [
+   0.17,
+   0.095,
+   0.045
+  ]
+ },
+ "Granitram_StoneDark": {
+  "emit": 0.0,
+  "metal": 0.0,
+  "rgb": [
+   0.09,
+   0.05,
+   0.025
+  ]
+ },
+ "Granitram_StoneGray": {
+  "emit": 0.0,
+  "metal": 0.0,
+  "rgb": [
+   0.28,
+   0.26,
+   0.24
+  ]
+ },
+ "Magmaw_Charcoal": {
+  "emit": 0.0,
+  "metal": 0.0,
+  "rgb": [
+   0.05,
+   0.04,
+   0.038
+  ]
+ },
+ "Magmaw_CrystalOrange": {
+  "emit": 0.8,
+  "metal": 0.0,
+  "rgb": [
+   1.0,
+   0.32,
+   0.02
+  ]
+ },
+ "Magmaw_CrystalYellow": {
+  "emit": 0.8,
+  "metal": 0.0,
+  "rgb": [
+   1.0,
+   0.62,
+   0.05
+  ]
+ },
+ "Magmaw_Flame": {
+  "emit": 1.6,
+  "metal": 0.0,
+  "rgb": [
+   1.0,
+   0.45,
+   0.03
+  ]
+ },
+ "Magmaw_FlameCore": {
+  "emit": 2.2,
+  "metal": 0.0,
+  "rgb": [
+   1.0,
+   0.86,
+   0.25
+  ]
+ },
+ "Magmaw_FlameOutline": {
+  "emit": 1.0,
+  "metal": 0.0,
+  "rgb": [
+   0.85,
+   0.12,
+   0.02
+  ]
+ },
+ "Magmaw_Magma": {
+  "emit": 2.5,
+  "metal": 0.0,
+  "rgb": [
+   1.0,
+   0.3,
+   0.02
+  ]
+ },
+ "Magmaw_MagmaHot": {
+  "emit": 2.5,
+  "metal": 0.0,
+  "rgb": [
+   1.0,
+   0.62,
+   0.05
+  ]
+ },
+ "Magmaw_Rock": {
+  "emit": 0.0,
+  "metal": 0.0,
+  "rgb": [
+   0.12,
+   0.07,
+   0.05
+  ]
+ },
+ "Magmaw_RockDark": {
+  "emit": 0.0,
+  "metal": 0.0,
+  "rgb": [
+   0.06,
+   0.035,
+   0.03
+  ]
+ },
+ "Pyrocrow_Charcoal": {
+  "emit": 0.0,
+  "metal": 0.0,
+  "rgb": [
+   0.06,
+   0.04,
+   0.04
+  ]
+ },
+ "Pyrocrow_CharcoalDark": {
+  "emit": 0.0,
+  "metal": 0.0,
+  "rgb": [
+   0.03,
+   0.022,
+   0.022
+  ]
+ },
+ "Pyrocrow_Emblem": {
+  "emit": 1.5,
+  "metal": 0.0,
+  "rgb": [
+   1.0,
+   0.75,
+   0.1
+  ]
+ },
+ "Pyrocrow_EmblemCore": {
+  "emit": 2.2,
+  "metal": 0.0,
+  "rgb": [
+   1.0,
+   0.95,
+   0.6
+  ]
+ },
+ "Pyrocrow_EmblemOutline": {
+  "emit": 1.0,
+  "metal": 0.0,
+  "rgb": [
+   1.0,
+   0.35,
+   0.02
+  ]
+ },
+ "Pyrocrow_FeatherOrange": {
+  "emit": 0.4,
+  "metal": 0.0,
+  "rgb": [
+   1.0,
+   0.35,
+   0.02
+  ]
+ },
+ "Pyrocrow_FeatherRed": {
+  "emit": 0.2,
+  "metal": 0.0,
+  "rgb": [
+   0.85,
+   0.06,
+   0.03
+  ]
+ },
+ "Pyrocrow_FeatherYellow": {
+  "emit": 0.6,
+  "metal": 0.0,
+  "rgb": [
+   1.0,
+   0.68,
+   0.05
+  ]
+ },
+ "Pyrocrow_Red": {
+  "emit": 0.0,
+  "metal": 0.0,
+  "rgb": [
+   0.75,
+   0.05,
+   0.03
+  ]
+ },
+ "Pyrocrow_RedDark": {
+  "emit": 0.0,
+  "metal": 0.0,
+  "rgb": [
+   0.45,
+   0.02,
+   0.02
+  ]
+ },
+ "Rainhound_Bolt": {
+  "emit": 1.6,
+  "metal": 0.0,
+  "rgb": [
+   1.0,
+   0.86,
+   0.25
+  ]
+ },
+ "Rainhound_BoltCore": {
+  "emit": 2.5,
+  "metal": 0.0,
+  "rgb": [
+   1.0,
+   1.0,
+   0.85
+  ]
+ },
+ "Rainhound_BoltOutline": {
+  "emit": 0.8,
+  "metal": 0.0,
+  "rgb": [
+   0.35,
+   0.8,
+   1.0
+  ]
+ },
+ "Rainhound_Droplet": {
+  "emit": 0.4,
+  "metal": 0.0,
+  "rgb": [
+   0.4,
+   0.85,
+   1.0
+  ]
+ },
+ "Rainhound_Ear": {
+  "emit": 0.0,
+  "metal": 0.0,
+  "rgb": [
+   0.1,
+   0.5,
+   1.0
+  ]
+ },
+ "Rainhound_EarLight": {
+  "emit": 0.2,
+  "metal": 0.0,
+  "rgb": [
+   0.45,
+   0.86,
+   1.0
+  ]
+ },
+ "Rainhound_Foam": {
+  "emit": 0.0,
+  "metal": 0.0,
+  "rgb": [
+   0.92,
+   0.96,
+   1.0
+  ]
+ },
+ "Rainhound_FoamShade": {
+  "emit": 0.0,
+  "metal": 0.0,
+  "rgb": [
+   0.7,
+   0.8,
+   0.93
+  ]
+ },
+ "Rainhound_Shell": {
+  "emit": 0.0,
+  "metal": 0.0,
+  "rgb": [
+   0.02,
+   0.2,
+   0.72
+  ]
+ },
+ "Rainhound_ShellDark": {
+  "emit": 0.0,
+  "metal": 0.0,
+  "rgb": [
+   0.01,
+   0.1,
+   0.45
+  ]
+ },
+ "Rainhound_Wave": {
+  "emit": 0.0,
+  "metal": 0.0,
+  "rgb": [
+   0.08,
+   0.6,
+   1.0
+  ]
+ },
+ "Rainhound_WaveLight": {
+  "emit": 0.0,
+  "metal": 0.0,
+  "rgb": [
+   0.4,
+   0.86,
+   1.0
+  ]
+ },
+ "Volcanox_Ash": {
+  "emit": 0.0,
+  "metal": 0.0,
+  "rgb": [
+   0.11,
+   0.1,
+   0.1
+  ]
+ },
+ "Volcanox_Charcoal": {
+  "emit": 0.0,
+  "metal": 0.0,
+  "rgb": [
+   0.045,
+   0.04,
+   0.04
+  ]
+ },
+ "Volcanox_CharcoalDark": {
+  "emit": 0.0,
+  "metal": 0.0,
+  "rgb": [
+   0.02,
+   0.018,
+   0.018
+  ]
+ },
+ "Volcanox_Core": {
+  "emit": 2.0,
+  "metal": 0.0,
+  "rgb": [
+   1.0,
+   0.65,
+   0.05
+  ]
+ },
+ "Volcanox_CoreHot": {
+  "emit": 3.0,
+  "metal": 0.0,
+  "rgb": [
+   1.0,
+   0.95,
+   0.45
+  ]
+ },
+ "Volcanox_CoreOutline": {
+  "emit": 1.2,
+  "metal": 0.0,
+  "rgb": [
+   1.0,
+   0.32,
+   0.02
+  ]
+ },
+ "Volcanox_CrystalOrange": {
+  "emit": 0.8,
+  "metal": 0.0,
+  "rgb": [
+   1.0,
+   0.32,
+   0.02
+  ]
+ },
+ "Volcanox_CrystalYellow": {
+  "emit": 0.8,
+  "metal": 0.0,
+  "rgb": [
+   1.0,
+   0.62,
+   0.05
+  ]
+ },
+ "Volcanox_Magma": {
+  "emit": 2.5,
+  "metal": 0.0,
+  "rgb": [
+   1.0,
+   0.36,
+   0.02
+  ]
+ },
+ "Volcanox_MagmaHot": {
+  "emit": 2.8,
+  "metal": 0.0,
+  "rgb": [
+   1.0,
+   0.75,
+   0.08
+  ]
+ },
+ "Volcanox_Spark": {
+  "emit": 3.0,
+  "metal": 0.0,
+  "rgb": [
+   1.0,
+   0.55,
+   0.05
+  ]
+ }
+}

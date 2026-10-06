@@ -1,5 +1,8 @@
 # Blender → Roblox egg models
 
+## Wild eggs (`exports/*Egg.fbx`)
+Explorer, Wild, RareWild, EpicWild, LegendaryWild — `blender/wild_eggs.py`, colours in `exports/wild_palette.json`.
+
 ## Boss eggs (`exports/*BossEgg.fbx`)
 Rainhound, Magmaw, Crystaltusk, Granitram, Pyrocrow, Volcanox, Abyssray, Bogtoad, Elderstag.
 

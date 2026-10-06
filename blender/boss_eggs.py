@@ -764,17 +764,17 @@ def Elderstag(B):
 
 
 # ==========================================================================
-def generate(name, out, blend=False):
+def generate(name, out, blend=False, eggs=None, suffix='BossEgg'):
     bpy.ops.wm.read_factory_settings(use_empty=True)
     B = Builder(name)
-    pal = EGGS[name](B)
+    pal = (eggs or EGGS)[name](B)
     palette = {f'{name}_{k}': v for k, v in pal.items()}
     B.build(palette)
-    path = os.path.join(out, f'{name}BossEgg.fbx')
+    path = os.path.join(out, f'{name}{suffix}.fbx')
     bpy.ops.export_scene.fbx(filepath=path, use_selection=False, object_types={'MESH'},
                              mesh_smooth_type='FACE', apply_unit_scale=True)
     if blend:
-        bpy.ops.wm.save_as_mainfile(filepath=os.path.join(out, f'{name}BossEgg.blend'))
+        bpy.ops.wm.save_as_mainfile(filepath=os.path.join(out, f'{name}{suffix}.blend'))
     faces = sum(len(o.data.polygons) for o in bpy.data.objects if o.type == 'MESH')
     print(f'{name}: {len(bpy.data.objects)} meshes, {faces} faces -> {path}')
     return palette

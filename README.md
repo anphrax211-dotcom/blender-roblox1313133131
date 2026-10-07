@@ -80,3 +80,23 @@ G big waterfall, H bridge connector. The lobby places them around the tower and 
 ```
 python3 blender/tower_of_pets/build_islands_pack.py
 ```
+
+## Castle base / lower tower (in `blender/TowerOfPets_Lobby.blend`)
+The main entrance rebuilt from the castle-base reference with real masonry (`blender/tower_of_pets/castle.py`):
+walls are courses of individually chamfered blocks in running bond over a dark core, so the seams are true
+recessed grooves; corners have quoins, arches are rings of voussoirs with keystones, pillars are stacked from
+base / block shaft / gold band / capital / cap, and cornices, gold trim, balustrades, steps and flagstones are
+separate bevelled pieces.
+
+- gatehouse: stepped pointed arch (3 voussoir rings + 2 gold rings + glow rim) around the recessed portal,
+  banner pillars, pediment with navy panel + gold paw + crown, pinnacles, windowed wings, cat statues
+- block-built stairs with stepped cheek walls, newel posts, lanterns, topiary planters, flagstone landing
+- tower-base front faces in masonry with voussoir windows, upper gate + balcony, two-tier arcades with
+  banners, balustrades and waterfall spouts, masonry paw fountain with a flame finial
+- modular kit in `_ASSET_LIBRARY/CASTLE_KIT`: `Stone_Block_Small/Medium/Large`, `Wall_Straight`, `Wall_Corner`,
+  `Wall_Trim`, `Pillar_Base/Main/Top`, `Arch_Small/Large`, `Decorative_Trim`, `Gold_Trim`, `Stair_Straight`,
+  `Balcony`, `Ledge`, `Banner`, `Castle_Lantern`, `Balustrade`, `Cat_Statue`, `Topiary_Cone`
+  (the library collection is excluded from the view layer - enable it to see the masters at the origin)
+- cameras: `CAM_7_Castle_Reference`, `CAM_8_Castle_Front`, `CAM_9_Castle_Close`, `CAM_10_Castle_Side`,
+  `CAM_11_Castle_Player`
+- each wall section is its own mesh (mostly < 20k triangles) so it can be imported into Roblox as MeshParts

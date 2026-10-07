@@ -342,7 +342,10 @@ the four keep the sheet's relative sizes. The tail silhouettes are traced from t
 - **`PETS/<Pet>`:** one collection per pet. Every part is a separate editable mesh (`<Pet>_Body`, `_Head`,
   `_Ear_L/R`, `_Leg_FL/FR/BL/BR`, `_Paw_*`, `_Tail`, `_Eye_L/R`, `_Nose`, `_Mouth`, `_Teeth`, `_Whiskers`, plus
   the fire objects above), all parented to `<Pet>_Root`. Move the empty to move the pet. L/R are the pet's own
-  sides (left = +X). Each pet is about 32–41k triangles.
+  sides (left = +X).
+- **Game-ready budget:** Ashrat ≈15k, Cinderkit ≈19k, Flarecat ≈21k, Smoulderat ≈18k triangles. The largest single
+  mesh is about 3k. The head, body and paw budgets are set by `HEAD_TRIS`, `BODY_TRIS` and `PAW_TRIS` at the top of
+  `fire_pets.py`. Hidden geometry is trimmed: the back halves of the eye shells sit inside the head.
 - **`STUDIO`:** five soft area lights and a neutral grey world. The ground plane is a shadow catcher, so renders
   show an even grey backdrop with soft contact shadows.
 - **`CAMERAS`:** orthographic `CAM_<Pet>_Front`, `_Side` and `_Back` cameras, all at the same scale and tilted

@@ -42,6 +42,7 @@ FRONT = -HH                                # y of the face
 
 MATS = {}
 NPCS_COLL = None
+SIDE = {-1: 'Right', 1: 'Left'}          # x sign -> character side
 
 
 # ------------------------------------------------------------------ materials
@@ -700,16 +701,16 @@ def build_shop(n):
     n.coat_front(blk, 'Gold', width=0.22, name='Vest')
     n.box('UpperTorso_ShirtCollar', (0, -0.18, Z_SH - 0.035), (0.07, 0.01, 0.07), 'White', 'UpperTorso', 'Clothing',
           bevel=0.003, rot=Matrix.Rotation(math.radians(45), 3, 'Y'))
-    for z in (1.0, 0.92, 0.84):          # gold lacing crosses on the vest
-        for a in (35, -35):
-            n.box(f'UpperTorso_Lacing_{z:.2f}_{a}', (0, -0.184, z), (0.1, 0.008, 0.012), 'Gold', 'UpperTorso',
+    for k, z in enumerate((1.0, 0.92, 0.84)):     # gold lacing crosses on the vest
+        for j, a in enumerate((35, -35)):
+            n.box(f'UpperTorso_Lacing{2 * k + j + 1}', (0, -0.184, z), (0.1, 0.008, 0.012), 'Gold', 'UpperTorso',
                   'Accessories', bevel=0.002, rot=Matrix.Rotation(math.radians(a), 3, 'Y'))
     n.collar(blk, h=0.06)
     n.belt('Leather_Brown')
     for sx in (-1, 1):                   # belt pouches with gold clasps
-        n.box(f'LowerTorso_Pouch_{sx}', (sx * 0.19, -0.18, Z_WAIST - 0.04), (0.1, 0.05, 0.1), 'Leather_Brown',
+        n.box(f'LowerTorso_Pouch{SIDE[sx]}', (sx * 0.19, -0.18, Z_WAIST - 0.04), (0.1, 0.05, 0.1), 'Leather_Brown',
               'LowerTorso', 'Accessories', bevel=0.012)
-        n.box(f'LowerTorso_PouchClasp_{sx}', (sx * 0.19, -0.207, Z_WAIST - 0.02), (0.035, 0.008, 0.03), 'Gold',
+        n.box(f'LowerTorso_PouchClasp{SIDE[sx]}', (sx * 0.19, -0.207, Z_WAIST - 0.02), (0.035, 0.008, 0.03), 'Gold',
               'LowerTorso', 'Accessories', bevel=0.003)
     n.skirt('CoatTail', [(Z_WAIST, 0.3, 0.16), (0.5, 0.325, 0.19), (0.24, 0.35, 0.215)], red, trim='Gold', open_front=26)
     n.mantle('Capelet', red, trim='Gold', drop=0.17, reach=0.6, open_front=56)
@@ -799,10 +800,10 @@ def build_trading(n):
     torso_shell(n, 'Coat', brn)
     n.coat_front('White', 'Gold', width=0.24)
     for sx in (-1, 1):                     # brown vest panels with gold buttons
-        n.box(f'UpperTorso_Vest_{sx}', (sx * 0.085, -0.182, 0.9), (0.07, 0.012, 0.32), brl, 'UpperTorso', 'Clothing',
+        n.box(f'UpperTorso_Vest{SIDE[sx]}', (sx * 0.085, -0.182, 0.9), (0.07, 0.012, 0.32), brl, 'UpperTorso', 'Clothing',
               bevel=0.004)
-        for z in (0.98, 0.9, 0.82):
-            n.box(f'UpperTorso_Button_{sx}_{z:.2f}', (sx * 0.085, -0.19, z), (0.022, 0.01, 0.022), 'Gold',
+        for k, z in enumerate((0.98, 0.9, 0.82)):
+            n.box(f'UpperTorso_Button{SIDE[sx]}{k + 1}', (sx * 0.085, -0.19, z), (0.022, 0.01, 0.022), 'Gold',
                   'UpperTorso', 'Accessories', bevel=0.004)
     n.box('UpperTorso_Medal', (0, -0.186, 0.98), (0.05, 0.01, 0.05), 'Gold', 'UpperTorso', 'Accessories',
           bevel=0.006, rot=Matrix.Rotation(math.radians(45), 3, 'Y'))
@@ -836,9 +837,9 @@ def build_trading(n):
     for sx in (-1, 1):
         c = Vector((sx * 0.075, -0.235, z + 0.095))
         ax = Vector((0, -1, 0.25))
-        n.lathe(f'Head_Goggle_{sx}', [(0, 0.0), (0.062, 0.0), (0.066, 0.025), (0.055, 0.045), (0, 0.042)], brass,
+        n.lathe(f'Head_Goggle{SIDE[sx]}', [(0, 0.0), (0.062, 0.0), (0.066, 0.025), (0.055, 0.045), (0, 0.042)], brass,
                 'Head', 'Hat', c, axis=ax, segs=12)
-        n.lathe(f'Head_GoggleLens_{sx}', [(0, 0.05), (0.046, 0.044), (0.047, 0.038), (0, 0.038)], lens, 'Head', 'Hat',
+        n.lathe(f'Head_GoggleLens{SIDE[sx]}', [(0, 0.05), (0.046, 0.044), (0.047, 0.038), (0, 0.038)], lens, 'Head', 'Hat',
                 c, axis=ax, segs=12)
     n.box('Head_GoggleBridge', (0, -0.24, z + 0.1), (0.05, 0.02, 0.02), brass, 'Head', 'Hat', bevel=0.004)
     # brown messy hair
@@ -994,13 +995,13 @@ def build_leaderboards(n):
     n.coat_front(roy, 'Gold', width=0.12, name='TunicFront')
     gem_emblem(n, 'UpperTorso_Emblem', (0, -0.19, 1.0), 0.07, 'Gold', gem)
     for sx in (-1, 1):
-        n.box(f'UpperTorso_EmblemWing_{sx}', (sx * 0.09, -0.186, 1.03), (0.1, 0.012, 0.03), 'Gold', 'UpperTorso',
+        n.box(f'UpperTorso_EmblemWing{SIDE[sx]}', (sx * 0.09, -0.186, 1.03), (0.1, 0.012, 0.03), 'Gold', 'UpperTorso',
               'Accessories', bevel=0.004, rot=Matrix.Rotation(math.radians(-sx * 25), 3, 'Y'))
     n.collar(roy, h=0.08, hw=0.14, hd=0.11)
     n.belt('Gold', 'Gold', gem=gem)
     n.skirt('Skirt', [(Z_WAIST, 0.3, 0.16), (0.4, 0.33, 0.2), (0.03, 0.37, 0.24)], roy, trim='Gold')
-    for x in (-0.13, -0.05, 0.05, 0.13):
-        front_strip(n, f'LowerTorso_SkirtStripe_{x:+.2f}', x, Z_WAIST - 0.04, 0.06, -0.172, -0.25, 0.022, 'Gold')
+    for k, x in enumerate((-0.13, -0.05, 0.05, 0.13)):
+        front_strip(n, f'LowerTorso_SkirtStripe{k + 1}', x, Z_WAIST - 0.04, 0.06, -0.172, -0.25, 0.022, 'Gold')
     n.cape('Cape', [(Z_SH, 0.3, 0.17), (0.75, 0.38, 0.24), (0.03, 0.44, 0.3)], 'White', trim='Gold')
     n.ring('UpperTorso_CapeStripe', [(0.14, 0.432, 0.292), (0.22, 0.427, 0.287)], roy, 'UpperTorso', 'Back',
            sector=(105, 255), thick=0.028)
@@ -1020,7 +1021,7 @@ def build_leaderboards(n):
     z = 1.44
     n.ring('Head_CrownBand', [(z, 0.212, 0.212), (z + 0.1, 0.22, 0.22)], roy, 'Head', 'Hat', n=16, p=2.0, thick=0.02)
     for k, zz in enumerate((z, z + 0.09)):
-        n.ring(f'Head_CrownRim_{k}', [(zz - 0.008, 0.226, 0.226), (zz + 0.02, 0.228, 0.228)], 'Gold', 'Head', 'Hat',
+        n.ring(f'Head_CrownRim{("Lower", "Upper")[k]}', [(zz - 0.008, 0.226, 0.226), (zz + 0.02, 0.228, 0.228)], 'Gold', 'Head', 'Hat',
                n=16, p=2.0, thick=0.02)
     bm = bmesh.new()
     orbs = bmesh.new()
@@ -1186,12 +1187,12 @@ def build_daily(n):
     n.face()
     torso_shell(n, 'Jacket', blk)
     n.coat_front(org, 'Gold', width=0.18, name='Vest')
-    for z in (0.98, 0.9, 0.82):
-        n.box(f'UpperTorso_Embroidery_{z:.2f}', (0, -0.186, z), (0.05, 0.008, 0.05), 'Gold', 'UpperTorso', 'Accessories',
+    for k, z in enumerate((0.98, 0.9, 0.82)):
+        n.box(f'UpperTorso_Embroidery{k + 1}', (0, -0.186, z), (0.05, 0.008, 0.05), 'Gold', 'UpperTorso', 'Accessories',
               bevel=0.005, rot=Matrix.Rotation(math.radians(45), 3, 'Y'))
     n.skirt('CoatTail', [(Z_WAIST, 0.3, 0.16), (0.5, 0.32, 0.18), (0.3, 0.34, 0.2)], blk, trim=org, open_front=24)
     for sx in (-1, 1):
-        front_strip(n, f'LowerTorso_OrangeFlap_{sx}', sx * 0.165, Z_WAIST - 0.01, 0.3, -0.172, -0.212, 0.14, org)
+        front_strip(n, f'LowerTorso_OrangeFlap{SIDE[sx]}', sx * 0.165, Z_WAIST - 0.01, 0.3, -0.172, -0.212, 0.14, org)
     n.mantle('Capelet', org, trim='Gold', drop=0.16, reach=0.58, open_front=90)
     for side in ('Right', 'Left'):
         n.cuff(side, 'CreamBand', Z_ELB - 0.08, Z_ELB - 0.01, 0.15, cream)
@@ -1293,7 +1294,7 @@ def build_settings(n):
     torso_shell(n, 'Coat', blk)
     n.coat_front(wht, grey, width=0.2)
     for sx in (-1, 1):
-        n.box(f'UpperTorso_WhitePanel_{sx}', (sx * 0.2, -0.178, 1.0), (0.08, 0.01, 0.16), wht, 'UpperTorso', 'Clothing',
+        n.box(f'UpperTorso_WhitePanel{SIDE[sx]}', (sx * 0.2, -0.178, 1.0), (0.08, 0.01, 0.16), wht, 'UpperTorso', 'Clothing',
               bevel=0.004)
     n.belt(blk, 'Gold')
     n.skirt('CoatTail', [(Z_WAIST, 0.3, 0.16), (0.5, 0.32, 0.18), (0.3, 0.34, 0.2)], blk, trim=wht, open_front=26)
@@ -1315,9 +1316,9 @@ def build_settings(n):
     for sx in (-1, 1):
         cc = Vector((sx * 0.078, -0.2, zg + 0.04))
         ax = Vector((0, -0.75, 0.66))
-        n.lathe(f'Head_GoggleFrame_{sx}', [(0, 0), (0.066, 0), (0.07, 0.03), (0.06, 0.05), (0, 0.046)], strap, 'Head',
+        n.lathe(f'Head_GoggleFrame{SIDE[sx]}', [(0, 0), (0.066, 0), (0.07, 0.03), (0.06, 0.05), (0, 0.046)], strap, 'Head',
                 'Accessories', cc, axis=ax, segs=12)
-        n.lathe(f'Head_GoggleLens_{sx}', [(0, 0.056), (0.05, 0.05), (0.051, 0.044), (0, 0.044)], lens, 'Head',
+        n.lathe(f'Head_GoggleLens{SIDE[sx]}', [(0, 0.056), (0.05, 0.05), (0.051, 0.044), (0, 0.044)], lens, 'Head',
                 'Accessories', cc, axis=ax, segs=12)
     # two floating holographic settings panels beside the left hand
     n.bend('Left', 60)

@@ -1,0 +1,227 @@
+TOWER OF PETS - ALL LOBBY COLOURS (205 materials, generated from TowerOfPets_Materials.lua)
+Format: Material name - R,G,B - Roblox Material (- Transparency if not 0).
+Every imported MeshPart is named "<Object>__<Material>"; the part after "__" is the material name below.
+
+== Castle & stone architecture ==
+Banner_Navy - 56,105,203 - SmoothPlastic
+Blue_Inlay - 63,179,255 - Neon
+Carpet_Red - 211,56,69 - SmoothPlastic
+Cart_Glow - 255,250,246 - Neon
+Castle_Seam - 124,111,108 - SmoothPlastic
+Castle_Statue - 206,202,200 - SmoothPlastic
+Castle_Stone - 210,196,189 - SmoothPlastic
+Castle_Stone_Dark - 183,170,165 - SmoothPlastic
+Castle_Stone_Light - 221,209,202 - SmoothPlastic
+Castle_Stone_Warm - 218,200,184 - SmoothPlastic
+Castle_Trim - 229,219,208 - SmoothPlastic
+Fabric_Cream - 246,237,218 - SmoothPlastic
+Foam - 246,252,255 - Neon
+Fountain_Orb - 89,188,255 - Neon
+Glass - 237,249,255 - Glass - transparency 0.55
+Gold - 255,226,108 - Metal
+Hub_Stone - 226,206,175 - SmoothPlastic
+Hub_Stone_Warm - 239,206,160 - SmoothPlastic
+Interior_Wood - 164,124,85 - Wood
+Iron - 89,80,80 - Metal
+Lantern_Glow - 255,206,129 - Neon
+Lantern_Metal - 105,93,97 - Metal
+Magic_Glow - 124,206,255 - Neon
+Magic_Purple - 196,124,255 - Neon
+Paw_White_Glow - 243,252,255 - Neon
+Planter_Stone - 229,223,234 - SmoothPlastic
+Planter_Stone_Dark - 206,200,212 - SmoothPlastic
+Portal_Energy - 124,188,255 - Neon
+Red_Fabric - 234,56,80 - SmoothPlastic
+Red_Wood - 212,77,80 - Wood
+Red_Wood_Dark - 173,56,63 - Wood
+Roof_Blue - 80,160,255 - SmoothPlastic
+Rope_Tan - 229,200,153 - SmoothPlastic
+Shop_Stone_Dark - 163,163,172 - SmoothPlastic
+Sign_Emissive - 255,252,243 - Neon
+Stone_Dark - 173,162,158 - SmoothPlastic
+Stone_Trim - 223,212,197 - SmoothPlastic
+Window_Blue - 124,203,255 - Neon
+Window_Warm - 255,206,129 - Neon
+Wood_Dark - 149,108,69 - Wood
+Wood_Plank - 204,158,105 - Wood
+
+== Shop ==
+Gift_Blue - 108,196,255 - SmoothPlastic
+Gift_Pink - 255,160,218 - SmoothPlastic
+Potion_Blue - 108,196,255 - Neon
+Potion_Green - 137,249,149 - Neon
+Potion_Pink - 255,137,211 - Neon
+Potion_Purple - 203,137,255 - Neon
+Shop_Roof - 203,72,80 - SmoothPlastic
+Shop_Roof_Dark - 166,48,56 - SmoothPlastic
+Shop_Wood - 201,154,103 - Wood
+
+== Hatchery & eggs ==
+Egg_Crack_Magenta - 255,124,237 - Neon
+Egg_Mat_Blue - 89,170,255 - SmoothPlastic
+Egg_Mat_Crystal - 206,170,255 - Neon
+Egg_Mat_Cyan - 108,241,255 - Neon
+Egg_Mat_Dark - 75,56,97 - SmoothPlastic
+Egg_Mat_Fire - 255,144,56 - Neon
+Egg_Mat_Gold - 255,223,108 - Metal
+Egg_Mat_Green - 137,237,129 - SmoothPlastic
+Egg_Mat_Ice - 218,243,255 - SmoothPlastic
+Egg_Mat_Pink - 255,173,225 - SmoothPlastic
+Egg_Mat_Purple - 196,129,255 - SmoothPlastic
+Egg_Shell - 249,243,231 - SmoothPlastic
+Egg_Spot_Dark - 63,149,63 - SmoothPlastic
+Egg_Spot_Flame - 255,231,89 - Neon
+Egg_Spot_White - 255,255,255 - SmoothPlastic
+Hatch_Carpet - 170,95,227 - SmoothPlastic
+Hatch_Egg_Glow - 255,149,241 - Neon
+Hatch_Floor - 235,227,222 - SmoothPlastic
+Hatch_Magic_Blue - 124,179,255 - Neon
+Hatch_Magic_Cyan - 80,229,255 - Neon
+Hatch_Magic_Pink - 255,137,237 - Neon
+Hatch_Oculus - 124,206,255 - Neon
+Hatch_Purple - 163,106,225 - SmoothPlastic
+Hatch_Purple_Dark - 124,75,184 - SmoothPlastic
+Hatch_Purple_Fabric - 173,89,236 - SmoothPlastic
+Hatch_Roof - 150,95,208 - SmoothPlastic
+Hatch_Roof_Dark - 118,69,173 - SmoothPlastic
+Hatch_Sign_Glow - 255,249,255 - Neon
+
+== Pet Clinic ==
+Clinic_Blue - 72,154,245 - SmoothPlastic
+Clinic_Blue_Dark - 48,97,188 - SmoothPlastic
+Clinic_Blue_Fabric - 56,111,206 - SmoothPlastic
+Clinic_Cross - 108,237,255 - Neon
+Clinic_Cushion - 89,170,249 - SmoothPlastic
+Clinic_Floor - 241,236,229 - SmoothPlastic
+Clinic_Glass - 225,246,255 - Glass - transparency 0.5
+Clinic_Metal - 226,230,236 - Metal
+Clinic_Red - 246,80,80 - SmoothPlastic
+Clinic_Roof - 77,155,242 - SmoothPlastic
+Clinic_Roof_Dark - 48,118,203 - SmoothPlastic
+Clinic_Rug - 85,162,241 - SmoothPlastic
+Clinic_Screen - 89,188,255 - Neon
+Clinic_Sign_Glow - 255,255,255 - Neon
+Clinic_Statue - 231,221,212 - SmoothPlastic
+Clinic_Teal - 80,231,221 - Neon
+Clinic_Teal_Cloth - 69,221,212 - SmoothPlastic
+Clinic_White - 249,247,241 - SmoothPlastic
+
+== Pet Gym ==
+Gym_Blue - 72,150,242 - SmoothPlastic
+Gym_Blue_Dark - 48,80,158 - SmoothPlastic
+Gym_Blue_Fabric - 56,134,231 - SmoothPlastic
+Gym_Floor_Dark - 56,91,168 - SmoothPlastic
+Gym_Glow_Blue - 108,196,255 - Neon
+Gym_Leather - 206,89,80 - SmoothPlastic
+Gym_Mat - 63,129,212 - SmoothPlastic
+Gym_Red - 243,80,80 - SmoothPlastic
+Gym_Roof - 63,136,226 - SmoothPlastic
+Gym_Roof_Dark - 39,97,184 - SmoothPlastic
+Gym_Rubber - 75,75,85 - SmoothPlastic
+Gym_Sign_Glow - 255,255,255 - Neon
+Gym_Statue - 231,221,212 - SmoothPlastic
+Gym_Steel - 229,231,237 - Metal
+Gym_White - 249,250,255 - SmoothPlastic
+Gym_Wood_Floor - 201,160,113 - Wood
+
+== Trading Plaza Portal ==
+Trade_Banner - 97,75,170 - SmoothPlastic
+Trade_Crystal - 206,153,255 - Neon
+Trade_Disc_Glow - 179,111,249 - Neon
+Trade_Icon_Glow - 253,239,255 - Neon
+Trade_Navy - 69,63,144 - SmoothPlastic
+Trade_Portal - 188,124,255 - Neon
+Trade_Purple - 149,80,229 - SmoothPlastic
+Trade_Purple_Stone - 175,148,216 - SmoothPlastic
+Trade_Ring_Blue - 160,170,255 - Neon
+Trade_Ring_Glow - 206,149,255 - Neon
+Trade_Ring_Pink - 255,170,246 - Neon
+Trade_Spark - 243,231,255 - Neon
+Trade_Statue - 226,215,203 - SmoothPlastic
+Trade_White_Glow - 255,253,255 - Neon
+
+== Leaderboards ==
+Lb_Avatar_0 - 255,188,97 - SmoothPlastic
+Lb_Avatar_1 - 97,196,255 - SmoothPlastic
+Lb_Avatar_2 - 255,129,149 - SmoothPlastic
+Lb_Avatar_3 - 137,231,137 - SmoothPlastic
+Lb_Avatar_4 - 203,149,255 - SmoothPlastic
+Lb_Bandana - 80,129,229 - SmoothPlastic
+Lb_Banner - 63,89,177 - SmoothPlastic
+Lb_Flower_Blue - 137,173,255 - SmoothPlastic
+Lb_Gem_Blue - 89,160,255 - Neon
+Lb_Gem_Red - 249,80,97 - Neon
+Lb_Navy - 48,69,144 - SmoothPlastic
+Lb_Navy_Light - 69,101,181 - SmoothPlastic
+Lb_Paw_Glow - 255,212,111 - Neon
+Lb_Row - 63,85,153 - SmoothPlastic
+Lb_Screen - 39,56,115 - SmoothPlastic
+Lb_Statue - 234,231,234 - SmoothPlastic
+Lb_Text - 255,255,255 - Neon
+Lb_Text_Gold - 255,226,118 - Neon
+Lb_Text_Sub - 221,231,255 - Neon
+
+== Plaza, trees & foliage ==
+Dirt - 170,129,89 - SmoothPlastic
+Foliage_Rock - 192,188,189 - SmoothPlastic
+Grass - 155,229,89 - SmoothPlastic
+Leaf_Dark - 89,179,66 - SmoothPlastic
+Leaf_Green - 132,215,75 - SmoothPlastic
+Leaves_Dark - 56,153,56 - SmoothPlastic
+Leaves_Highlight - 196,241,63 - SmoothPlastic
+Leaves_Light - 153,229,48 - SmoothPlastic
+Leaves_Mid - 97,197,56 - SmoothPlastic
+Moss - 124,212,69 - SmoothPlastic
+Mossy_Stone - 184,209,147 - SmoothPlastic
+Plaza_Path - 246,230,196 - SmoothPlastic
+Plaza_Tile - 232,222,202 - SmoothPlastic
+Trunk - 197,142,82 - Wood
+Trunk_Dark - 124,85,48 - Wood
+Vine_Green - 118,212,69 - SmoothPlastic
+
+== Water & sky ==
+Cloud - 249,252,255 - SmoothPlastic
+Cloud_Marble - 242,245,251 - SmoothPlastic
+Ice - 197,236,255 - SmoothPlastic
+Ice_Clear - 179,231,255 - Neon
+Sea - 39,179,243 - SmoothPlastic
+Snow - 249,252,255 - SmoothPlastic
+Water - 63,215,255 - Neon
+Water_Splash - 243,253,255 - Neon
+Waterfall - 179,230,255 - Neon
+Waterfall_Water - 174,230,255 - Neon - transparency 0.14
+
+== Floating islands & mountains ==
+Cliff_Rock - 218,191,158 - SmoothPlastic
+Cliff_Rock_Dark - 189,162,134 - SmoothPlastic
+Crystal_Blue - 108,196,255 - Neon
+Crystal_Cyan - 39,196,249 - Neon
+Crystal_Deep - 48,129,243 - Neon
+Crystal_Pink - 255,137,225 - Neon
+Crystal_Pink_Soft - 255,160,237 - Neon
+Crystal_Purple - 196,108,255 - Neon
+Crystal_Rock - 168,111,211 - SmoothPlastic
+Crystal_Violet - 144,89,237 - Neon
+Island_Grass - 149,231,80 - SmoothPlastic
+Island_Grass_Dark - 111,206,69 - SmoothPlastic
+Island_Rock - 214,201,189 - SmoothPlastic
+Island_Rock_Dark - 187,172,163 - SmoothPlastic
+Island_Rock_Light - 232,221,208 - SmoothPlastic
+Mountain - 184,203,155 - SmoothPlastic
+
+== Tower floors ==
+Celestial_Ring - 196,149,255 - Neon
+Celestial_Stone - 111,76,215 - Neon
+Desert_Gold - 255,231,124 - Neon
+Desert_Sandstone - 252,219,158 - SmoothPlastic
+Divine_Marble - 249,246,237 - SmoothPlastic
+Divine_Ring - 255,231,170 - Neon
+Forest_Glow - 160,255,149 - Neon
+Forest_Wood - 200,153,99 - Wood
+Jungle_Stone - 214,209,181 - SmoothPlastic
+Kingdom_Stone - 218,215,212 - SmoothPlastic
+Lava - 255,174,69 - Neon
+Lava_Rock - 144,101,93 - SmoothPlastic
+Shadow_Glow - 203,108,255 - Neon
+Shadow_Stone - 142,118,172 - SmoothPlastic
+

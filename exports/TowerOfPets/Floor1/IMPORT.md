@@ -2,8 +2,8 @@
 
 This is the base layout only: terrain, water and landmark markers. There are no buildings, trees or decorations
 yet. It's generated from `blender/TowerOfPets_Floor1.blend` by `blender/tower_of_pets/build_floor1_export.py`.
-1 unit = 1 stud, Y up. The playable area is about 1,500 × 1,500 studs, with heights from about −27 (Lotus Swamp)
-to about 324 (Cloudridge summit).
+1 unit = 1 stud, Y up. The layout is traced 1:1 from the map sheet. The islands cover about 1,600 × 1,100 studs,
+with heights from about −40 (secret grotto) to about 315 (Cloudridge summit).
 
 Floor 1 should be its **own place** (the hub's tower entrance teleports to it). Import it into an empty
 place, not the hub.
@@ -12,11 +12,11 @@ place, not the hub.
 
 | File | Contents |
 |---|---|
-| `Floor1_Verdant_Forest.fbx` | Floor Entrance, Sunlit Meadows, Verdant Village, Whispering Forest, Guardian Grove, Mistfall secret isle |
+| `Floor1_Verdant_Forest.fbx` | Floor Entrance, Sunlit Meadows, Verdant Village, Whispering Forest, Mistfall secret isle, decor islets |
 | `Floor1_Waterfall_Valley.fbx` | Riverfall Valley, Emerald Lake, Lotus Swamp, Lotus Grotto secret |
-| `Floor1_Ancient_Ruins.fbx` | Ancient Ruins plateau, Cloudridge Peaks, Cloud Perch secret |
+| `Floor1_Ancient_Ruins.fbx` | Ancient Ruins (part of the central island), Cloudridge Peaks, Cloud Perch secret |
 | `Floor1_Mystic_Wilds.fbx` | World Tree Grove, Mossy Caverns, Beast Cave |
-| `Floor1_Jungle_Fortress.fbx` | Jungle Fortress plateau, Sky Guardian ledge, Sky Temple island, Overlook secret |
+| `Floor1_Jungle_Fortress.fbx` | Jungle Fortress plateau, Sky Temple island (Mini-Boss 3 arena), Overlook secret, decor islet |
 | `Floor1_Natural_Bridges.fbx` | the rock bridges where paths cross the void |
 | `Floor1_Water.fbx` | rivers, lakes, ponds, waterfalls |
 | `Floor1_Landmark_Blockouts.fbx` | spawn ring, 6 checkpoints, 3 mini-boss rings, main boss ring, 6 world-egg pads, 7 cave mouths, secret markers |
@@ -44,14 +44,14 @@ Each area has `<Area>_Top` (walkable ground and paths), `<Area>_Cliffs` (cliff w
    This colours every part and anchors it. It also gives the terrain (`_Top`, `_Cliffs`, bridges) exact
    **PreciseConvexDecomposition** collision, so players and pets walk on the real ground. Water, waterfalls and
    clouds become non-colliding.
-5. Put a SpawnLocation at the spawn ring, about **(-550, 8, 546)**, facing the meadows (toward −Z).
+5. Put a SpawnLocation at the spawn ring, about **(-522, 7, 374)**, facing the meadows and village (toward −Z).
 6. **Kill plane:** the islands float above a void. Set Workspace.FallenPartsDestroyHeight to about −500, or add
    a respawn zone under the clouds.
-7. **Scale check:** the spawn platform is about 180 studs across, and the main paths are 22–32 studs wide.
+7. **Scale check:** the Floor Entrance platform is about 300 × 170 studs, and the main paths are 22–32 studs wide.
 
 ## Key positions (Roblox coordinates)
 
-- Spawn (Floor Entrance): (-550, 8, 546)
-- Main boss (Jungle Fortress arena): (417, 195, 12)
+- Spawn (Floor Entrance): (-522, 7, 374)
+- Main boss (Jungle Fortress arena): (550, 195, -6)
 - All other positions are in `floor1_layout.json`: checkpoints, mini-bosses, eggs, caves, secrets, path
   waypoints.

@@ -1,88 +1,88 @@
 {
   "files": {
     "Floor1_Verdant_Forest": {
-      "parts": 28,
-      "triangles": 32460,
-      "largest_part": 5222,
+      "parts": 32,
+      "triangles": 38072,
+      "largest_part": 5964,
       "root": "Floor1_Verdant_Forest",
       "root_position_roblox": [
         0.0,
         0.0,
         -0.0
       ],
-      "size_mb": 0.92
+      "size_mb": 1.06
     },
     "Floor1_Waterfall_Valley": {
-      "parts": 22,
-      "triangles": 25712,
-      "largest_part": 4462,
+      "parts": 28,
+      "triangles": 27506,
+      "largest_part": 5990,
       "root": "Floor1_Waterfall_Valley",
       "root_position_roblox": [
         0.0,
         0.0,
         -0.0
       ],
-      "size_mb": 0.76
+      "size_mb": 0.83
     },
     "Floor1_Ancient_Ruins": {
-      "parts": 13,
-      "triangles": 14644,
-      "largest_part": 3672,
+      "parts": 15,
+      "triangles": 15506,
+      "largest_part": 4034,
       "root": "Floor1_Ancient_Ruins",
       "root_position_roblox": [
         0.0,
         0.0,
         -0.0
       ],
-      "size_mb": 0.44
+      "size_mb": 0.47
     },
     "Floor1_Mystic_Wilds": {
-      "parts": 17,
-      "triangles": 18648,
-      "largest_part": 3190,
+      "parts": 18,
+      "triangles": 24240,
+      "largest_part": 4480,
       "root": "Floor1_Mystic_Wilds",
       "root_position_roblox": [
         0.0,
         0.0,
         -0.0
       ],
-      "size_mb": 0.57
+      "size_mb": 0.72
     },
     "Floor1_Jungle_Fortress": {
       "parts": 18,
-      "triangles": 14450,
-      "largest_part": 4794,
+      "triangles": 12772,
+      "largest_part": 4458,
       "root": "Floor1_Jungle_Fortress",
       "root_position_roblox": [
         0.0,
         0.0,
         -0.0
       ],
-      "size_mb": 0.44
+      "size_mb": 0.39
     },
     "Floor1_Natural_Bridges": {
       "parts": 4,
-      "triangles": 4342,
-      "largest_part": 1598,
+      "triangles": 2468,
+      "largest_part": 912,
       "root": "Floor1_Natural_Bridges",
       "root_position_roblox": [
         0.0,
         0.0,
         -0.0
       ],
-      "size_mb": 0.16
+      "size_mb": 0.1
     },
     "Floor1_Water": {
       "parts": 4,
-      "triangles": 2680,
-      "largest_part": 940,
+      "triangles": 1448,
+      "largest_part": 980,
       "root": "Floor1_Water",
       "root_position_roblox": [
         0.0,
         0.0,
         -0.0
       ],
-      "size_mb": 0.08
+      "size_mb": 0.06
     },
     "Floor1_Landmark_Blockouts": {
       "parts": 35,
@@ -112,8 +112,8 @@
   "materials": 32,
   "lights": 0,
   "spawn_roblox": [
-    -550.051,
+    -533.5,
     7.8,
-    546.445
+    412.5
   ]
 }

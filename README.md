@@ -269,26 +269,35 @@ python3 blender/tower_of_pets/build_leaderboards_pack.py
 ```
 
 ## Tower of Pets Floor 1: The Verdant Kingdom, greybox layout (`blender/TowerOfPets_Floor1.blend`)
-Base terrain only, built from the Floor 1 map sheet as a spatial blueprint (`blender/tower_of_pets/floor1.py`).
-The sheet is mapped onto about 1,500 × 1,500 studs (north = +Y), and every labelled area is its own floating
-landmass at its own height. Heights are exaggerated 1.3× for verticality, from the Lotus Swamp at about −5 to the
-Cloudridge summit at about 320.
-- **Terrain:** cliffs between levels, deep inverted-mountain rock undersides over a cloud sea, rivers, lakes and
-  ponds, waterfalls (into lower ground or into the clouds), a cavern hill, crags, fortress rim spires and peaks.
+Base terrain only, traced 1:1 from the Floor 1 map sheet (`blender/tower_of_pets/floor1.py`):
+- **How it's traced:** every area's top surface is a polygon drawn over the sheet in pixels. One uniform scale
+  (1.1 studs per pixel, north = +Y) keeps the sheet's proportions, about 1,600 × 1,100 studs of islands.
+  `previews/TowerOfPets_F1_Trace_Overlay.png` shows the traced outlines (magenta), lakes (cyan) and paths (yellow)
+  on top of the sheet.
+- **Islands:** areas that touch form one island, with cliffs where heights differ, matching the sheet:
+  - **the central island:** Ancient Ruins + Emerald Lake + World Tree, with Cloudridge Peaks on its north-west
+    and the dark Beast Cave / Jungle Fortress mass fused to its east shore;
+  - **the west continent:** Whispering Forest above Sunlit Meadows, Verdant Village and the Floor Entrance;
+  - **separate islands:** Riverfall Valley, Mossy Caverns, Lotus Swamp and the Sky Temple, plus secret and
+    decorative islets.
+- **Heights:** exaggerated 1.3× for verticality, from the Lotus Swamp at about −5 to the Cloudridge summit at
+  about 315.
+- **Terrain:** deep rock undersides over a cloud sea, rivers, lakes and ponds where the sheet has them,
+  waterfalls (into lower ground or into the clouds), a cavern hill, crags, fortress rim spires and peaks.
 - **Not built yet:** buildings, trees, decorations and detailed assets.
 
 - **Five biomes** (`TERRAIN/<BIOME>`), with one `_Top` / `_Cliffs` / `_Underside` mesh per area so each island can be
   refined on its own:
   - VERDANT_FOREST (Floor Entrance, Sunlit Meadows, Verdant Village, Whispering Forest)
   - WATERFALL_VALLEY (Riverfall Valley, Emerald Lake, Lotus Swamp)
-  - ANCIENT_RUINS (Ancient Ruins plateau, Cloudridge Peaks)
+  - ANCIENT_RUINS (Ancient Ruins, Cloudridge Peaks)
   - MYSTIC_WILDS (World Tree Grove, Mossy Caverns, Beast Cave)
-  - JUNGLE_FORTRESS (the biggest and highest plateau, Sky Guardian ledge, Sky Temple island)
-  - Plus four secret islets.
-- **Path network:** 25 routes, 22–32 studs wide (12 for secret paths) and rideable. Most ramps are under 28°; the steepest climbs (Sky Stair,
-  Swamp Ascent, Fortress Canyon) are about 31°.
-  Routes branch and loop, with shortcuts (Forest Highroad, West Cliff Trail, Lake Loop, Swamp Ascent, two routes
-  into the fortress). Where a path crosses the void it becomes a natural rock bridge (`TERRAIN/NATURAL_BRIDGES`).
+  - JUNGLE_FORTRESS (the biggest and highest plateau, plus the Sky Temple)
+  - Plus secret and decorative islets.
+- **Path network:** 25 routes following the sheet's roads, 22–32 studs wide (12 for secret paths) and rideable.
+  Most ramps are under 28°; the steepest climbs (Beast Climb, Sky Stair) are about 30°.
+  Routes branch and loop, with shortcuts (Cloudridge Stair, West Cliff Trail, Lake Loop, Mossy–Swamp Descent,
+  two routes into the fortress). Where a path crosses the void it becomes a natural rock bridge (`TERRAIN/NATURAL_BRIDGES`).
   Fortress approaches are carved canyon ramps.
 - **Landmark blockouts:**
   - floor-entrance spawn ring on a large flat platform

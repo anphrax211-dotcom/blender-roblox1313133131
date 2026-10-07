@@ -13,14 +13,14 @@ Crown and Effects collections.
 Run in Blender (Scripting tab -> Run Script) or headless:
     blender -b -P king_rainhound.py
     python3 king_rainhound.py          (with the `bpy` pip module)
-Saves KingRainhound.blend next to this script and prints the full path.
+Saves KingRainhound_Improved.blend next to this script and prints the full path
+(the first version, KingRainhound.blend, is left untouched).
 """
 import bpy, bmesh, math, os, random
 from mathutils import Vector, Matrix, Euler
 
 HERE = os.path.dirname(os.path.abspath(__file__)) if '__file__' in globals() else os.getcwd()
 COLLS = {}
-HEAD_PIVOT, HEAD_SCALE = (0, -1.55, 3.8), 1.28     # head drawn at base size, then enlarged
 MATS = {}
 
 
@@ -47,6 +47,7 @@ def build_materials():
     material('Fur_SlateBlue', (0.08, 0.13, 0.33), 0.6)            # ~80,101,155 lighter body facets
     material('Fur_Gray', (0.3, 0.31, 0.34), 0.6)                    # ~149,151,157 chest / jaw
     material('Stone_LightBlue', (0.22, 0.33, 0.58), 0.55)         # ~130,155,200 toes / leg plates
+    material('Armor_Slate', (0.11, 0.18, 0.4), 0.45, 0.25)        # ~93,118,170 slate-blue plates
     material('Armor_Aqua', (0.08, 0.5, 0.95), 0.3, 0.4, emit=0.25)       # ~80,188,250 armour & waves
     material('Armor_AquaLight', (0.35, 0.78, 1.0), 0.3, 0.4, emit=0.3)   # ~160,229,255 highlights
     material('Water_Clear', (0.2, 0.7, 1.0), 0.05, 0.6, emit=0.25, alpha=0.55)  # ~124,218,255 water
@@ -61,7 +62,7 @@ def build_materials():
 
 # ------------------------------------------------------------------ builder
 class Part:
-    def __init__(self, name, coll, bevel=0.025):
+    def __init__(self, name, coll, bevel=0.03):
         self.name, self.coll, self.bevel = name, coll, bevel
         self.bm = bmesh.new()
         self.mats = []
@@ -125,15 +126,41 @@ class Part:
         self.bm.faces.new(rings[-1])
         self._mat([v for r in rings for v in r], mat)
 
-    def scale_about(self, pivot, k):
-        pivot = Vector(pivot)
-        for v in self.bm.verts:
-            v.co = pivot + (v.co - pivot) * k
+    def loft(self, path, radii, mat, segs=8):
+        """continuous tapered limb/neck: elliptical rings (rx, ry) along a path, capped"""
+        rings = []
+        for i, p in enumerate(path):
+            t = (path[min(i + 1, len(path) - 1)] - path[max(i - 1, 0)]).normalized()
+            a1 = Vector((1, 0, 0)) - t * t.x
+            a1.normalize()
+            a2 = t.cross(a1).normalized()
+            rx, ry = radii[i]
+            rings.append([self.bm.verts.new(p + a1 * rx * math.cos(k / segs * 2 * math.pi + math.pi / segs)
+                                            + a2 * ry * math.sin(k / segs * 2 * math.pi + math.pi / segs))
+                          for k in range(segs)])
+        for i in range(len(rings) - 1):
+            for k in range(segs):
+                self.bm.faces.new((rings[i][k], rings[i][(k + 1) % segs], rings[i + 1][(k + 1) % segs], rings[i + 1][k]))
+        self.bm.faces.new(rings[0][::-1])
+        self.bm.faces.new(rings[-1])
+        self._mat([v for r in rings for v in r], mat)
+
+    def fin(self, pts, thick, mat):
+        """solid blade from a (roughly planar) outline, `thick` across its plane"""
+        pts = [Vector(q) for q in pts]
+        n = (pts[1] - pts[0]).cross(pts[2] - pts[0]).normalized()
+        a = [self.bm.verts.new(q + n * thick / 2) for q in pts]
+        b = [self.bm.verts.new(q - n * thick / 2) for q in pts]
+        k = len(pts)
+        self.bm.faces.new(a)
+        self.bm.faces.new(b[::-1])
+        for i in range(k):
+            j = (i + 1) % k
+            self.bm.faces.new((a[i], b[i], b[j], a[j]))
+        self._mat(a + b, mat)
 
     def finish(self, smooth=False):
         bm = self.bm
-        if self.coll in ('Head', 'Crown'):
-            self.scale_about(HEAD_PIVOT, HEAD_SCALE)
         bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
         vs = [v.co for v in bm.verts]
         c = (Vector([min(v[i] for v in vs) for i in range(3)]) + Vector([max(v[i] for v in vs) for i in range(3)])) / 2
@@ -151,7 +178,7 @@ class Part:
         if self.bevel:
             bv = ob.modifiers.new('Bevel', 'BEVEL')
             bv.width, bv.segments, bv.limit_method = self.bevel, 1, 'ANGLE'
-            bv.angle_limit = math.radians(25)
+            bv.angle_limit = math.radians(30)
         return ob
 
 
@@ -186,199 +213,210 @@ def taper(n, w0, w1, bulge=0.0):
 
 
 # ------------------------------------------------------------------ body
+FRONT_X, FRONT_Y = 0.98, -1.05      # front leg / shoulder line
+BACK_X, BACK_Y = 1.0, 1.9           # back leg / hip line
+
+
 def build_body():
+    # torso, shoulders and hips are ONE mesh so the legs grow out of real muscle masses
     p = Part('Body_Torso', 'Body')
-    p.blob((0, 0.7, 2.45), (1.2, 1.95, 1.1), 'Fur_Navy', (0.12, 0, 0), 2, 0.05, 1)
-    p.blob((0, -0.85, 2.75), (1.25, 1.05, 1.25), 'Fur_Navy', (0, 0, 0), 2, 0.05, 2)       # broad chest
-    p.blob((0, 1.9, 2.5), (1.05, 0.95, 0.95), 'Fur_SlateBlue', (0, 0, 0), 2, 0.06, 3)       # haunch mass
+    p.blob((0, -0.9, 2.78), (1.3, 1.1, 1.22), 'Fur_Navy', (0, 0, 0), 2, 0.03, 2)            # deep chest
+    p.blob((0, 0.65, 2.62), (1.12, 1.85, 0.98), 'Fur_Navy', (0.08, 0, 0), 2, 0.03, 1)        # barrel / back
+    p.blob((0, 1.85, 2.55), (1.08, 0.95, 0.98), 'Fur_Navy', (0, 0, 0), 2, 0.03, 3)           # rump
+    for s in (-1, 1):
+        p.blob((s * FRONT_X, FRONT_Y, 2.55), (0.62, 0.82, 0.95), 'Fur_Navy', (0.1, 0, 0), 2, 0.03, 4)   # shoulder
+        p.blob((s * BACK_X, BACK_Y, 2.45), (0.7, 0.95, 1.0), 'Fur_Navy', (-0.15, 0, 0), 2, 0.03, 5)    # hip
     p.finish()
     p = Part('Body_ChestPatch', 'Body')
-    p.blob((0, -1.55, 2.35), (0.85, 0.55, 1.1), 'Fur_Gray', (0.25, 0, 0), 2, 0.05, 4)
-    p.blob((0, -0.3, 1.55), (0.75, 1.0, 0.35), 'Fur_Gray', (0, 0, 0), 1, 0.06, 5)           # belly
+    p.blob((0, -1.78, 2.4), (0.82, 0.5, 1.05), 'Fur_Gray', (0.25, 0, 0), 2, 0.03, 6)          # chest blaze
+    p.blob((0, 0.25, 1.68), (0.78, 1.35, 0.3), 'Fur_Gray', (0.04, 0, 0), 1, 0.03, 7)          # belly
     p.finish()
+    # thick neck lofted from the chest up into the back of the skull
     p = Part('Body_Neck', 'Body')
-    p.blob((0, -1.45, 3.55), (0.85, 0.75, 0.95), 'Fur_Navy', (-0.35, 0, 0), 2, 0.05, 6)
-    p.finish()
-    p = Part('Body_BackSpikes', 'Body', 0.015)
-    for i, (y, z, h) in enumerate(((0.05, 3.45, 0.5), (0.75, 3.35, 0.42), (1.4, 3.25, 0.34))):
-        p.cone((0, y, z), (0, 0.45, 1), h, 0.2, 'Armor_Aqua', 4, spin=0.78)
+    p.loft([Vector((0, -0.85, 3.2)), Vector((0, -1.35, 3.75)), Vector((0, -1.85, 4.25))],
+           [(1.0, 0.9), (0.9, 0.82), (0.82, 0.72)], 'Fur_Navy', segs=8)
     p.finish()
 
 
 # ------------------------------------------------------------------ head
+HEAD_C = Vector((0, -2.3, 4.45))
+
+
 def build_head():
+    hx, hy, hz = HEAD_C
     p = Part('Head', 'Head')
-    p.blob((0, -2.0, 4.3), (0.78, 0.72, 0.62), 'Fur_Navy', (0.1, 0, 0), 2, 0.05, 10)           # skull
-    p.blob((0, -2.7, 4.12), (0.5, 0.62, 0.36), 'Fur_SlateBlue', (0.12, 0, 0), 1, 0.05, 11)     # muzzle top
-    p.blob((-0.55, -2.25, 4.05), (0.3, 0.35, 0.3), 'Fur_Gray', (0, 0, 0.3), 1, 0.06, 12)       # cheeks
-    p.blob((0.55, -2.25, 4.05), (0.3, 0.35, 0.3), 'Fur_Gray', (0, 0, -0.3), 1, 0.06, 13)
-    for s in (-1, 1):                                                                            # brow ridges
-        p.box((s * 0.36, -2.4, 4.62), (0.42, 0.3, 0.13), 'Fur_SlateBlue', (0.25, s * 0.25, s * 0.35))
+    p.blob(HEAD_C, (0.98, 0.92, 0.78), 'Fur_Navy', (0.08, 0, 0), 2, 0.03, 10)                    # broad skull
+    p.blob((0, hy - 0.78, hz - 0.28), (0.66, 0.78, 0.42), 'Fur_SlateBlue', (0.1, 0, 0), 2, 0.03, 11)  # broad muzzle
+    p.blob((0, hy - 0.62, hz + 0.05), (0.5, 0.75, 0.22), 'Fur_Navy', (0.22, 0, 0), 1, 0.03, 12)       # nose bridge
+    p.blob((0, hy - 0.4, hz + 0.5), (0.62, 0.42, 0.18), 'Fur_SlateBlue', (0.35, 0, 0), 1, 0.03, 13)   # forehead plate
+    for s in (-1, 1):
+        p.blob((s * 0.8, hy - 0.2, hz - 0.38), (0.34, 0.45, 0.36), 'Fur_Gray', (0, 0, s * -0.4), 1, 0.04, 14)  # cheek ruff
+        # angled brow plates give the confident, slightly fierce look
+        p.box((s * 0.45, hy - 0.72, hz + 0.32), (0.5, 0.28, 0.14), 'Fur_SlateBlue', (0.3, s * -0.12, s * 0.3))
     p.finish()
     p = Part('Head_Jaw', 'Head')
-    p.blob((0, -2.6, 3.78), (0.44, 0.58, 0.2), 'Fur_Gray', (0.15, 0, 0), 1, 0.05, 14)
+    p.blob((0, hy - 0.7, hz - 0.68), (0.58, 0.72, 0.24), 'Fur_Gray', (0.12, 0, 0), 1, 0.03, 15)
     p.finish()
-    p = Part('Head_Nose', 'Head', 0.02)
-    p.blob((0, -3.28, 4.22), (0.24, 0.17, 0.15), 'Nose_Dark', (0.2, 0, 0), 1, 0.04, 15)
+    p = Part('Head_Nose', 'Head')
+    p.blob((0, hy - 1.42, hz + 0.02), (0.34, 0.2, 0.2), 'Nose_Dark', (0.25, 0, 0), 1, 0.03, 16)
     p.finish()
-    # grin + teeth
+    # grin: follows the muzzle sides and lifts at the corners (friendly smirk)
     p = Part('Head_Mouth', 'Head', 0)
-    pts = [Vector((x, -2.62 - 0.55 * math.cos(x * 1.6), 3.95 + 0.05 * (x / 0.5) ** 2 + 0.06 * x)) for x in
-           [(-0.5 + i / 8) for i in range(9)]]
-    p.sweep(pts, [0.05] * 9, 0.05, (0, 0, 1), 'Mouth_Dark')
+    pts = []
+    for i in range(11):
+        t = -1 + 2 * i / 10
+        pts.append(Vector((0.62 * t, hy - 1.38 + 0.62 * t * t, hz - 0.42 + 0.1 * t * t + 0.05 * t)))
+    p.sweep(pts, [0.06] * len(pts), 0.06, (0, 0, 1), 'Mouth_Dark')
     p.finish()
-    p = Part('Head_Teeth', 'Head', 0.005)
-    for x, L in ((-0.27, 0.2), (0.27, 0.2), (-0.12, 0.09), (0.12, 0.09)):
-        p.cone((x, -3.1 + abs(x) * 0.6, 4.0), (0, -0.15, -1), L, 0.06, 'Teeth_White', 4)
+    p = Part('Head_Teeth', 'Head', 0.008)
+    for x, L, r in ((-0.3, 0.24, 0.075), (0.3, 0.24, 0.075), (-0.13, 0.11, 0.05), (0.13, 0.11, 0.05)):
+        y = hy - 1.38 + 0.62 * (x / 0.62) ** 2 - 0.02
+        p.cone((x, y, hz - 0.4), (0, -0.1, -1), L, r, 'Teeth_White', 4, spin=0.78)
     p.finish()
-    # eyes: angled glowing aqua almonds + glints
     for s, side in ((-1, 'Right'), (1, 'Left')):
         p = Part(f'Eye_{side}', 'Head', 0)
-        p.blob((s * 0.37, -2.6, 4.46), (0.2, 0.08, 0.13), 'Eye_Glow', (0.3, s * 0.35, s * -0.3), 1, 0.0, 20)
+        p.blob((s * 0.45, hy - 0.74, hz + 0.16), (0.21, 0.08, 0.13), 'Eye_Glow', (0.3, s * 0.4, s * -0.28), 1, 0.0, 20)
         p.finish()
         p = Part(f'Eye_{side}_Glint', 'Head', 0)
-        p.blob((s * 0.33, -2.67, 4.5), (0.035, 0.02, 0.035), 'Eye_Glint', (0, 0, 0), 1, 0.0, 21)
+        p.blob((s * 0.4, hy - 0.81, hz + 0.21), (0.045, 0.025, 0.045), 'Eye_Glint', (0, 0, 0), 1, 0.0, 21)
         p.finish()
-    # swept-back ear fins: big faceted blades, navy outside, slate inner face
+    # two clear swept-back fin ears: navy blade + aqua inner membrane
     for s, side in ((-1, 'Right'), (1, 'Left')):
         p = Part(f'Ear_{side}', 'Head', 0.02)
-        b0, b1, b2 = Vector((s * 0.35, -2.05, 4.75)), Vector((s * 0.72, -1.65, 4.6)), Vector((s * 0.55, -1.75, 4.9))
-        tip = Vector((s * 0.95, -1.0, 5.75))
-        mid = Vector((s * 0.82, -1.25, 5.25))
-        p.poly([b0, b1, tip, b2, mid + Vector((s * 0.1, 0.05, 0))],
-               [(0, 1, 4), (1, 2, 4), (2, 3, 4), (3, 0, 4)], 'Fur_Navy')
-        inner = [b0 + Vector((0, -0.06, 0.05)), b1 + Vector((-s * 0.08, -0.06, 0.05)), tip + Vector((-s * 0.06, -0.12, -0.15)),
-                 mid + Vector((-s * 0.05, -0.14, 0))]
-        p.poly(inner, [(0, 1, 3), (1, 2, 3)], 'Fur_SlateBlue')
+        blade = [(s * 0.42, hy - 0.25, hz + 0.6), (s * 0.7, hy + 0.6, hz + 0.42),
+                 (s * 1.12, hy + 1.85, hz + 1.0), (s * 0.66, hy + 0.15, hz + 1.12)]
+        p.fin(blade, 0.16, 'Fur_Navy')
+        memb = [(s * 0.53, hy + 0.0, hz + 0.72), (s * 0.71, hy + 0.6, hz + 0.58),
+                (s * 1.03, hy + 1.6, hz + 0.98), (s * 0.67, hy + 0.25, hz + 1.02)]
+        p.fin(memb, 0.2, 'Armor_Aqua')
         p.finish()
 
 
 # ------------------------------------------------------------------ crown
 def build_crown():
-    p = Part('Crown_Band', 'Crown', 0.015)
-    c = Vector((0, -1.95, 4.85))
-    n = 10
-    ring_o, ring_i = [], []
-    for i in range(n):
-        a = i / n * 2 * math.pi
-        ring_o.append(c + Vector((0.42 * math.cos(a), 0.36 * math.sin(a), 0)))
-    verts, faces = [], []
-    # band (prism ring) with 5 spikes, front one tallest
-    for i, q in enumerate(ring_o):
-        verts += [q, q + Vector((0, 0, 0.22))]
-    for i in range(n):
-        j = (i + 1) % n
-        faces.append((2 * i, 2 * j, 2 * j + 1, 2 * i + 1))
+    """low regal crest set into the skull between the ears (base buried in the head)"""
+    hx, hy, hz = HEAD_C
+    yb = hy - 0.45
+    zb = hz + 0.5
+    prof = [(-0.56, 0.0), (0.56, 0.0), (0.56, 0.24), (0.4, 0.52), (0.27, 0.3), (0.0, 0.78),
+            (-0.27, 0.3), (-0.4, 0.52), (-0.56, 0.24)]
+    tilt = Matrix.Rotation(-0.42, 3, 'X')            # lean back to follow the forehead
+    p = Part('Crown_Crest', 'Crown', 0.02)
+    front = [Vector((x, 0, z)) for x, z in prof]
+    verts = [tilt @ v + Vector((0, yb, zb)) for v in front] + \
+            [tilt @ (v + Vector((0, 0.3, 0))) + Vector((0, yb, zb)) for v in front]
+    n = len(prof)
+    faces = [tuple(range(n))[::-1], tuple(range(n, 2 * n))] + \
+            [(i, (i + 1) % n, n + (i + 1) % n, n + i) for i in range(n)]
     p.poly(verts, faces, 'Crown_Navy')
-    p.blob(c + Vector((0, 0, 0.11)), (0.4, 0.34, 0.1), 'Crown_Navy', (0, 0, 0), 1, 0.0, 30)
-    spikes = [(-math.pi / 2, 0.75), (-math.pi / 2 - 0.9, 0.5), (-math.pi / 2 + 0.9, 0.5),
-              (-math.pi / 2 - 1.9, 0.38), (-math.pi / 2 + 1.9, 0.38)]
-    tips = []
-    for a, h in spikes:
-        base = c + Vector((0.4 * math.cos(a), 0.34 * math.sin(a), 0.18))
-        p.cone(base, (math.cos(a) * 0.15, math.sin(a) * 0.15, 1), h, 0.15, 'Crown_Navy', 4, spin=0.78)
-        tips.append((base, h, a))
     p.finish()
+    # three aqua droplet gems seated on the three points (overlapping, not floating)
     p = Part('Crown_Droplets', 'Crown', 0)
-    for base, h, a in tips[:3]:
-        top = base + Vector((math.cos(a) * 0.15, math.sin(a) * 0.15, 1)).normalized() * (h * 0.8)
-        r = 0.13 if h > 0.6 else 0.1
-        p.blob(top + Vector((0, 0, r)), (r, r, r), 'Crown_Droplet', (0, 0, 0), 2, 0.0, 31)
-        p.cone(top + Vector((0, 0, r * 1.3)), (0, 0, 1), r * 1.9, r * 0.75, 'Crown_Droplet', 8)
+    for x, z, r in ((0.0, 0.78, 0.13), (0.4, 0.52, 0.095), (-0.4, 0.52, 0.095)):
+        c = tilt @ Vector((x, 0.12, z + r * 0.6)) + Vector((0, yb, zb))
+        p.blob(c, (r, r, r), 'Crown_Droplet', (0, 0, 0), 2, 0.0, 31)
+        p.cone(c + Vector((0, 0, r * 0.35)), (0, 0.25, 1), r * 1.8, r * 0.78, 'Crown_Droplet', 8)
     p.finish(smooth=True)
 
 
 # ------------------------------------------------------------------ legs
 def build_legs():
-    LEGS = [('FrontLeft', 1, -1.2), ('FrontRight', -1, -1.2), ('BackLeft', 1, 1.95), ('BackRight', -1, 1.95)]
-    for name, s, y in LEGS:
-        front = y < 0
-        x = s * (0.95 if front else 1.0)
-        p = Part(f'Leg_{name}', 'Legs')
+    LEGS = [('FrontLeft', 1, True), ('FrontRight', -1, True), ('BackLeft', 1, False), ('BackRight', -1, False)]
+    for name, s, front in LEGS:
         if front:
-            p.blob((x, y, 2.1), (0.6, 0.65, 0.95), 'Fur_Navy', (0.1, 0, s * -0.08), 2, 0.05, 40)
-            p.blob((x * 1.02, y - 0.25, 1.0), (0.48, 0.52, 0.8), 'Fur_Navy', (0.08, 0, 0), 2, 0.05, 41)
+            x, y = s * FRONT_X, FRONT_Y
+            path = [Vector((x, y + 0.1, 2.75)), Vector((x * 1.02, y - 0.12, 1.65)),
+                    Vector((x * 1.02, y - 0.3, 0.85)), Vector((x, y - 0.4, 0.45))]
+            radii = [(0.6, 0.7), (0.5, 0.56), (0.4, 0.45), (0.46, 0.5)]
+            paw_y = y - 0.55
         else:
-            p.blob((x, y, 2.0), (0.72, 1.0, 1.05), 'Fur_Navy', (-0.2, 0, 0), 2, 0.05, 42)
-            p.blob((x * 1.02, y + 0.3, 0.95), (0.48, 0.55, 0.75), 'Fur_Navy', (-0.15, 0, 0), 2, 0.05, 43)
+            x, y = s * BACK_X, BACK_Y
+            path = [Vector((x, y - 0.1, 2.65)), Vector((x * 1.02, y + 0.35, 1.6)),
+                    Vector((x * 1.02, y + 0.15, 0.85)), Vector((x, y + 0.05, 0.45))]
+            radii = [(0.68, 0.85), (0.52, 0.6), (0.4, 0.45), (0.46, 0.5)]
+            paw_y = y - 0.15
+        # one continuous tapered leg from inside the shoulder/hip down to the paw
+        p = Part(f'Leg_{name}', 'Legs')
+        p.loft(path, radii, 'Fur_Navy', segs=8)
         p.finish()
-        # light stone diamond plates on knees / thighs
-        p = Part(f'Leg_{name}_Plates', 'Legs', 0.015)
-        zc = 1.55 if front else 1.65
-        p.blob((x + s * 0.42, y - (0.15 if front else -0.3), zc), (0.12, 0.28, 0.32), 'Stone_LightBlue', (0, 0, 0), 1, 0.08, 44)
-        p.blob((x + s * 0.4, y + (0.2 if front else 0.55), 0.85), (0.1, 0.22, 0.26), 'Fur_Gray', (0, 0, 0), 1, 0.08, 45)
-        p.finish()
-        # oversized paw + 4 chunky light toes
+        # large, simple planted paw with four big toes
         p = Part(f'Paw_{name}', 'Legs')
-        py = y - (0.45 if front else 0.0)
-        p.blob((x, py, 0.32), (0.72, 0.78, 0.34), 'Fur_Navy', (0, 0, 0), 2, 0.05, 46, flat_bottom=0.0)
-        p.finish()
-        p = Part(f'Paw_{name}_Toes', 'Legs', 0.02)
-        for k, tx in enumerate((-0.48, -0.16, 0.16, 0.48)):
-            p.blob((x + tx, py - 0.7 + abs(tx) * 0.25, 0.24), (0.19, 0.26, 0.26), 'Stone_LightBlue',
-                   (0.3, 0, 0), 1, 0.06, 47 + k, flat_bottom=0.0)
+        p.blob((x, paw_y, 0.3), (0.74, 0.82, 0.36), 'Fur_Navy', (0, 0, 0), 2, 0.03, 46, flat_bottom=0.0)
+        for k, tx in enumerate((-0.5, -0.17, 0.17, 0.5)):
+            p.blob((x + tx, paw_y - 0.68 + abs(tx) * 0.22, 0.22), (0.2, 0.26, 0.24), 'Stone_LightBlue',
+                   (0.25, 0, 0), 1, 0.04, 47 + k, flat_bottom=0.0)
         p.finish()
 
 
 # ------------------------------------------------------------------ armour
 def build_armor():
     for s, side in ((-1, 'Right'), (1, 'Left')):
-        # big curved shoulder pauldron with a swirl
+        # slate shoulder plate hugging the shoulder, with an aqua trim along its lower edge
         p = Part(f'Armor_Shoulder_{side}', 'Water Armor')
-        p.blob((s * 1.18, -1.0, 2.95), (0.38, 0.95, 0.75), 'Armor_Aqua', (0.35, s * 0.25, 0), 2, 0.05, 60)
+        p.blob((s * 1.45, FRONT_Y - 0.05, 2.95), (0.17, 0.95, 0.72), 'Armor_Slate', (0.3, s * 0.28, 0), 2, 0.02, 60)
+        edge = [Vector((s * 1.52, FRONT_Y - 0.9, 2.62)), Vector((s * 1.62, FRONT_Y - 0.1, 2.32)),
+                Vector((s * 1.54, FRONT_Y + 0.78, 2.5))]
+        p.sweep(edge, [0.2, 0.24, 0.16], 0.14, (s, 0, 0.2), 'Armor_Aqua')
         p.finish()
-        p = Part(f'Armor_Shoulder_{side}_Swirl', 'Water Armor', 0.01)
-        pts = curl_path((s * 1.5, -1.45, 2.65), (0, 1, 0.25), (0, -0.25, 1), 0.35, 0.28, 1.0, 12, 0.1)
-        p.sweep(pts, taper(len(pts), 0.22, 0.08), 0.14, (s, 0, 0), 'Armor_AquaLight')
-        p.finish()
-        # forearm bracer
+        # bracer band around each front wrist
         p = Part(f'Armor_Bracer_{side}', 'Water Armor')
-        p.blob((s * 0.98, -1.55, 1.35), (0.55, 0.5, 0.32), 'Armor_Aqua', (0.15, 0, 0), 1, 0.07, 61)
+        p.loft([Vector((s * FRONT_X * 1.02, FRONT_Y - 0.28, 0.98)), Vector((s * FRONT_X * 1.02, FRONT_Y - 0.31, 1.25))],
+               [(0.47, 0.52), (0.5, 0.55)], 'Armor_Slate', segs=8)
+        p.loft([Vector((s * FRONT_X * 1.02, FRONT_Y - 0.31, 1.25)), Vector((s * FRONT_X * 1.02, FRONT_Y - 0.33, 1.33))],
+               [(0.52, 0.57), (0.5, 0.55)], 'Armor_Aqua', segs=8)
         p.finish()
-        # thigh plate on the back leg
-        p = Part(f'Armor_Thigh_{side}', 'Water Armor')
-        p.blob((s * 1.55, 1.75, 2.35), (0.2, 0.75, 0.55), 'Armor_Aqua', (0.2, 0, 0), 1, 0.07, 62)
+        # hip plate
+        p = Part(f'Armor_Hip_{side}', 'Water Armor')
+        p.blob((s * 1.58, BACK_Y - 0.05, 2.65), (0.15, 0.85, 0.62), 'Armor_Slate', (0.15, s * 0.22, 0), 2, 0.02, 62)
         p.finish()
-    # V-shaped chest collar plate
+    # aqua V collar across the chest with a centre gem
     p = Part('Armor_ChestCollar', 'Water Armor')
     for s in (-1, 1):
-        a = Vector((s * 1.1, -1.8, 3.35))
-        b = Vector((0, -2.3, 2.7))
-        p.sweep([a, a.lerp(b, 0.5) + Vector((0, -0.12, 0)), b], [0.75, 0.62, 0.5], 0.28,
-                Vector((s * 0.3, -1, 0.2)), 'Armor_Aqua')
-    p.blob((0, -2.38, 2.55), (0.3, 0.16, 0.3), 'Armor_AquaLight', (0.3, 0, 0.78), 1, 0.0, 63)
+        a = Vector((s * 1.12, -1.6, 3.4))
+        b = Vector((0, -2.32, 2.62))
+        p.sweep([a, a.lerp(b, 0.5) + Vector((0, -0.14, 0)), b], [0.62, 0.55, 0.45], 0.24,
+                Vector((s * 0.35, -1, 0.25)), 'Armor_Aqua')
+    p.blob((0, -2.4, 2.55), (0.26, 0.15, 0.3), 'Armor_AquaLight', (0.3, 0, 0), 1, 0.0, 63)
     p.finish()
 
 
 # ------------------------------------------------------------------ mane & tail
-def build_mane_and_tail():
-    # chunky wave crests flowing back from the head over the neck and shoulders
-    W = [  # (name, origin, u, v, length, curl, width, thick, mat, turns)
-        ('Mane_Top', (0, -1.6, 4.75), (0, 1, -0.15), (0, 0.15, 1), 0.9, 0.35, 0.75, 0.3, 'Armor_Aqua', 1.0),
-        ('Mane_TopBack', (0, -0.9, 4.15), (0, 1, -0.35), (0, 0.3, 1), 0.9, 0.32, 0.8, 0.3, 'Armor_AquaLight', 1.0),
-    ]
-    for s, side in ((-1, 'Right'), (1, 'Left')):
-        W += [
-            (f'Mane_Cheek_{side}', (s * 0.7, -2.15, 3.95), (s * 0.55, 0.8, -0.2), (s * 0.3, 0, 1), 0.55, 0.3, 0.5, 0.26, 'Armor_AquaLight', 1.1),
-            (f'Mane_Upper_{side}', (s * 0.75, -1.75, 4.35), (s * 0.7, 0.7, -0.15), (0, 0.1, 1), 0.85, 0.42, 0.7, 0.32, 'Armor_Aqua', 1.05),
-            (f'Mane_Lower_{side}', (s * 0.95, -1.55, 3.45), (s * 0.6, 0.8, -0.3), (s * 0.2, 0, 1), 0.9, 0.4, 0.75, 0.32, 'Armor_Aqua', 1.05),
-            (f'Mane_Shoulder_{side}', (s * 1.1, -0.65, 3.25), (s * 0.35, 1, -0.2), (s * 0.2, 0, 1), 1.0, 0.42, 0.8, 0.32, 'Armor_AquaLight', 1.0),
-        ]
-    for name, o, u, v, L, curl, w, t, mat, turns in W:
-        p = Part(name, 'Mane and Tail', 0.015)
-        pts = curl_path(o, u, v, L, curl, turns * 0.8, 16, 0.25)
-        u_, v_ = Vector(u).normalized(), Vector(v).normalized()
-        p.sweep(pts, taper(len(pts), w * 1.25, w * 0.3, 0.12), t * 1.7, u_.cross(v_), mat)
-        p.finish()
-    # curled water tail: big outer wave + lighter inner layer
-    p = Part('Tail_Curl', 'Mane and Tail', 0.015)
-    pts = curl_path((0, 2.75, 2.8), (0, 0.55, 1), (0, 1, -0.35), 1.2, 0.85, 1.15, 22, 0.35)
-    p.sweep(pts, taper(len(pts), 1.15, 0.35, 0.3), 0.8, (1, 0, 0), 'Armor_Aqua')
+def wave_fin(name, origin, u, v, length, width, thick, mat, curl=0.3, turns=0.42, lift=0.3):
+    """broad swept-back wave fin: flat ribbon that tapers and flicks up at the tip"""
+    p = Part(name, 'Mane and Tail', 0.02)
+    pts = curl_path(origin, u, v, length, curl, turns, 12, lift)
+    u_, v_ = Vector(u).normalized(), Vector(v).normalized()
+    w = taper(len(pts), width, width * 0.1, width * 0.25)
+    p.sweep(pts, w, thick, u_.cross(v_), mat)
     p.finish()
-    p = Part('Tail_InnerWave', 'Mane and Tail', 0.015)
-    pts = curl_path((0, 3.0, 3.3), (0, 0.5, 1), (0, 1, -0.4), 0.8, 0.5, 1.0, 16, 0.2)
-    p.sweep([q + Vector((0.32, 0, 0)) for q in pts], taper(len(pts), 0.55, 0.15, 0.1), 0.3, (1, 0, 0), 'Armor_AquaLight')
-    p.sweep([q + Vector((-0.32, 0, 0)) for q in pts], taper(len(pts), 0.55, 0.15, 0.1), 0.3, (1, 0, 0), 'Armor_AquaLight')
+
+
+def build_mane_and_tail():
+    hx, hy, hz = HEAD_C
+    # top crest wave running from behind the crown down the back of the neck
+    wave_fin('Mane_Crest', (0, hy + 0.35, hz + 0.55), (0, 1, -0.55), (0, 0.5, 1), 2.1, 0.75, 0.3, 'Armor_Aqua')
+    for s, side in ((-1, 'Right'), (1, 'Left')):
+        # three layered fins per side, flowing back along the neck and over the shoulder
+        wave_fin(f'Mane_Upper_{side}', (s * 0.9, hy + 0.45, hz + 0.05), (s * 0.12, 1, -0.45), (s * 0.1, 0.45, 1),
+                 1.45, 0.62, 0.34, 'Armor_AquaLight')
+        wave_fin(f'Mane_Middle_{side}', (s * 1.02, hy + 0.65, hz - 0.55), (s * 0.15, 1, -0.5), (s * 0.15, 0.5, 1),
+                 1.6, 0.68, 0.36, 'Armor_Aqua')
+        wave_fin(f'Mane_Lower_{side}', (s * 1.22, hy + 1.0, hz - 1.2), (s * 0.12, 1, -0.45), (s * 0.2, 0.45, 1),
+                 1.35, 0.6, 0.34, 'Armor_AquaLight')
+    # smooth ribbon along the spine to the tail
+    p = Part('Mane_SpineRibbon', 'Mane and Tail', 0.02)
+    pts = [Vector((0, 0.0, 3.62)), Vector((0, 0.8, 3.64)), Vector((0, 1.6, 3.55)), Vector((0, 2.35, 3.5))]
+    p.sweep(pts, [0.55, 0.5, 0.42, 0.3], 0.22, (1, 0, 0), 'Armor_Aqua')
+    p.finish()
+    # swept wave tail: rises from the rump and flicks over at the tip (no big spiral)
+    p = Part('Tail_Wave', 'Mane and Tail', 0.02)
+    pts = curl_path((0, 2.6, 3.1), (0, 1, 0.65), (0, -0.6, 1), 1.3, 0.55, 0.6, 16, 0.35)
+    p.sweep(pts, taper(len(pts), 1.15, 0.2, 0.3), 0.6, (1, 0, 0), 'Armor_Aqua')
+    p.finish()
+    p = Part('Tail_InnerWave', 'Mane and Tail', 0.02)
+    pts = curl_path((0, 2.85, 3.3), (0, 1, 0.65), (0, -0.6, 1), 1.0, 0.4, 0.55, 14, 0.25)
+    for sx in (0.3, -0.3):
+        p.sweep([q + Vector((sx, 0, 0)) for q in pts], taper(len(pts), 0.5, 0.1, 0.1), 0.2, (1, 0, 0), 'Armor_AquaLight')
     p.finish()
 
 
@@ -390,25 +428,11 @@ def droplet(p, c, r):
 
 
 def build_effects():
+    # just a few small droplets near the mane and a front paw
     p = Part('Water_Droplets', 'Effects', 0)
-    for c, r in (((-1.9, -2.2, 3.9), 0.12), ((2.1, -2.0, 4.4), 0.1), ((-1.7, 1.4, 4.6), 0.13),
-                 ((1.9, 3.3, 4.3), 0.11), ((-2.0, 3.0, 2.2), 0.1), ((2.2, -0.6, 1.4), 0.09),
-                 ((-2.3, -0.9, 1.0), 0.1), ((0.9, -3.4, 3.2), 0.08), ((-0.4, 4.0, 1.4), 0.09)):
+    for c, r in (((1.95, -1.1, 4.5), 0.1), ((-1.9, -0.6, 4.2), 0.09), ((1.9, -2.6, 0.75), 0.08)):
         droplet(p, c, r)
     p.finish(smooth=True)
-    # low curling splash crowns around each paw (open at the front so the toes stay visible)
-    for name, x, y in (('FrontLeft', 0.95, -1.65), ('FrontRight', -0.95, -1.65), ('BackLeft', 1.0, 1.95), ('BackRight', -1.0, 1.95)):
-        p = Part(f'Splash_{name}', 'Effects', 0)
-        for k in range(5):
-            a = math.radians(10 + k * 72)
-            if -0.35 < math.cos(a - math.pi / 2 * 3) and math.sin(a) < -0.75:
-                continue
-            o = Vector((x + 0.82 * math.cos(a), y + 0.82 * math.sin(a), 0.02))
-            out = Vector((math.cos(a), math.sin(a), 0))
-            tang = Vector((-math.sin(a), math.cos(a), 0))
-            pts = curl_path(o, out + Vector((0, 0, 0.35)), Vector((0, 0, 1)) - out * 0.3, 0.3, 0.1, 0.7, 9, 0.05)
-            p.sweep(pts, taper(len(pts), 0.6, 0.15), 0.06, tang, 'Water_Clear')
-        p.finish(smooth=True)
 
 
 # ------------------------------------------------------------------ scene
@@ -416,10 +440,10 @@ def build_camera_and_lights():
     sc = bpy.context.scene
     lc = coll('CameraAndLights')
     cam = bpy.data.cameras.new('Camera_ThreeQuarter')
-    cam.lens = 55
+    cam.lens = 58
     co = bpy.data.objects.new('Camera_ThreeQuarter', cam)
-    co.location = (9.5, -11.0, 4.6)
-    co.rotation_euler = (Vector((0.0, 0.3, 2.55)) - co.location).to_track_quat('-Z', 'Y').to_euler()
+    co.location = (9.0, -11.5, 4.6)
+    co.rotation_euler = (Vector((0.0, 0.6, 2.65)) - co.location).to_track_quat('-Z', 'Y').to_euler()
     lc.objects.link(co)
     sc.camera = co
     for name, loc, e, size, col in (('Light_Key', (6, -9, 9), 1300, 6, (1, 0.97, 0.93)),
@@ -465,7 +489,7 @@ def main():
     build_mane_and_tail()
     build_effects()
     build_camera_and_lights()
-    path = os.path.join(HERE, 'KingRainhound.blend')
+    path = os.path.join(HERE, 'KingRainhound_Improved.blend')     # original KingRainhound.blend is kept
     bpy.ops.wm.save_as_mainfile(filepath=path)
     meshes = [o for o in bpy.data.objects if o.type == 'MESH' and o.name != 'Ground_ShadowCatcher']
     print(f'King Rainhound: {len(meshes)} mesh objects, {sum(len(o.data.polygons) for o in meshes)} faces')

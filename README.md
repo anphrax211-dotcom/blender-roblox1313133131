@@ -26,7 +26,7 @@ and the exterior-only visual template of the 11-floor tower (no playable floors 
 Generator: `blender/tower_of_pets/` (`common`, `hub`, `entrance`, `tower`, `environment`, `build`).
 
 - 1 unit = 1 Roblox stud, Z up; spawn at (0, -58) facing +Y toward the entrance
-- hub: plaza r=128, paw fountain/spawn platform, Pets / Shop / Eggs / Trading / Upgrades / Leaderboards
+- hub: plaza r=128, paw fountain/spawn platform, Pet Clinic / Shop / Hatchery / Trading / Upgrades / Leaderboards
   on a ring facing the fountain (each building parented to a `<Name>_Root` empty — move the empty to move it)
 - entrance: 20-step stairs to z=20, stepped pointed arch, portal surface (`Entrance_Portal`) and an invisible
   `Portal_TeleportTrigger` box for the Roblox teleport
@@ -150,4 +150,30 @@ crystal pedestals, egg pedestals, display stands, purple runner + paw medallion,
 
 ```
 python3 blender/tower_of_pets/build_hatchery_pack.py
+```
+
+## Tower of Pets pet clinic (`blender/TowerOfPets_PetClinic.blend`, replaces the old Pets area in the lobby)
+The old Pets building, its sign, props and green colours are gone; the Pet Clinic (`blender/tower_of_pets/clinic.py`)
+stands on the same hub slot (135 deg, facing the fountain). Light masonry facade with a wide segmental voussoir arch
+(gold ring, blue soffit), blue "PET CLINIC" sign band with gold frame and teal glow ends, round-topped stone frame
+holding the glowing paw + medical-cross emblem, two banner pillars with lanterns, two pet statues with teal
+bandanas, blue-flower planters, blue lean-to and gable roofs with gold fascia; back wall with a big paw-cross emblem.
+Interior: stone floor, blue rug + paw medallion, curved reception desk (dark wood, blue panels, gold trim, emblem,
+room for an NPC) with supply shelves and a glowing paw-cross panel behind it, waiting benches + plants + info
+screen, treatment area (exam table, stool, monitor, IV stand, pet carrier, first-aid kit, info screen), bowls,
+balls, bones, banners, lanterns.
+
+- kit (`PETCLINIC_KIT`): `PetClinic_Wall`, `_Pillar`, `_Arch`, `_Roof`, `_GoldTrim`, `_Sign`, `_Emblem`, `_Banner`,
+  `_Lantern`, `_Statue`, `_Reception`, `_TreatmentTable`, `_Stool`, `_Monitor`, `_MedicalStand`, `_PetCarrier`,
+  `_FirstAid`, `_Shelf`, `_Bottle(_Blue)`, `_Bench`, `_InfoScreen`, `_PottedPlant`, `_FoodBowl`, `_Ball`, `_Bone`,
+  `_Decorations`, `_Planter`
+- lobby outliner: `TOWER_OF_PETS / TOWER_OF_PETS_HUB / PET_CLINIC (Exterior, Interior, Roof, Signage, Banners,
+  Statues, Reception, Treatment, Decorations, Lighting)` and `EXISTING_HUB (TOWER_OF_PETS_SHOP,
+  TOWER_OF_PETS_HATCHERY, Trading, Leaderboards, Upgrades, Spawn, Fountain, Plaza, Tower_Entrance)`; the tower,
+  islands, waterfalls, environment, lighting and cameras stay beside it under `TOWER_OF_PETS`
+- cameras: `CAM_PetClinic_Front/_Interior/_Side/_Rear/_Player`; lobby `CAM_14_PetClinic_Front`
+- scale: entrance 20 studs wide, desk 3.4 studs, exam table 3 studs; ~93k triangles with landscaping
+
+```
+python3 blender/tower_of_pets/build_clinic_pack.py
 ```

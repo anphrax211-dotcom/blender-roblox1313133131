@@ -366,6 +366,9 @@ def build_cameras():
     import hatchery
     hatchery.build_hatchery_cameras(hpolar(R_BUILD + 2.0, SLOT['Eggs']), math.radians(SLOT['Eggs'] - 90), CAM,
                                     'CAM_13_Hatchery', only=('Front',))
+    import clinic
+    clinic.build_clinic_cameras(hpolar(R_BUILD - 2.0, SLOT['PetClinic']), math.radians(SLOT['PetClinic'] - 90), CAM,
+                                'CAM_14_PetClinic', only=('Front',))
     bpy.context.scene.camera = c1
 
 

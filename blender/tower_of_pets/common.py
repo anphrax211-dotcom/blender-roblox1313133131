@@ -288,7 +288,6 @@ def build_materials():
     # facility colours ----------------------------------------------------------------------------
     P('Shop_Red', (1.0, 0.10, 0.08), 0.45); P('Shop_Red_Glow', (1.0, 0.18, 0.12), 0.4, emit=1.38)
     P('Shop_White', (1.0, 0.98, 0.94), 0.55)
-    P('Pets_Green', (0.12, 0.82, 0.22), 0.45); P('Pets_Green_Glow', (0.2, 1.0, 0.3), 0.4, emit=1.38)
     P('Eggs_Purple', (0.60, 0.18, 0.95), 0.45); P('Eggs_Purple_Glow', (0.75, 0.30, 1.0), 0.4, emit=1.54)
     P('Trade_Gold', (1.0, 0.68, 0.10), 0.4, metal=0.2); P('Trade_Gold_Glow', (1.0, 0.75, 0.15), 0.4, emit=1.21)
     P('Upgrade_Blue', (0.06, 0.45, 1.0), 0.4); P('Upgrade_Blue_Glow', (0.2, 0.65, 1.0), 0.4, emit=1.54)

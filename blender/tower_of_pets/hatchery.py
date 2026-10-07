@@ -316,7 +316,12 @@ def build_hatchery_kit(parent):
 
 
 # ---------------------------------------------------------------- build -----
-def subcolls():
+# collection names the lobby creates later (tower floors etc.) - suffixed when building inside the lobby
+RESERVED = {'Jungle', 'Desert', 'Ice', 'Lava', 'Crystal', 'Shadow', 'Forest', 'Kingdom', 'Cloud', 'Celestial',
+            'Divine', 'Hub_Base', 'LIGHTING', 'CAMERAS', 'ENVIRONMENT', 'WATERFALLS', 'FLOATING_ISLANDS'}
+
+
+def subcolls(in_lobby=False):
     CN.clear()
     tree = (('BUILDING', ROOT), ('Walls', 'BUILDING'), ('Pillars', 'BUILDING'), ('Arches', 'BUILDING'),
             ('Roof', 'BUILDING'), ('Gold_Trim', 'BUILDING'), ('SIGNAGE', ROOT), ('Eggs_Sign', 'SIGNAGE'),
@@ -325,14 +330,15 @@ def subcolls():
         tuple((k, 'EGGS') for k in EGG_TYPES) + \
         (('CRYSTALS', ROOT), ('LANTERNS', ROOT), ('LANDSCAPING', ROOT), ('LIGHTING', ROOT))
     for name, par in tree:
-        actual = name if name not in bpy.data.collections else f'{name} (hatchery)'
+        taken = name in bpy.data.collections or (in_lobby and name in RESERVED)
+        actual = f'{name} (hatchery)' if taken else name
         CN[name] = actual
         coll(actual, c(par))
 
 
 def build_hatchery(parent_coll, loc=(0, 0, 0), rot_z=0.0):
     coll(ROOT, parent_coll)
-    subcolls()
+    subcolls(parent_coll is not None)
     root = empty('Hatchery_Root', ROOT, loc, rot_z, 8)
     rnd = random.Random(5150)
     F = 1.0

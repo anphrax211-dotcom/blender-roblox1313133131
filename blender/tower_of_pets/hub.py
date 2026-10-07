@@ -1,10 +1,10 @@
 """HUB: circular plaza, central paw fountain/spawn platform, spawn pad, the six facilities
-(Pets, Shop, Eggs, Trading, Upgrades, Leaderboards) and the landscaping between them.
+(Pet Clinic, Shop, Eggs/Hatchery, Trading, Upgrades, Leaderboards) and the landscaping between them.
 
 Layout follows the reference top-down hub plan (tower entrance north / +Y, spawn south):
 
                  TOWER ENTRANCE (90 deg)
-        PETS (135)               SHOP (45)
+  PET CLINIC (135)               SHOP (45)
    TRADING (180)     FOUNTAIN       EGGS (0)
         LEADERBOARDS (225)       UPGRADES (315)
                     SPAWN (270)
@@ -22,7 +22,7 @@ R_PLAZA = 128.0          # paved plaza radius
 R_ISLAND = 172.0         # grassy island rim
 R_BUILD = 96.0           # facility ring
 R_CORE = 34.0            # central spawn platform
-SLOT = {'Eggs': 0, 'Shop': 45, 'Entrance': 90, 'Pets': 135, 'Trading': 180,
+SLOT = {'Eggs': 0, 'Shop': 45, 'Entrance': 90, 'PetClinic': 135, 'Trading': 180,
         'Leaderboards': 225, 'Spawn': 270, 'Upgrades': 315}
 SPAWN_POS = (0.0, -58.0, 0.0)
 FAC_SCALE = 1.2         # facilities are authored at 1:1 studs and shown 20% larger (simulator style)
@@ -271,42 +271,11 @@ def build_shop():
     shop.build_shop(HUB, polar(R_BUILD - 2.0, deg), math.radians(deg - 90))
 
 
-def build_pets():
-    root = facility('Pets'); c = 'Pets'
-    p = Part('Pets_Building', c, 0.15)
-    plinth(p, 34, 28)
-    p.box((0, 11, 9.0), (30, 2, 15.6), 'Hub_Stone_Warm')
-    for s in (-1, 1):
-        p.box((s * 14, 2, 9.0), (2, 18, 15.6), 'Hub_Stone_Warm')
-        for yy in (-8.0, 4.0):
-            p.box((s * 14.2, yy, 9.0), (2.8, 2.8, 15.6), 'Hub_Stone')
-        p.box((s * 9, -8.0, 9.0), (2.4, 2.4, 15.6), 'Hub_Stone')
-    p.box((0, -8, 17.4), (32, 4, 2), 'Pets_Green')
-    # gabled green roof + front pediment with paw
-    p.prism_xz([(-18, 18.2), (18, 18.2), (0, 28.5)], -11.5, 13, 'Pets_Green')
-    p.prism_xz([(-15.5, 18.4), (15.5, 18.4), (0, 27.0)], -11.8, -11.4, 'Hub_Stone_Warm')
-    p.box((0, -12.0, 18.4), (36.5, 1.0, 0.6), 'Gold')
-    paw(p, M_front(0, -12.0, 22.3), 6.0, 0.6, 'Pets_Green_Glow')
-    # pet beds & pedestals inside
-    for i, x in enumerate((-8, 0, 8)):
-        p.cyl((x, 4, 2.0), 3.0, 1.6, 'Hub_Stone', 20)
-        p.torus((x, 4, 3.0), 2.4, 0.7, ('Shop_Red', 'Upgrade_Blue', 'Eggs_Purple')[i], 20, 6)
-        p.cyl((x, 4, 2.9), 2.0, 0.3, 'Fabric_Cream', 16)
-    # bowls
-    for x in (-4, 4):
-        p.cyl((x, -2, 1.9), 1.1, 0.9, 'Silver', 12, r2=1.4)
-    p.finish(parent=root)
-    # pool in front (as in the reference)
-    p = Part('Pets_Pool', c, 0.1)
-    p.ring_sector(4.5, 6.0, 0, TAU, 0.0, 1.8, 'Hub_Stone', 24, center=(0, -19))
-    p.cyl((0, -19, 1.3), 4.6, 0.2, 'Water', 24)
-    p.torus((0, -19, 1.85), 5.25, 0.2, 'Pets_Green_Glow', 24, 4)
-    p.finish(parent=root)
-    sign('Pets_Sign', 'PETS', c, root, 31.5, -10.5, 'Pets_Green', 16, 4.0)
-    for s in (-1, 1):
-        inst('Lantern_Post', f'Pets_Lantern_{s}', c, (s * 19, -12, 1.2), 0, 1.0, root)
-        inst('Bush_02', f'Pets_Bush_{s}', c, (s * 16, 10, 1.2), 0, 1.0, root)
-        inst('Ground_Plant_01', f'Pets_Flowers_{s}', c, (s * 11.5, -15.5, 1.2), 0, 0.7, root)
+def build_pet_clinic():
+    """the Pet Clinic (clinic.py) - replaces the old Pets area on the same slot, front facing the fountain"""
+    import clinic
+    deg = SLOT['PetClinic']
+    clinic.build_clinic(HUB, polar(R_BUILD - 2.0, deg), math.radians(deg - 90))
 
 
 def build_eggs():
@@ -435,4 +404,4 @@ def build_hub():
     coll(HUB, 'TOWER_OF_PETS')
     build_plaza()
     build_spawn_and_fountain()
-    build_shop(); build_pets(); build_eggs(); build_trading(); build_upgrades(); build_leaderboards()
+    build_shop(); build_pet_clinic(); build_eggs(); build_trading(); build_upgrades(); build_leaderboards()

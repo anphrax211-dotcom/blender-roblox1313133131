@@ -191,21 +191,31 @@ def split_mesh(src_me, base_name):
         ext = CFG.get('max_extent')
         if ext:                                             # Roblox MeshParts must stay under 2,048 studs a side
             bm.faces.ensure_lookup_table()
-            fixed = []
-            for keep in chunks:
-                idx = range(len(bm.faces)) if keep is None else sorted(keep)
+
+            def size(idx):
                 vs = [v.co for i in idx for v in bm.faces[i].verts]
-                size = max(max(c[a] for c in vs) - min(c[a] for c in vs) for a in range(3))
-                if size <= ext:
-                    fixed.append(keep)
-                    continue
-                cell = ext * 0.9
+                return max(max(c[a] for c in vs) - min(c[a] for c in vs) for a in range(3))
+
+            def fit(idx, cell):
+                """bucket faces by centre into cubes of `cell`; halve the cube until every piece fits"""
+                if size(idx) <= ext or len(idx) == 1 or cell < 8:
+                    return [idx]
                 tiles = {}
                 for i in idx:
                     c_ = bm.faces[i].calc_center_median()
                     tiles.setdefault((int(c_.x // cell), int(c_.y // cell), int(c_.z // cell)), []).append(i)
+                out_ = []
                 for key in sorted(tiles):
-                    t = tiles[key]
+                    out_ += fit(tiles[key], cell / 2) if size(tiles[key]) > ext else [tiles[key]]
+                return out_
+
+            fixed = []
+            for keep in chunks:
+                idx = list(range(len(bm.faces))) if keep is None else sorted(keep)
+                if size(idx) <= ext:
+                    fixed.append(keep)
+                    continue
+                for t in fit(idx, ext * 0.9):
                     fixed += [set(t[j:j + LIM]) for j in range(0, len(t), LIM)]
             chunks = fixed
         for k, keep in enumerate(chunks):

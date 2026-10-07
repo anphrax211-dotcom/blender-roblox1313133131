@@ -4,7 +4,7 @@ This is the base terrain pass: terrain, water, landmark markers and greybox land
 keep, ruin pillars). There are no final buildings, trees or decorations yet. It's generated from
 `blender/TowerOfPets_Floor1.blend` by `blender/tower_of_pets/build_floor1_export.py`. 1 unit = 1 stud, Y up.
 
-The world is built at **5× scale**: about 8,700 × 5,800 studs. The regions sit where the map sheet puts them,
+The world is built at **10× scale**: about 17,400 × 11,600 studs. The regions sit where the map sheet puts them,
 grouped into four landmasses with open sky between them, linked by natural rock bridges:
 - **Verdant mainland:** Entrance, Meadows, Village and Whispering Forest.
 - **Central highlands:** Ruins, Cloudridge, World Tree, Emerald Lake, Riverfall Valley and Mossy Caverns.
@@ -13,9 +13,9 @@ grouped into four landmasses with open sky between them, linked by natural rock 
 
 The Sky Temple, the four secret isles and two optional islets float on their own.
 
-Heights run from about −140 (Lotus Swamp) to about 1,950 (Cloudridge summit). The Fortress Heights are at 1,200,
-and the World Tree reaches about 2,950. Player-scale things are not scaled:
-- path widths (main roads 48, trails 34, hidden paths 18);
+Heights run from about −280 (Lotus Swamp) to about 3,930 (Cloudridge summit). The Fortress Heights are at 2,400,
+and the World Tree reaches about 5,800. Player-scale things are not scaled:
+- path widths (main roads 56, trails 40, hidden paths 20);
 - markers, and checkpoint and mini-boss pads;
 - path climbs, which stay at 25° or less.
 
@@ -40,8 +40,8 @@ place, not the hub.
 
 Each area has `<Area>_Top` (walkable ground and paths), `<Area>_Cliffs` (cliff walls) and `<Area>_Underside`
 (the floating rock below). Large surfaces are split into chunks of 6,000 triangles or fewer, and no part is
-bigger than 1,900 studs on any side (Roblox MeshParts are limited to 2,048). There are about 730 parts and
-930k triangles in total; `manifest.json` lists each file's part count, triangle count and widest part. Parts are
+bigger than 1,900 studs on any side (Roblox MeshParts are limited to 2,048). There are about 2,000 parts and
+1.32M triangles in total; `manifest.json` lists each file's part count, triangle count and widest part. Parts are
 named `<Object>__<Material>`.
 
 ## Import
@@ -60,15 +60,15 @@ named `<Object>__<Material>`.
    This colours every part and anchors it. It also gives the terrain (`_Top`, `_Cliffs`, bridges) exact
    **PreciseConvexDecomposition** collision, so players and pets walk on the real ground. Water, waterfalls and
    clouds become non-colliding.
-5. Put a SpawnLocation at the spawn ring, about **(-2612, 60, 1925)**, facing the meadows and village (toward −Z).
-6. **Kill plane:** the kingdom floats above a void, with the cloud sea at about −1,900. Set
-   Workspace.FallenPartsDestroyHeight to about −2,000, or add a respawn zone just above the clouds.
+5. Put a SpawnLocation at the spawn ring, about **(-5225, 120, 3850)**, facing the meadows and village (toward −Z).
+6. **Kill plane:** the kingdom floats above a void, with the cloud sea at about −3,800. Set
+   Workspace.FallenPartsDestroyHeight to about −4,000, or add a respawn zone just above the clouds.
 7. **Big world:** turn on Workspace.StreamingEnabled so players only load the nearby terrain.
-8. **Scale check:** the Floor Entrance platform is about 1,500 × 850 studs. Main roads are 48 studs wide.
+8. **Scale check:** the Floor Entrance platform is about 3,000 × 1,700 studs. Main roads are 56 studs wide.
 
 ## Key positions (Roblox coordinates)
 
-- Spawn (Floor Entrance): (-2612, 60, 1925)
-- Main boss (Fortress Heights arena): (2750, 1200, 495)
+- Spawn (Floor Entrance): (-5225, 120, 3850)
+- Main boss (Fortress Heights arena): (5500, 2400, 990)
 - All other positions are in `floor1_layout.json`: checkpoints, mini-bosses, eggs, caves, secrets, path
   waypoints.

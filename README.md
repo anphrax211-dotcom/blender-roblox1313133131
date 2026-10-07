@@ -274,15 +274,18 @@ It focuses on world shape, scale, height and traversal. There are no final build
 
 - **Placement:** every area is still a polygon traced over the sheet, at 1.1 studs per pixel, north = +Y. Regions
   stay where the sheet puts them (`previews/TowerOfPets_F1_Trace_Overlay.png` shows the trace).
-- **5× scale (`WORLD = 5`):** the whole layout is blown up 5×, horizontally and vertically, to about
-  8,700 × 5,800 studs (31M sq studs of land). These stay at player scale so the world is bigger to ride across, not
+- **10× scale (`WORLD = 10`):** the whole layout is blown up 10×, horizontally and vertically, to about
+  17,400 × 11,600 studs (124M sq studs of land). These stay at player scale so the world is bigger to ride across, not
   bigger to stand in:
   - path widths;
   - markers, and checkpoint and mini-boss pads;
   - path climb limits.
   The data tables are written in 1× sheet units and scaled once (`WORLD`).
+- **Mesh budget:** the terrain grid is 16 studs. The rock undersides (seen only from afar) are decimated to 20%
+  with their rims kept exact so they stay sealed to the cliffs. Tall cliff walls are cut into bands under
+  600 studs, and lakes are built on the terrain grid, so every face splits cleanly into Roblox-sized parts.
 - **Four landmasses:** inside a landmass the regions' outlines are grown into the gaps and merged. Between
-  landmasses a channel of open sky (roughly 150–310 studs wide) is kept, and paths cross it on natural rock bridges.
+  landmasses a channel of open sky (roughly 300–620 studs wide) is kept, and paths cross it on natural rock bridges.
   - **Verdant mainland:** Floor Entrance, Sunlit Meadows, Verdant Village and Whispering Forest.
   - **Central highlands:** Ancient Ruins, Cloudridge Peaks, World Tree Grove, Emerald Lake, Riverfall Valley and
     Mossy Caverns.
@@ -292,31 +295,31 @@ It focuses on world shape, scale, height and traversal. There are no final build
   The Sky Temple, four secret isles (Mistfall, Lotus Grotto, Cloud Perch, Overlook) and two optional islets
   (`Islet_Treasure`, `Islet_Rare_Pet`) float on their own. Change `LANDMASS` to join or split regions.
 - **Height:** every area has its own height and terrain style.
-  - Inside a landmass, neighbours within 230 studs of each other slope into each other and can be ridden; larger
+  - Inside a landmass, neighbours within 460 studs of each other slope into each other and can be ridden; larger
     differences become cliffs.
-  - Heights run from the Lotus Swamp at about −120 to the Cloudridge summit at about 1,950.
+  - Heights run from the Lotus Swamp at about −240 to the Cloudridge summit at about 3,930.
 - **The five regions:**
   - **Verdant Forest:** rolling meadows with a big open riding field west of the spawn. The Whispering Forest hills
-    at about 310 are cut by a deep ravine with a two-step stream that falls off the mainland's edge.
-  - **Waterfall Valley:** Riverfall Valley is a deep valley floor at −50, walled by the ruin and cavern cliffs and
+    at about 620 are cut by a deep ravine with a two-step stream that falls off the mainland's edge.
+  - **Waterfall Valley:** Riverfall Valley is a deep valley floor at −100, walled by the ruin and cavern cliffs and
     open to the sky on its south-west. The Emerald Lake spillway, the ruins cascade and the Mossy spring fall into it,
-    and its river pours off the edge into the clouds. Emerald Lake sits high at about 500, below the World Tree. The
+    and its river pours off the edge into the clouds. Emerald Lake sits high at about 1,000, below the World Tree. The
     Lotus Swamp is the low wetland island and drains off its south edge.
-  - **Ancient Ruins:** a plateau at about 590 made of massive raised stone foundation slabs (`F1_Ruins_Stone`).
+  - **Ancient Ruins:** a plateau at about 1,180 made of massive raised stone foundation slabs (`F1_Ruins_Stone`).
     It has a rift across it, a ring of colossal broken pillars round the plaza, three reserved ruin footprints, and a
     hidden path from the valley to the `Cave_Ruins_Undercroft` mouth. Cloudridge Peaks are a ridged range with a
     snow-capped summit.
-  - **Mystic Wilds:** the World Tree highland is at about 800. The tree is a greybox landmark reaching about 2,950,
+  - **Mystic Wilds:** the World Tree highland is at about 1,600. The tree is a greybox landmark reaching about 5,800,
     split into trunk, limb and canopy parts. Nine root ridges spread across the highland. Mossy Caverns are cavern
-    hills with two cave mouths, and Beast Cave is dark crags with a 200-stud cave mouth.
+    hills with two cave mouths, and Beast Cave is dark crags with a 400-stud cave mouth.
   - **Jungle Fortress:** the largest region and the final destination.
-    - A jungle ring at about 640 surrounds the cliff-walled Fortress Heights plateau at 1,200.
+    - A jungle ring at about 1,280 surrounds the cliff-walled Fortress Heights plateau at 2,400.
     - The plateau has rim spires, the main boss arena (r 140) and a greybox stepped keep.
     - Three ways up: the Grand Ramp from Beast Cave, the canyon from Mossy Caverns, and the long cliff trail from the
       swamp.
 - **Paths:** 28 organic routes (12 main, 11 secondary, 5 hidden). Each segment bows sideways and corners are
   rounded, so roads wind instead of running straight.
-  - Widths: main roads 48 studs, trails 34, hidden paths 18.
+  - Widths: main roads 56 studs, trails 40, hidden paths 20.
   - Heights follow the ground and are grade-limited to about 25° (hidden paths up to about 29°). Where the ground is
     in the way a path cuts a canyon; where it's too low it raises a causeway.
   - Branches, loops and alternate routes into every region.
@@ -332,7 +335,7 @@ It focuses on world shape, scale, height and traversal. There are no final build
   `_World_Tree_View`, `_Fortress_View` and `_Side_Elevation`.
 - **Roblox:** `exports/TowerOfPets/Floor1/` holds:
   - one FBX per biome, plus bridges, water, blockouts and clouds;
-  - about 730 MeshParts and 930k triangles in total, each part at most 6,000 triangles and no wider than
+  - about 2,000 MeshParts and 1.32M triangles in total, each part at most 6,000 triangles and no wider than
     1,900 studs (Roblox's MeshPart limit is 2,048; `export_fbx.py` `max_extent` enforces it);
   - `Floor1_Materials.lua`, which sets exact collision on the terrain;
   - `floor1_layout.json`, which has the landmasses' regions and every spawn, checkpoint, boss, egg, cave and path

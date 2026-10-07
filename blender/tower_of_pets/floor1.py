@@ -1,7 +1,7 @@
 """TOWER OF PETS - FLOOR 1: THE VERDANT KINGDOM - base terrain pass (terrain only, no buildings or props).
 
 Built on the layout traced from the Floor 1 map sheet (pixels; px() maps them with one uniform scale of 1.1 studs per
-pixel, north = +Y) and then scaled up 5x (WORLD), so every region keeps its place on the sheet. The kingdom is four
+pixel, north = +Y) and then scaled up 10x (WORLD), so every region keeps its place on the sheet. The kingdom is four
 big landmasses split by open sky and linked by natural rock bridges:
   * Verdant mainland (Entrance, Meadows, Village, Whispering Forest), Central highlands (Ruins, Cloudridge, World Tree,
     Emerald Lake, Riverfall Valley, Mossy Caverns), the Lotus Swamp, and the Jungle Fortress with Beast Cave; inside a
@@ -15,7 +15,7 @@ big landmasses split by open sky and linked by natural rock bridges:
     largest region: a jungle ring at ~640 studs around a cliff-walled inner plateau at ~1,200 (final boss arena);
   * paths are organic (bowed, smoothed) and follow the ground with a grade limit, cutting canyons or raising
     causeways where they must; where a path crosses open sky it becomes a natural rock bridge.
-Terrain, heights, water and landmarks are 5x; player-scale things (path widths, markers, checkpoint and mini-boss
+Terrain, heights, water and landmarks are 10x; player-scale things (path widths, markers, checkpoint and mini-boss
 pads, climb limits) are not, so the world is bigger to ride across, not bigger to stand in.
 
 Five biomes (TERRAIN/<BIOME>, one Top / Cliffs / Underside mesh per area so each area can be refined later):
@@ -35,9 +35,9 @@ from common import Part, MATS, mat_plain, mat_noise, coll, text_mesh, round_arch
 from castle import frame_strip
 
 ROOT = 'TOWER_OF_PETS_FLOOR_1'
-WORLD = 5.0                               # world scale: the 1x sheet layout below is blown up 5x
-S = 12.0                                  # grid spacing (studs)
-EXT = 4992.0                              # grid half extent
+WORLD = 10.0                              # world scale: the 1x sheet layout below is blown up 10x
+S = 16.0                                  # grid spacing (studs)
+EXT = 9984.0                              # grid half extent
 BIOMES = ('VERDANT_FOREST', 'WATERFALL_VALLEY', 'ANCIENT_RUINS', 'MYSTIC_WILDS', 'JUNGLE_FORTRESS')
 VF, WV, AR, MW, JF = BIOMES
 CLOUD_Z = -380.0 * WORLD
@@ -51,7 +51,7 @@ def px(x, y):
     return (x - MAP_CX) * MAP_SCALE * WORLD, (MAP_CY - y) * MAP_SCALE * WORLD
 
 
-# ------------------------------------------- layout (map-sheet pixels; heights / sizes in 1x studs, x WORLD below) ---
+# ------------------------------------------ layout (map-sheet pixels; heights / sizes in 1x studs, x WORLD below) ---
 # z: base height of the area's ground. style: (kind, amplitude, wavelength) - see style_height().
 # irr: edge irregularity. grow: studs the outline is grown into the gaps inside its landmass. kind: 'land' areas
 # merge with the other areas of their landmass (LANDMASS), 'inner' sits inside another area as a cliff-walled plateau,
@@ -215,7 +215,7 @@ PADS = (
     ('CP_4', 1108, 292, 16, None, 1), ('CP_5', 1305, 160, 16, 310, 1), ('CP_6', 880, 700, 16, None, 1),
 )
 # paths: name, kind, [(px, py, z or None)] - None follows the ground. kind -> width, max grade, bank width
-PATH_KINDS = {'main': (48, 0.42, 40), 'secondary': (34, 0.46, 30), 'hidden': (18, 0.55, 16)}
+PATH_KINDS = {'main': (56, 0.42, 50), 'secondary': (40, 0.46, 36), 'hidden': (20, 0.55, 20)}
 PATHS = (
     # main routes
     ('Entrance_Road', 'main', [(215, 860, 12), (290, 815, None), (360, 765, None)]),
@@ -300,8 +300,9 @@ FEATURES = tuple((x, y, r * WORLD, h * WORLD, e) for x, y, r, h, e in FEATURES)
 ROOTS = tuple((a, l * WORLD) for a, l in ROOTS)
 RAVINES = tuple((n, [(x, y, z * WORLD) for x, y, z in pts], w * WORLD, b * WORLD) for n, pts, w, b in RAVINES)
 LAKES = tuple((n, pts, z * WORLD, d * WORLD) for n, pts, z, d in LAKES)
-RIVERS = tuple((n, pts, z * WORLD, w * 3) for n, pts, z, w in RIVERS)
-SPRINGS = tuple((n, p, a, None if z is None else z * WORLD, w * 3) for n, p, a, z, w in SPRINGS)
+RIVERS = tuple((n, pts, z * WORLD, w * 0.6 * WORLD) for n, pts, z, w in RIVERS)
+SPRINGS = tuple((n, p, a, None if z is None else z * WORLD, w * 0.6 * WORLD) for n, p, a, z, w in SPRINGS)
+CAVES = tuple((n, p, a, w * WORLD / 5) for n, p, a, w in CAVES)            # widths above are given at 5x
 PADS = tuple((n, x, y, r * k, None if z is None else z * WORLD) for n, x, y, r, z, k in PADS)
 PATHS = tuple((n, kind, [(x, y, None if z is None else z * WORLD) for x, y, z in pts]) for n, kind, pts in PATHS)
 
@@ -527,7 +528,8 @@ class Terrain:
         # --- lakes and ponds (bowl + soft banks)
         self.lake_f = np.full((n, n), 9.0)
         self.lake_z = np.zeros((n, n))
-        for name, poly, zw, depth in LAKES:
+        self.lake_i = np.zeros((n, n), dtype=int)
+        for li, (name, poly, zw, depth) in enumerate(LAKES):
             d = poly_sd(X, Y, [px(*p) for p in poly])
             rr = max(12.0 * WORLD, float(d.max()))
             g_ = 1.0 - d / rr
@@ -537,6 +539,7 @@ class Terrain:
             closer = g_ < self.lake_f
             self.lake_f = np.where(closer, g_, self.lake_f)
             self.lake_z = np.where(closer, zw, self.lake_z)
+            self.lake_i = np.where(closer, li, self.lake_i)
         # --- river channels
         for name, pts, zw, w in RIVERS:
             for (ax, ay), (bx, by) in zip(pts, pts[1:]):
@@ -709,6 +712,26 @@ class Terrain:
         return GRASS[a.biome]
 
 
+def thin_underside(ob, ratio=0.2):
+    """the rock underside is only seen from afar: decimate it, but keep its rim (shared with the cliff walls) exact"""
+    me = ob.data
+    bm = bmesh.new(); bm.from_mesh(me)
+    rim = {v.index for e in bm.edges if len(e.link_faces) < 2 for v in e.verts}
+    bm.free()
+    vg = ob.vertex_groups.new(name='decimate')
+    vg.add(range(len(me.vertices)), 1.0, 'REPLACE')
+    vg.add(list(rim), 0.0, 'REPLACE')
+    m = ob.modifiers.new('Thin', 'DECIMATE')
+    m.ratio = ratio; m.vertex_group = 'decimate'; m.vertex_group_factor = 1000.0
+    dg = bpy.context.evaluated_depsgraph_get()
+    me2 = bpy.data.meshes.new_from_object(ob.evaluated_get(dg))
+    ob.modifiers.remove(m); ob.vertex_groups.remove(vg)
+    ob.data = me2
+    bpy.data.meshes.remove(me)
+    me2.name = ob.name
+    return ob
+
+
 def build_terrain(T):
     """one Top / Cliffs / Underside mesh per area"""
     n = T.n
@@ -755,8 +778,19 @@ def build_terrain(T):
                                                 ((i, j - 1), (i + 1, j), (i, j + 1), (i - 1, j))):
                         if 0 <= ni < n - 1 and 0 <= nj < n - 1 and quad[ni, nj]:
                             continue
-                        faces.append([V(*a), V(*a, True), V(*b, True), V(*b)])
-                        mats.append(M('F1_Rock_Dark' if dark else 'F1_Rock'))
+                        # tall walls are cut into bands (< 600 studs) so no Roblox MeshPart face gets too big
+                        ta, ba, tb, bb = verts[V(*a)], verts[V(*a, True)], verts[V(*b)], verts[V(*b, True)]
+                        k = max(1, math.ceil(max(ta[2] - ba[2], tb[2] - bb[2]) / 600.0))
+                        col_a, col_b = [V(*a)], [V(*b)]
+                        for m in range(1, k):
+                            f = m / k
+                            for side, t_, b_ in ((col_a, ta, ba), (col_b, tb, bb)):
+                                verts.append(tuple(t_[c] + (b_[c] - t_[c]) * f for c in range(3)))
+                                side.append(len(verts) - 1)
+                        col_a.append(V(*a, True)); col_b.append(V(*b, True))
+                        for m in range(k):
+                            faces.append([col_a[m], col_a[m + 1], col_b[m + 1], col_b[m]])
+                            mats.append(M('F1_Rock_Dark' if dark else 'F1_Rock'))
             if not faces:
                 continue
             me = bpy.data.meshes.new(f'{names[area]}_{part}')
@@ -767,6 +801,8 @@ def build_terrain(T):
             me.update()
             ob = bpy.data.objects.new(f'{names[area]}_{part}', me)
             col.objects.link(ob)
+            if part == 'Underside' and names[area] != 'Natural_Bridges':
+                ob = thin_underside(ob)
             objs[(names[area], part)] = ob
     return objs
 
@@ -801,15 +837,15 @@ def waterfall(p, T, start, ang, zw, w, name, falls):
     """walk from start along ang until the ground drops away, hang a water sheet there"""
     d = Vector((math.cos(math.radians(ang)), math.sin(math.radians(ang))))
     q = Vector(start)
-    for _ in range(600):
-        q2 = q + d * 4.0
+    for _ in range(1500):
+        q2 = q + d * (S / 2)
         h, land = T.sample(q2.x, q2.y)
         if not land or h < zw - 20:
             break
         q = q2
     else:
         return None
-    hb, landb = T.sample(*(q + d * 60))
+    hb, landb = T.sample(*(q + d * 12 * WORLD))
     zb = hb + 0.2 if landb and hb < zw - 20 else CLOUD_Z + 10
     top = zw + 0.3
     side = Vector((-d.y, d.x)) * (w / 2)
@@ -847,13 +883,21 @@ def build_water(T):
             zw = T.sample(wx, wy)[0] - 0.5
         waterfall(wf, T, (wx, wy), ang, zw, w, name, falls)
     rv.finish(); wf.finish()
+    # lake surfaces on the terrain grid (edges tucked under the banks): small faces that split cleanly for Roblox
     lk = Part('F1_Lakes', coll('Lakes', 'WATER').name)
-    for name, poly, zw, depth in LAKES:
-        pts = [px(*p) for p in poly]
-        cx = sum(p[0] for p in pts) / len(pts); cy = sum(p[1] for p in pts) / len(pts)
-        pts = [(cx + (x - cx) * 1.05, cy + (y - cy) * 1.05) for x, y in pts]     # tuck the edge under the banks
-        mat = 'F1_Water_Swamp' if name.startswith('Lotus') else 'F1_Water'
-        lk.prism([(x - cx, y - cy) for x, y in pts], zw - 0.2, zw, mat, Matrix.Translation((cx, cy, 0)))
+    wet = (T.lake_f < 1.12) & T.land
+    q = wet[:-1, :-1] | wet[1:, :-1] | wet[:-1, 1:] | wet[1:, 1:]
+    vmap = {}
+
+    def LV(i, j, z):
+        if (i, j, z) not in vmap:
+            vmap[(i, j, z)] = lk.bm.verts.new((float(T.X[i, j]), float(T.Y[i, j]), z))
+        return vmap[(i, j, z)]
+    for i, j in np.argwhere(q):
+        li = int(T.lake_i[i, j]); zw = LAKES[li][2]
+        mat = 'F1_Water_Swamp' if LAKES[li][0].startswith('Lotus') else 'F1_Water'
+        f = lk.bm.faces.new([LV(i, j, zw), LV(i + 1, j, zw), LV(i + 1, j + 1, zw), LV(i, j + 1, zw)])
+        f.material_index = lk.mi(mat)
     lk.finish()
     return falls
 
@@ -886,7 +930,7 @@ def build_landmarks(T):
         a = rnd.uniform(0, TAU); r = rnd.uniform(0, 170) if k else 0
         p = Part(f'Landmark_World_Tree_Canopy_{k + 1}', c)
         p.ico((tx + math.cos(a) * r * W_, ty + math.sin(a) * r * W_, z0 + (300 + rnd.uniform(-25, 55) - r * 0.15) * W_),
-              rnd.uniform(70, 105) * W_, 'F1_Tree_Canopy', 2, (1.0, 1.0, 0.62))
+              rnd.uniform(65, 90) * W_, 'F1_Tree_Canopy', 2, (1.0, 1.0, 0.62))   # < 2,048 across
         p.finish()
     # Jungle Fortress: stepped keep + towers behind the arena (reserved footprint, massing only)
     kx, ky = px(1300, 520)
@@ -972,13 +1016,13 @@ def build_blockouts(T):
     for name, (x, y), ang, w in CAVES:
         d = Vector((math.cos(math.radians(ang)), math.sin(math.radians(ang))))
         q = Vector(px(x, y)); h0 = T.sample(*q)[0]
-        for _ in range(1500):
-            q2 = q + d * 4.0
+        for _ in range(3000):
+            q2 = q + d * (S / 2)
             h, land = T.sample(*q2)
             if not land or h < h0 - 40:
                 break
             q = q2
-        hb, landb = T.sample(*(q + d * 60))
+        hb, landb = T.sample(*(q + d * 12 * WORLD))
         zf = hb if landb else T.sample(*q)[0] - 24 * WORLD
         top = T.sample(*q)[0]
         hh = min(w * 0.85, max(12.0, top - zf - 3))
@@ -999,7 +1043,7 @@ def build_blockouts(T):
 def build_clouds():
     c = coll('CLOUDS', ROOT).name
     p = Part('F1_Cloud_Sea', c)                                # tiles: Roblox MeshParts stay under 2,048 studs
-    t, R_ = 1800.0, 9000.0
+    t, R_ = 1800.0, 1200.0 * WORLD
     for i in range(-8, 8):
         for j in range(-8, 8):
             x, y = (i + 0.5) * t, (j + 0.5) * t
@@ -1072,7 +1116,7 @@ def build_floor1_cameras(coll_name='CAMERAS'):
     P3 = lambda x, y, z: (*px(x, y), z * W_)
     specs = (('CAM_F1_Map_TopDown', (70 * W_, -10 * W_, 4000 * W_), (70 * W_, -10 * W_, 0), 'ORTHO', 1950 * W_),
              ('CAM_F1_Overview', (-1150 * W_, -1450 * W_, 1000 * W_), (80 * W_, 20 * W_, -20 * W_), 'PERSP', 28),
-             ('CAM_F1_Entrance_Player', P3(205, 905, 18), P3(340, 640, 40), 'PERSP', 24),
+             ('CAM_F1_Entrance_Player', (*px(205, 905), 12 * W_ + 30), P3(340, 640, 40), 'PERSP', 24),
              ('CAM_F1_Valley_View', P3(470, 660, 14), P3(700, 470, 60), 'PERSP', 22),
              ('CAM_F1_World_Tree_View', P3(1010, 470, 135), P3(800, 150, 250), 'PERSP', 24),
              ('CAM_F1_Fortress_View', P3(880, 720, 120), P3(1240, 560, 250), 'PERSP', 24),

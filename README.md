@@ -319,30 +319,40 @@ python3 blender/tower_of_pets/build_floor1_export.py    # exports/TowerOfPets/Fl
 ```
 
 ## Fire pets: Ashrat, Cinderkit, Flarecat, Smoulderat (`blender/FirePets.blend`)
-Four stylised pets built from the fire-pet turnaround sheet (`blender/fire_pets.py`). They have chunky bodies and
-short legs, smooth-shaded simple meshes and flat colour materials. The fire colours are slightly emissive so they
-stay bright.
+Four stylised pets modelled to match the fire-pet turnaround sheet (`blender/fire_pets.py`). Proportions come
+from the sheet's front, side and back views on one shared scale (Ashrat is about 1 m tall to the ear tips), so
+the four keep the sheet's relative sizes. The tail silhouettes are traced from the sheet's side views.
 
 | Pet | Look | Fire features (objects) |
 |---|---|---|
-| Ashrat | charcoal rat, big round ears, orange paws, buck teeth | `_Tail` (curled, orange→yellow), `_FireCracks` (subtle glowing cracks + cheek marks) |
-| Cinderkit | soot-black kitten, amber paws, open smile | `_FlameTuft` (forehead), `_ChestRuff`, `_Tail` (flame), `_FlameMarkings` |
-| Flarecat | pale-gold cat, pink inner ears, orange paws | `_FlameMane`, `_ChestRuff`, `_Tail` (flame), `_FlameMarkings` (restrained) |
-| Smoulderat | stout charcoal rat, red paws | `_BackCrystals` + `_HeadCrystals` (orange-red), `_LavaFissures`, `_Tail` (curled) |
+| Ashrat | charcoal rat, big cupped orange-lined ears, orange paws and nose, buck teeth | `_Tail` (curled flame), `_CheekSwirls` (glowing swirls at the eyes), `_FlameMarkings` |
+| Cinderkit | soot-black kitten, cheek fluff, amber paws, open smile | `_FlameTuft` (forehead crest), `_FaceFlames`, `_ChestRuff`, `_Tail` (layered flame), `_FlameMarkings` incl. flame "socks" |
+| Flarecat | pale-gold cat, pink inner ears, orange paws | `_FlameMane` (crest, cheek flares, lotus of flames over the back of the head), `_ChestRuff`, `_Tail`, pale `_FlameMarkings` |
+| Smoulderat | stout dome-backed charcoal rat, red paws | `_HeadCrystals` + `_BackCrystals`, `_LavaFissures` (cracked-rock network), `_Tail` (curled flame) |
 
-- 1 unit = 1 m, Z up. Each pet faces −Y and stands on z = 0. Left to right: Ashrat x=−3.6, Cinderkit −1.2,
-  Flarecat 1.2, Smoulderat 3.6.
-- `PETS/<Pet>`: one collection per pet. Every part is a separate editable mesh (`<Pet>_Body`, `_Head`,
-  `_Ear_L/R`, `_Leg_FL/FR/BL/BR`, `_Paw_*`, `_Tail`, `_Eye_L/R`, `_Nose`, `_Mouth`, `_Whiskers`, plus the fire
-  objects above), all parented to `<Pet>_Root` (move the empty to move the pet). L/R are the pet's own sides
-  (left = +X). Each pet is about 15–23k triangles.
-- `STUDIO`: grey ground plane, four soft area lights and a neutral grey world.
-- `CAMERAS`: orthographic `CAM_<Pet>_Front`, `_Side` and `_Back`, framed at the same scale for every pet. The side
-  camera looks from +X, so the head is on the left as on the sheet, and it clips out the neighbouring pets. There
-  are also two overview cameras: `CAM_Overview_ThreeQuarter` and `CAM_Lineup_Front`.
-- `LABELS`: pet names and FRONT / SIDE / BACK markers lying flat on the ground around each pet.
-- Previews: `previews/FirePets_Turnaround.png` (laid out like the reference sheet), `FirePets_<Pet>_<View>.png`,
-  `FirePets_Overview_ThreeQuarter.png` and `FirePets_Lineup_Front.png`.
+- **Coordinates:** 1 unit = 1 m, Z up. Each pet faces −Y and stands on z = 0. Left to right: Ashrat x=−3.9,
+  Cinderkit −1.3, Flarecat 1.3, Smoulderat 3.9.
+- **How it's built:**
+  - Heads and bodies are seamless smooth shells. Overlapping volumes are voxel-remeshed, smoothed and
+    decimated.
+  - Tails are layered "inflated" flames: a yellow shell with orange and red inner flames.
+  - Markings, swirls and lava cracks are thin decals wrapped onto the surface.
+  - Fire colours are red → orange → yellow gradients stored in the `Col` colour attribute (`Fire_Gradient`
+    material). They are slightly emissive.
+- **`PETS/<Pet>`:** one collection per pet. Every part is a separate editable mesh (`<Pet>_Body`, `_Head`,
+  `_Ear_L/R`, `_Leg_FL/FR/BL/BR`, `_Paw_*`, `_Tail`, `_Eye_L/R`, `_Nose`, `_Mouth`, `_Teeth`, `_Whiskers`, plus
+  the fire objects above), all parented to `<Pet>_Root`. Move the empty to move the pet. L/R are the pet's own
+  sides (left = +X). Each pet is about 32–41k triangles.
+- **`STUDIO`:** five soft area lights and a neutral grey world. The ground plane is a shadow catcher, so renders
+  show an even grey backdrop with soft contact shadows.
+- **`CAMERAS`:** orthographic `CAM_<Pet>_Front`, `_Side` and `_Back` cameras, all at the same scale and tilted
+  5° down like the sheet. The side camera looks from +X, so the head is on the left as on the sheet, and it
+  clips out the neighbouring pets. There are also two overview cameras: `CAM_Overview_ThreeQuarter` and
+  `CAM_Lineup_Front`.
+- **`LABELS`:** pet names and FRONT / SIDE / BACK markers on the ground. They show in the viewport only, not in
+  renders.
+- **Previews:** `previews/FirePets_Turnaround.png` is laid out like the reference sheet. Also
+  `FirePets_<Pet>_<View>.png`, `FirePets_Overview_ThreeQuarter.png` and `FirePets_Lineup_Front.png`.
 
 ```
 python3 blender/fire_pets.py                          # rebuild blender/FirePets.blend

@@ -11,8 +11,10 @@ Units: 1 Blender unit = 1 Roblox stud, Z up. The spawn faces +Y toward the tower
 Collections:
     TOWER_OF_PETS / TOWER_OF_PETS_HUB / PET_CLINIC (Exterior, Interior, Roof, Signage, Banners, Statues,
                                                     Reception, Treatment, Decorations, Lighting)
+                                      / TOWER_OF_PETS_PET_GYM (BUILDING, SIGNAGE, BANNERS, STATUES,
+                                                    TRAINING_EQUIPMENT, INTERIOR, TROPHIES, LANDSCAPING, LIGHTING)
                                       / EXISTING_HUB (TOWER_OF_PETS_SHOP, TOWER_OF_PETS_HATCHERY, Trading,
-                                                      Leaderboards, Upgrades, Spawn, Fountain, Plaza, Tower_Entrance)
+                                                      Leaderboards, Spawn, Fountain, Plaza, Tower_Entrance)
                   / TOWER_TEMPLATE (Hub_Base, Jungle ... Divine)
                   / FLOATING_ISLANDS / WATERFALLS / ENVIRONMENT / LIGHTING / CAMERAS
     _ASSET_LIBRARY (excluded) - source meshes for every linked duplicate: lanterns, rocks, clouds,
@@ -26,22 +28,22 @@ HERE = os.path.dirname(os.path.abspath(__file__)) if '__file__' in globals() els
 if HERE not in sys.path:
     sys.path.insert(0, HERE)
 import bpy
-import common, foliage, islands, castle, shop, hatchery, clinic, hub, entrance, tower, environment
-for m in (common, foliage, islands, castle, shop, hatchery, clinic, hub, entrance, tower, environment):        # re-running inside Blender picks up edits
+import common, foliage, islands, castle, shop, hatchery, clinic, gym, hub, entrance, tower, environment
+for m in (common, foliage, islands, castle, shop, hatchery, clinic, gym, hub, entrance, tower, environment):        # re-running inside Blender picks up edits
     importlib.reload(m)
 
 OUT = os.path.join(os.path.dirname(HERE), 'TowerOfPets_Lobby.blend')
 
 
 def organize_hub():
-    """final outliner layout: TOWER_OF_PETS / TOWER_OF_PETS_HUB / PET_CLINIC + EXISTING_HUB (Shop, Hatchery,
-    Trading, Leaderboards, Upgrades, Spawn, Fountain, Plaza, Tower_Entrance)"""
+    """final outliner layout: TOWER_OF_PETS / TOWER_OF_PETS_HUB / PET_CLINIC + PET_GYM + EXISTING_HUB (Shop,
+    Hatchery, Trading, Leaderboards, Spawn, Fountain, Plaza, Tower_Entrance)"""
     C = bpy.data.collections
     hub = C['HUB']
     hub.name = 'TOWER_OF_PETS_HUB'
     ex = bpy.data.collections.new('EXISTING_HUB')
     hub.children.link(ex)
-    for name in ('TOWER_OF_PETS_SHOP', 'TOWER_OF_PETS_HATCHERY', 'Trading', 'Leaderboards', 'Upgrades', 'Spawn',
+    for name in ('TOWER_OF_PETS_SHOP', 'TOWER_OF_PETS_HATCHERY', 'Trading', 'Leaderboards', 'Spawn',
                  'Fountain', 'Plaza'):
         col = C[name]
         hub.children.unlink(col)
@@ -61,6 +63,7 @@ def main(path=OUT):
     shop.build_shop_materials()
     hatchery.build_hatchery_materials()
     clinic.build_clinic_materials()
+    gym.build_gym_materials()
     common.coll('TOWER_OF_PETS')
     for c in ('HUB', 'TOWER_ENTRANCE', 'TOWER_TEMPLATE', 'FLOATING_ISLANDS', 'WATERFALLS', 'ENVIRONMENT',
               'LIGHTING', 'CAMERAS'):
@@ -74,6 +77,7 @@ def main(path=OUT):
     shop.build_shop_kit(common.ASSET_COLL)
     hatchery.build_hatchery_kit(common.ASSET_COLL)
     clinic.build_clinic_kit(common.ASSET_COLL)
+    gym.build_gym_kit(common.ASSET_COLL)
     hub.build_hub()
     entrance.build_entrance()
     tower.build_tower()

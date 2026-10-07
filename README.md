@@ -26,7 +26,7 @@ and the exterior-only visual template of the 11-floor tower (no playable floors 
 Generator: `blender/tower_of_pets/` (`common`, `hub`, `entrance`, `tower`, `environment`, `build`).
 
 - 1 unit = 1 Roblox stud, Z up; spawn at (0, -58) facing +Y toward the entrance
-- hub: plaza r=128, paw fountain/spawn platform, Pet Clinic / Shop / Hatchery / Trading / Upgrades / Leaderboards
+- hub: plaza r=128, paw fountain/spawn platform, Pet Clinic / Shop / Hatchery / Trading / Pet Gym / Leaderboards
   on a ring facing the fountain (each building parented to a `<Name>_Root` empty — move the empty to move it)
 - entrance: 20-step stairs to z=20, stepped pointed arch, portal surface (`Entrance_Portal`) and an invisible
   `Portal_TeleportTrigger` box for the Roblox teleport
@@ -169,11 +169,40 @@ balls, bones, banners, lanterns.
   `_Decorations`, `_Planter`
 - lobby outliner: `TOWER_OF_PETS / TOWER_OF_PETS_HUB / PET_CLINIC (Exterior, Interior, Roof, Signage, Banners,
   Statues, Reception, Treatment, Decorations, Lighting)` and `EXISTING_HUB (TOWER_OF_PETS_SHOP,
-  TOWER_OF_PETS_HATCHERY, Trading, Leaderboards, Upgrades, Spawn, Fountain, Plaza, Tower_Entrance)`; the tower,
+  TOWER_OF_PETS_HATCHERY, Trading, Leaderboards, Spawn, Fountain, Plaza, Tower_Entrance)`; the tower,
   islands, waterfalls, environment, lighting and cameras stay beside it under `TOWER_OF_PETS`
 - cameras: `CAM_PetClinic_Front/_Interior/_Side/_Rear/_Player`; lobby `CAM_14_PetClinic_Front`
 - scale: entrance 20 studs wide, desk 3.4 studs, exam table 3 studs; ~93k triangles with landscaping
 
 ```
 python3 blender/tower_of_pets/build_clinic_pack.py
+```
+
+## Tower of Pets pet gym (`blender/TowerOfPets_PetGym.blend`, replaces the old Upgrades area in the lobby)
+The old Upgrades building (arch gateway, glowing up arrow, upgrade platform, crystals, UPGRADES sign and its blue
+materials) is gone; the Pet Gym (`blender/tower_of_pets/gym.py`) stands on the same hub slot (315 deg, facing the
+fountain). Blue + gold training theme in the hub's masonry: deep round voussoir arch (gold ring, dark-blue inner
+ring), "TRAIN • LEVEL • GET STRONGER" slogan band, gold-framed white-on-navy "PET GYM" sign, raised blue parapet
+with the paw + barbell emblem, banner pillars with lanterns, blue banners with gold paws, two mascot dog statues
+(red headbands, blue wristbands, dumbbell) on masonry pedestals, blue gable and lean-to roofs with gold fascia,
+planters and vines; back wall with a big paw + barbell emblem.
+Interior: wooden plank floor, circular dark-blue training floor (gold rings, glowing ticks, gold paw), dumbbell
+racks, plate stacks, bench presses with barbells, punching bags on a frame, pull-up bar, wooden training post,
+padded dummy, agility hurdles, stepped jump platforms, pet running wheel, paw targets, trophy shelf + trophies,
+crates, banners, wall and ceiling lanterns.
+
+- kit (`PETGYM_KIT`): `PetGym_Wall`, `_Pillar`, `_Arch`, `_Roof`, `_GoldTrim`, `_Sign`, `_Emblem`, `_Banner`,
+  `_PetStatue`, `_Dumbbell`, `_Barbell`, `_Weight`, `_WeightRack`, `_Bench`, `_TrainingBag`, `_BagFrame`,
+  `_PullUpBar`, `_TrainingPost`, `_Hurdle`, `_Platform`, `_RunningWheel`, `_Dummy`, `_PawTarget`, `_Trophy`,
+  `_TrophyShelf`, `_CentralFloor`, `_Lantern`, `_Planter`
+- outliner: `TOWER_OF_PETS_PET_GYM / BUILDING (Walls, Pillars, Arches, Roof, Gold_Trim), SIGNAGE (Pet_Gym,
+  Training_Slogan, Paw_Barbell), BANNERS, STATUES, TRAINING_EQUIPMENT (Weights, Barbells, Dumbbells, Benches, Bags,
+  Training_Posts, Agility), INTERIOR, TROPHIES, LANDSCAPING, LIGHTING`; in the lobby it sits under
+  `TOWER_OF_PETS_HUB` next to `PET_CLINIC` (names already used elsewhere in the lobby get a ` (gym)` suffix)
+- cameras: `CAM_PetGym_Front/_Interior/_Side/_Rear/_Player`; lobby `CAM_15_PetGym_Front`
+- scale: entrance 14 studs wide, central training floor 15 studs across, bench 4.4 studs; ~100k triangles with
+  landscaping, every mesh under Roblox's 20k-triangle limit
+
+```
+python3 blender/tower_of_pets/build_gym_pack.py
 ```

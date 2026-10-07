@@ -1,12 +1,12 @@
 """HUB: circular plaza, central paw fountain/spawn platform, spawn pad, the six facilities
-(Pet Clinic, Shop, Eggs/Hatchery, Trading, Upgrades, Leaderboards) and the landscaping between them.
+(Pet Clinic, Shop, Eggs/Hatchery, Trading, Pet Gym, Leaderboards) and the landscaping between them.
 
 Layout follows the reference top-down hub plan (tower entrance north / +Y, spawn south):
 
                  TOWER ENTRANCE (90 deg)
   PET CLINIC (135)               SHOP (45)
    TRADING (180)     FOUNTAIN       EGGS (0)
-        LEADERBOARDS (225)       UPGRADES (315)
+        LEADERBOARDS (225)       PET GYM (315)
                     SPAWN (270)
 
 Every facility is built in local space (front = -Y, centred on its own Empty) and the Empty
@@ -23,7 +23,7 @@ R_ISLAND = 172.0         # grassy island rim
 R_BUILD = 96.0           # facility ring
 R_CORE = 34.0            # central spawn platform
 SLOT = {'Eggs': 0, 'Shop': 45, 'Entrance': 90, 'PetClinic': 135, 'Trading': 180,
-        'Leaderboards': 225, 'Spawn': 270, 'Upgrades': 315}
+        'Leaderboards': 225, 'Spawn': 270, 'PetGym': 315}
 SPAWN_POS = (0.0, -58.0, 0.0)
 FAC_SCALE = 1.2         # facilities are authored at 1:1 studs and shown 20% larger (simulator style)
 HUB = 'HUB'
@@ -328,37 +328,11 @@ def build_trading():
         inst('Bush_03', f'Trading_Bush_{s}', c, (s * 18.5, 6, 1.2), 0, 1.1, root)
 
 
-def build_upgrades():
-    root = facility('Upgrades'); c = 'Upgrades'
-    p = Part('Upgrades_Gate', c, 0.15)
-    plinth(p, 36, 28)
-    # big round arch gateway (stone with blue inner frame)
-    p.strip_xz(round_arch(32, 14, 14), round_arch(22, 14, 14), 4.0, 9.0, 'Hub_Stone_Warm')
-    p.strip_xz(round_arch(22.4, 14, 14), round_arch(20.6, 14, 14), 3.6, 9.4, 'Upgrade_Blue')
-    p.strip_xz(round_arch(32.6, 14, 14), round_arch(31.4, 14, 14), 3.5, 4.0, 'Gold')
-    p.prism_xz(round_arch(21, 14, 14), 8.6, 9.0, 'Board_Navy')                     # dark backdrop
-    p.box((0, 6.5, 2.0), (36, 5, 1.6), 'Hub_Stone')
-    p.finish(parent=root)
-    # glowing up arrow in the arch
-    p = Part('Upgrades_Arrow', c)
-    arrow = [(-2.2, 0), (2.2, 0), (2.2, 8), (5.5, 8), (0, 15), (-5.5, 8), (-2.2, 8)]
-    p.prism(arrow, 0, 0.8, 'Upgrade_Blue_Glow', M_front(0, 8.5, 4.8))
-    p.finish(parent=root)
-    # circular upgrade platform in front + crystals
-    p = Part('Upgrades_Platform', c, 0.1)
-    p.cyl((0, -6, 1.8), 9.0, 1.2, 'Hub_Stone_Warm', 40)
-    p.cyl((0, -6, 2.45), 7.4, 0.1, 'Upgrade_Blue_Glow', 40)
-    p.torus((0, -6, 2.5), 8.2, 0.25, 'Gold', 40, 4)
-    paw(p, Matrix.Translation((0, -5.6, 2.5)), 8, 0.12, 'Paw_White_Glow')
-    for s in (-1, 1):
-        p.cyl((s * 13, -8, 4.0), 1.6, 5.6, 'Hub_Stone', 8)
-        p.cyl((s * 13, -8, 7.0), 2.1, 0.5, 'Gold', 8)
-    p.finish(parent=root)
-    for s in (-1, 1):
-        inst('Crystals_B', f'Upgrades_Crystal_{s}', c, (s * 13, -8, 7.2), 0.3 * s, 1.8, root)
-        inst('Crystals_B', f'Upgrades_CrystalBig_{s}', c, (s * 19, 2, 1.2), 1.2 * s, 3.2, root)
-        inst('Lantern_Post', f'Upgrades_Lantern_{s}', c, (s * 19, -12, 1.2), 0, 1.0, root)
-    sign('Upgrades_Sign', 'UPGRADES', c, root, 27.0, 3.0, 'Upgrade_Blue', 24, 3.2)
+def build_pet_gym():
+    """the Pet Gym (gym.py) - replaces the old Upgrades area on the same slot, front facing the fountain"""
+    import gym
+    deg = SLOT['PetGym']
+    gym.build_gym(HUB, polar(R_BUILD - 2.0, deg), math.radians(deg - 90))
 
 
 def build_leaderboards():
@@ -404,4 +378,4 @@ def build_hub():
     coll(HUB, 'TOWER_OF_PETS')
     build_plaza()
     build_spawn_and_fountain()
-    build_shop(); build_pet_clinic(); build_eggs(); build_trading(); build_upgrades(); build_leaderboards()
+    build_shop(); build_pet_clinic(); build_eggs(); build_trading(); build_pet_gym(); build_leaderboards()

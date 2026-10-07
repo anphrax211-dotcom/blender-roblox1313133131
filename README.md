@@ -26,3 +26,12 @@ Tower Entrance, Codes, Daily Rewards, Index, Settings) — `blender/tower_npcs.p
 `blender/TowerOfPets_NPCs.blend`. Roblox R15-proportioned blocky bodies (~1.49 m / 5.3 studs),
 R15 part names with joint-pivot origins; every other part is `<Bone>_<Item>` with a `bone`
 custom property. Previews: `previews/NPCs_Lineup.png`, `previews/NPCs_Turnarounds.png`.
+
+## NPC animations (`roblox/`, `blender/npc_animations.py`)
+Idle / IdleHover / Talk / Wave / Point / Nod / Shake / Celebrate / Think / Bow, defined once in
+`blender/npc_animations.py`: baked to Blender actions on R15 armatures
+(`blender/TowerOfPets_NPCs_Animated.blend`, demo reel on each NPC's NLA track) and exported to
+`roblox/NPCAnimationData.lua`. The Roblox scripts in `roblox/` rig the imported NPCs with Motor6Ds
+and play the clips plus blinking, talking mouth, look-at, floating props, speech bubbles and a
+Talk prompt — no animation uploads. Install steps: `roblox/README.md`. Tests:
+`python3 roblox/tests/run_tests.py`.

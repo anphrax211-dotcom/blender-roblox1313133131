@@ -372,6 +372,12 @@ def build_cameras():
     import gym
     gym.build_gym_cameras(hpolar(R_BUILD - 2.0, SLOT['PetGym']), math.radians(SLOT['PetGym'] - 90), CAM,
                           'CAM_15_PetGym', only=('Front',))
+    import trading, leaderboard
+    trading.build_trading_cameras(hpolar(R_BUILD + 4.0, SLOT['Trading']), math.radians(SLOT['Trading'] - 90), CAM,
+                                  'CAM_16_TradingPortal', only=('Front',))
+    leaderboard.build_leaderboard_cameras(hpolar(R_BUILD + 6.0, SLOT['Leaderboards']),
+                                          math.radians(SLOT['Leaderboards'] - 90), CAM, 'CAM_17_Leaderboards',
+                                          only=('Front',))
     bpy.context.scene.camera = c1
 
 

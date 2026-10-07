@@ -26,7 +26,8 @@ and the exterior-only visual template of the 11-floor tower (no playable floors 
 Generator: `blender/tower_of_pets/` (`common`, `hub`, `entrance`, `tower`, `environment`, `build`).
 
 - 1 unit = 1 Roblox stud, Z up; spawn at (0, -58) facing +Y toward the entrance
-- hub: plaza r=128, paw fountain/spawn platform, Pet Clinic / Shop / Hatchery / Trading / Pet Gym / Leaderboards
+- hub: plaza r=128, paw fountain/spawn platform, Pet Clinic / Shop / Hatchery / Trading Plaza Portal / Pet Gym /
+  Leaderboards monument
   on a ring facing the fountain (each building parented to a `<Name>_Root` empty — move the empty to move it)
 - entrance: 20-step stairs to z=20, stepped pointed arch, portal surface (`Entrance_Portal`) and an invisible
   `Portal_TeleportTrigger` box for the Roblox teleport
@@ -169,7 +170,7 @@ balls, bones, banners, lanterns.
   `_Decorations`, `_Planter`
 - lobby outliner: `TOWER_OF_PETS / TOWER_OF_PETS_HUB / PET_CLINIC (Exterior, Interior, Roof, Signage, Banners,
   Statues, Reception, Treatment, Decorations, Lighting)` and `EXISTING_HUB (TOWER_OF_PETS_SHOP,
-  TOWER_OF_PETS_HATCHERY, Trading, Leaderboards, Spawn, Fountain, Plaza, Tower_Entrance)`; the tower,
+  TOWER_OF_PETS_HATCHERY, Spawn, Fountain, Plaza, Tower_Entrance)`; the tower,
   islands, waterfalls, environment, lighting and cameras stay beside it under `TOWER_OF_PETS`
 - cameras: `CAM_PetClinic_Front/_Interior/_Side/_Rear/_Player`; lobby `CAM_14_PetClinic_Front`
 - scale: entrance 20 studs wide, desk 3.4 studs, exam table 3 studs; ~93k triangles with landscaping
@@ -205,4 +206,59 @@ crates, banners, wall and ceiling lanterns.
 
 ```
 python3 blender/tower_of_pets/build_gym_pack.py
+```
+
+## Tower of Pets trading plaza portal (`blender/TowerOfPets_TradingPortal.blend`, replaces the old Trading building)
+The old Trading pavilion (gold roof, booths, handshake plaque, TRADING sign and its gold/navy board materials) is
+gone; the Trading Plaza Portal (`blender/tower_of_pets/trading.py`) stands on the same hub slot (180 deg, facing the
+fountain). It is only the gateway: walking through `TradingPortal_TeleportTrigger` (invisible, not rendered) is
+where the Roblox teleport to the separate Trading Plaza place goes - the plaza itself is not built here.
+Masonry central block with a deep layered round arch (stone voussoirs front and back, gold ring, purple-stone
+chamber lining, inner recessed arch), raised round-topped crest with the glowing trading emblem (cat + dog
+silhouettes under circular trade arrows), purple "TRADING PLAZA" sign with gold frame and a navy "TRADE WITH OTHER
+PLAYERS" ribbon, tall pillars and outer pillars with lanterns, crenellated side walls with navy gold-paw banners,
+a cat and a dog statue on paw pedestals holding glowing trade cubes toward each other, a paved forecourt with
+purple bands and the circular trading floor symbol, path lanterns, planters, purple crystals, trees and vines.
+
+- portal effect pieces (separate objects, ready to animate in Roblox): `PORTAL/Core` (`TradingPortal_Core` vortex
+  surface + the trigger), `PORTAL/Rings` (`TradingPortal_EnergyRing_0..2`, origin at the portal centre - spin them
+  about local Y), `PORTAL/Energy` (swirl arms + glowing trade icon, origin at the centre), `PORTAL/Particles`
+- kit (`TRADINGPORTAL_KIT`): `TradingPortal_Wall`, `_Pillar`, `_Arch`, `_Roof`, `_GoldTrim`, `_Sign`, `_Banner`,
+  `_Statue` (cat), `_Statue_Dog`, `_Pedestal`, `_Core`, `_EnergyRing`, `_Particles`, `_Lantern`, `_Floor`,
+  `_TradingSymbol`, `_Crystal`
+- outliner: `TOWER_OF_PETS_TRADING_PORTAL / ARCHITECTURE (Walls, Pillars, Arch, Trim, Roof), SIGNAGE (Trading_Plaza,
+  Trade_With_Other_Players), PORTAL (Core, Rings, Energy, Particles), STATUES (Pet_Left, Pet_Right), BANNERS,
+  LANTERNS, FLOOR, LANDSCAPING, LIGHTING` (names already used in the lobby get a ` (trading)` suffix)
+- cameras: `CAM_TradingPortal_Front/_Close/_Side/_Back/_Top/_Player`; lobby `CAM_16_TradingPortal_Front`
+- scale: walk-through opening 14.8 studs wide x 19.4 high, statues ~10 studs on 6.8-stud pedestals; ~100k triangles
+
+```
+python3 blender/tower_of_pets/build_trading_pack.py
+```
+
+## Tower of Pets leaderboards monument (`blender/TowerOfPets_Leaderboards.blend`, replaces the old Leaderboards)
+The old three-board stand (plinth, trophy, LEADERBOARDS board) is gone; the Leaderboards monument
+(`blender/tower_of_pets/leaderboard.py`) stands on the same hub slot (225 deg, facing the fountain). It is an
+open-air monument - no roof, no interior. Masonry foundation with three shallow steps, carved back wall, three
+arched navy boards with gold frames and stone voussoir surrounds: TOP PET POWER (crossed swords), TOP PET
+COLLECTORS (paw), TOP ROBUX SPENT (Robux hexagon), each with a title band, subtitle and ranks #1-#10 (avatar disc,
+name, value). Above them a navy "SEE THE STRONGEST • TOP COLLECTORS • TOP SUPPORTERS" ribbon, the gold-framed
+"LEADERBOARDS" sign and a gold crown on a raised arched crest; tall pillars with navy crown + paw banners and
+lanterns, small lanterns and topiary planters between the boards, two crowned guardian cats (navy bandanas with
+gold paws) facing the centre from pedestals with glowing paw panels, and a navy/gold paw medallion in the forecourt.
+
+- Roblox: each board's screen is its own part (`Leaderboard_1_Screen` ... `_3_Screen`) for a SurfaceGui; the
+  ranked rows are placeholder 3D text in `BOARDS/<board>/Placeholder_Entries_<n>` - delete them once the live
+  boards are wired up
+- kit (`LEADERBOARD_KIT`): `Leaderboard_Wall`, `_Pillar`, `_Arch`, `_Board`, `_Screen`, `_Sign`, `_Crown`, `_Banner`,
+  `_CatStatue`, `_Pedestal`, `_Lantern`, `_Step`, `_FloorEmblem`, `_Planter`, `_Emblem_Swords`, `_Emblem_Paw`,
+  `_Emblem_Robux`
+- outliner: `TOWER_OF_PETS_LEADERBOARDS / MONUMENT (Foundation, Steps, Walls, Pillars, Arches, Gold_Trim), SIGNAGE
+  (Leaderboards_Title, Leaderboards_Subtitle, Crown), BOARDS (Top_Pet_Power, Top_Pet_Collectors, Top_Robux_Spent),
+  STATUES, BANNERS, LANTERNS, FLOOR, LANDSCAPING, LIGHTING` (` (leaderboards)` suffix where a name is taken)
+- cameras: `CAM_Leaderboards_Front/_Boards/_Side/_Player/_Top`; lobby `CAM_17_Leaderboards_Front`
+- scale: boards 14 studs wide, ~24 studs tall; steps 0.75 studs each; ~133k triangles with landscaping
+
+```
+python3 blender/tower_of_pets/build_leaderboards_pack.py
 ```

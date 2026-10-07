@@ -1,11 +1,11 @@
 """HUB: circular plaza, central paw fountain/spawn platform, spawn pad, the six facilities
-(Pet Clinic, Shop, Eggs/Hatchery, Trading, Pet Gym, Leaderboards) and the landscaping between them.
+(Pet Clinic, Shop, Eggs/Hatchery, Trading Plaza Portal, Pet Gym, Leaderboards monument) and the landscaping between them.
 
 Layout follows the reference top-down hub plan (tower entrance north / +Y, spawn south):
 
                  TOWER ENTRANCE (90 deg)
   PET CLINIC (135)               SHOP (45)
-   TRADING (180)     FOUNTAIN       EGGS (0)
+   TRADING PORTAL (180)  FOUNTAIN   EGGS (0)
         LEADERBOARDS (225)       PET GYM (315)
                     SPAWN (270)
 
@@ -25,7 +25,6 @@ R_CORE = 34.0            # central spawn platform
 SLOT = {'Eggs': 0, 'Shop': 45, 'Entrance': 90, 'PetClinic': 135, 'Trading': 180,
         'Leaderboards': 225, 'Spawn': 270, 'PetGym': 315}
 SPAWN_POS = (0.0, -58.0, 0.0)
-FAC_SCALE = 1.2         # facilities are authored at 1:1 studs and shown 20% larger (simulator style)
 HUB = 'HUB'
 
 
@@ -88,7 +87,7 @@ def build_plaza():
         a = math.radians(deg)
         side = Vector((-math.sin(a), math.cos(a), 0))
         w = 22 if name == 'Spawn' else 14
-        for r in ((44.0,) if name == 'Spawn' else (44.0, 78.0)):
+        for r in ((44.0,) if name in ('Spawn', 'Trading', 'Leaderboards') else (44.0, 78.0)):   # forecourts at r 78
             for s in (-1, 1):
                 pos = Vector(polar(r, deg)) + side * s * (w / 2 + 2.2)
                 inst('Lantern_Post', f'Lantern_{name}_{int(r)}_{"LR"[s > 0]}', c, pos, a)
@@ -97,7 +96,7 @@ def build_plaza():
     rnd = random.Random(5)
     for k in range(8):
         mid = k * 45 + 22.5
-        if mid in (22.5, 337.5):          # beside the hatchery: it brings its own landscaping
+        if mid in (22.5, 337.5, 202.5):   # beside the hatchery / between portal and monument: they bring their own
             continue
         if mid in (67.5, 112.5):          # beside the grand stairs: low planters only
             inst('Stone_Planter', f'Planter_Stairs_{k}', c, polar(84, mid), math.radians(mid - 90))
@@ -237,33 +236,6 @@ def build_spawn_and_fountain():
 
 
 # ---------------------------------------------------------------- facilities -
-def facility(name):
-    coll(name, HUB)
-    deg = SLOT[name]
-    e = empty(f'{name}_Root', name, polar(R_BUILD, deg), math.radians(deg - 90), 6)
-    e.scale = (FAC_SCALE,) * 3
-    return e
-
-
-def plinth(p, w, d, h=1.2, step_w=16):
-    p.box((0, 0, h / 2), (w, d, h), 'Hub_Stone')
-    p.box((0, 0, h + 0.1), (w - 1, d - 1, 0.2), 'Plaza_Tile')
-    p.box((0, -d / 2 - 1.5, h / 4), (step_w, 3.0, h / 2), 'Hub_Stone')
-
-
-def sign(name, text, coll_name, parent, z, y, color_mat, w=None, size=3.2, text_mat='Shop_White', h=5.5):
-    """framed sign board with 3D lettering on the front"""
-    w = w or max(12.0, len(text) * size * 0.78 + 4)
-    p = Part(name + '_Board', coll_name, 0.12)
-    p.box((0, y, z), (w, 1.0, h), color_mat)
-    p.box((0, y - 0.1, z + h / 2), (w + 0.6, 1.3, 0.5), 'Gold')
-    p.box((0, y - 0.1, z - h / 2), (w + 0.6, 1.3, 0.5), 'Gold')
-    for s in (-1, 1):
-        p.box((s * w / 2, y - 0.1, z), (0.5, 1.3, h + 0.5), 'Gold')
-    p.finish(parent=parent)
-    text_mesh(name + '_Text', text, coll_name, size, 0.5, text_mat, (0, y - 0.75, z - 0.1), 0, parent)
-
-
 def build_shop():
     """the detailed shop (shop.py) on the hub's Shop slot, front facing the fountain"""
     import shop
@@ -285,47 +257,11 @@ def build_eggs():
     hatchery.build_hatchery(HUB, polar(R_BUILD + 2.0, deg), math.radians(deg - 90))
 
 
-def build_trading():
-    root = facility('Trading'); c = 'Trading'
-    p = Part('Trading_Pavilion', c, 0.15)
-    plinth(p, 34, 28, step_w=20)
-    for sx in (-1, 1):
-        for sy in (-1, 1):
-            x, y = sx * 13.5, sy * 10
-            p.box((x, y, 1.9), (3.6, 3.6, 1.4), 'Stone_Trim')
-            p.cyl((x, y, 9.0), 1.3, 13.0, 'Trade_Gold', 12)
-            p.box((x, y, 16.0), (3.2, 3.2, 1.2), 'Gold')
-    p.box((0, 0, 17.4), (31, 24, 1.6), 'Hub_Stone_Warm')
-    p.box((0, 0, 18.4), (32, 25, 0.5), 'Gold')
-    # pyramidal golden roof with lantern finial
-    p.prism([(-16, -12.5), (16, -12.5), (16, 12.5), (-16, 12.5)], 18.6, 19.4, 'Trade_Gold')
-    vs = p.prism([(-15, -11.5), (15, -11.5), (15, 11.5), (-15, 11.5)], 19.4, 26.0, 'Trade_Gold')
-    for v in vs[4:]:
-        v.co.x *= 0.25; v.co.y *= 0.25
-    p.box((0, 0, 27.0), (3, 3, 2.0), 'Trade_Gold_Glow')
-    p.cone((0, 0, 28.0), 2.4, 2.5, 'Gold', 4)
-    # two facing trade booths + central exchange ring
-    for s in (-1, 1):
-        p.box((s * 7, 2, 3.2), (4, 10, 2.8), 'Wood')
-        p.box((s * 7, 2, 4.8), (5, 11, 0.4), 'Trade_Gold')
-        p.box((s * 10.5, 2, 3.0), (2.0, 4.0, 2.4), 'Shop_Red')         # seats
-    p.cyl((0, 2, 1.6), 3.4, 0.4, 'Trade_Gold_Glow', 24)
-    p.finish(parent=root)
-    # handshake icon on a framed golden plaque (front)
-    p = Part('Trading_HandshakeIcon', c, 0.05)
-    y = -12.8
-    p.box((0, y + 0.6, 21.8), (11, 0.6, 6.6), 'Board_Navy')
-    M = M_front(0, y, 21.8)
-    for s in (-1, 1):                                # two forearms meeting
-        p.beam(M @ Vector((s * 4.4, -1.6, 0.3)), M @ Vector((s * 1.2, 0.2, 0.3)), 1.4, 0.6, 'Trade_Gold_Glow')
-    p.box(M @ Vector((0, 0.3, 0.3)), (3.6, 0.6, 2.0), 'Trade_Gold_Glow')     # clasped hands
-    for i in range(4):
-        p.box(M @ Vector((-1.3 + i * 0.85, 1.5, 0.35)), (0.6, 0.6, 1.1), 'Trade_Gold_Glow')
-    p.finish(parent=root)
-    sign('Trading_Sign', 'TRADING', c, root, 29.5, -12.5, 'Board_Navy', 22, 3.4, 'Trade_Gold_Glow')
-    for s in (-1, 1):
-        inst('Lantern_Post', f'Trading_Lantern_{s}', c, (s * 19, -12, 1.2), 0, 1.0, root)
-        inst('Bush_03', f'Trading_Bush_{s}', c, (s * 18.5, 6, 1.2), 0, 1.1, root)
+def build_trading_portal():
+    """the Trading Plaza Portal (trading.py) - replaces the old Trading building on the same slot, facing the fountain"""
+    import trading
+    deg = SLOT['Trading']
+    trading.build_trading_portal(HUB, polar(R_BUILD + 4.0, deg), math.radians(deg - 90))
 
 
 def build_pet_gym():
@@ -336,46 +272,14 @@ def build_pet_gym():
 
 
 def build_leaderboards():
-    root = facility('Leaderboards'); c = 'Leaderboards'
-    p = Part('Leaderboards_Base', c, 0.15)
-    plinth(p, 44, 22, step_w=24)
-    p.finish(parent=root)
-    boards = ((-14.5, 0, 22, 'MOST PETS'), (0, -2.5, 27, 'HIGHEST FLOOR'), (14.5, 0, 22, 'RICHEST'))
-    for i, (x, y, h, title) in enumerate(boards):
-        b = Part(f'Leaderboard_{i + 1}', c, 0.1)
-        w = 12.5
-        b.box((x, y + 1.0, 1.2 + h / 2), (w + 1.6, 1.6, h), 'Board_Navy')
-        b.box((x, y + 0.1, 1.2 + h / 2 - 1.5), (w - 0.6, 0.4, h - 6.0), 'Board_Screen')
-        for s in (-1, 1):
-            b.box((x + s * (w / 2 + 0.8), y + 1.0, 1.2 + h / 2), (1.0, 2.2, h + 0.6), 'Gold')
-        b.box((x, y + 1.0, 1.4 + h), (w + 2.6, 2.4, 0.8), 'Gold')
-        top = 1.2 + h - 5.0
-        for r in range(10):                                   # ranking rows
-            z = top - 1.6 - r * ((h - 8.0) / 10)
-            badge = ('Gold', 'Silver', 'Bronze')[r] if r < 3 else 'Board_Row'
-            b.cyl((x - w / 2 + 1.6, y - 0.2, z), 0.55, 0.3, badge, 10, axis='Y')
-            b.box((x + 0.6, y - 0.15, z), (w - 4.8 - (r % 3) * 0.8, 0.2, 0.55), 'Board_Row')
-        b.finish(parent=root)
-        text_mesh(f'Leaderboard_{i + 1}_Title', title, c, 1.25, 0.3, 'Trade_Gold_Glow',
-                  (x, y - 0.25, 1.2 + h - 2.0), 0, root)
-    # trophy on top of the centre board
-    t = Part('Leaderboards_Trophy', c)
-    zt = 1.2 + 27 + 1.8
-    t.box((0, -1.5, zt + 0.6), (4, 3, 1.2), 'Board_Navy')
-    t.cyl((0, -1.5, zt + 2.0), 0.5, 1.8, 'Gold', 10)
-    t.cone((0, -1.5, zt + 2.9), 1.0, 4.0, 'Gold', 16, r_top=3.0)
-    t.cyl((0, -1.5, zt + 6.9), 3.0, 0.3, 'Gold', 16)
-    for s in (-1, 1):
-        t.torus((s * 3.0, -1.5, zt + 5.0), 1.2, 0.25, 'Gold', 16, 6, rot=Matrix.Rotation(math.pi / 2, 3, 'Y'))
-    t.finish(parent=root)
-    sign('Leaderboards_Sign', 'LEADERBOARDS', c, root, 38.5, -2.6, 'Board_Navy', 30, 2.9, 'Trade_Gold_Glow')
-    for s in (-1, 1):
-        inst('Lantern_Post', f'Leaderboards_Lantern_{s}', c, (s * 23.5, -10, 1.2), 0, 1.0, root)
-        inst('Ground_Plant_02', f'Leaderboards_Bush_{s}', c, (s * 7.3, -9.5, 1.2), 0, 0.8, root)
+    """the Leaderboards monument (leaderboard.py) - replaces the old Leaderboards stand on the same slot"""
+    import leaderboard
+    deg = SLOT['Leaderboards']
+    leaderboard.build_leaderboards(HUB, polar(R_BUILD + 6.0, deg), math.radians(deg - 90))
 
 
 def build_hub():
     coll(HUB, 'TOWER_OF_PETS')
     build_plaza()
     build_spawn_and_fountain()
-    build_shop(); build_pet_clinic(); build_eggs(); build_trading(); build_pet_gym(); build_leaderboards()
+    build_shop(); build_pet_clinic(); build_eggs(); build_trading_portal(); build_pet_gym(); build_leaderboards()

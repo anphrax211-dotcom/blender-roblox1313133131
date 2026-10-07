@@ -17,7 +17,8 @@ applied (identity transforms) and its origin at the centre of the part.
 Run in Blender (Scripting tab -> Run Script) or headless:
     blender -b -P ashrat.py
     python3 ashrat.py          (with the `bpy` pip module)
-Saves Ashrat.blend next to this script and prints the full path.
+Saves Ashrat.blend next to this script and prints the full path, then exports
+Ashrat.fbx for Roblox Studio to ../exports (or next to the script if that folder is missing).
 """
 import bpy, bmesh, math, os, random
 from mathutils import Vector, Matrix
@@ -546,6 +547,23 @@ def build_camera_and_lights():
     sc.view_settings.look = 'None'
 
 
+def export_fbx():
+    """Roblox FBX: only the Ashrat meshes, bevels/solidify baked in, one colour per mesh,
+    1 unit = 1 m (same settings as exports/Boulderbub.fbx). Goes to ../exports when it exists."""
+    out_dir = os.path.join(HERE, '..', 'exports')
+    out_dir = os.path.abspath(out_dir if os.path.isdir(out_dir) else HERE)
+    path = os.path.join(out_dir, 'Ashrat.fbx')
+    for o in bpy.context.scene.objects:
+        o.select_set(o.name in COLL.objects)
+    bpy.ops.export_scene.fbx(filepath=path, use_selection=True, object_types={'MESH'},
+                             use_mesh_modifiers=True, mesh_smooth_type='FACE', apply_unit_scale=True,
+                             apply_scale_options='FBX_SCALE_ALL',
+                             add_leaf_bones=False, path_mode='STRIP')
+    for o in bpy.context.scene.objects:
+        o.select_set(False)
+    return path
+
+
 def main():
     global COLL
     bpy.ops.wm.read_factory_settings(use_empty=True)
@@ -571,6 +589,7 @@ def main():
     tris = sum(sum(len(p.vertices) - 2 for p in o.data.polygons) for o in meshes)
     print(f'Ashrat: {len(meshes)} mesh objects, ~{tris} triangles (before bevels)')
     print('Saved:', path)
+    print('Exported FBX:', export_fbx())
 
 
 if __name__ == '__main__':

@@ -287,7 +287,7 @@ def build_shop_kit(parent):
 
 
 def roof_slope(p, M, x_eave, x_ridge, z_eave, z_ridge, y0, y1, t, mat='Shop_Roof', segs=3, sag=0.35,
-               courses=True):
+               courses=True, course_mat='Shop_Roof_Dark'):
     """slightly concave (fantasy) roof slope between an eave line and a ridge line, extruded along y,
     with raised tile courses parallel to the eave"""
     pts = []
@@ -309,7 +309,7 @@ def roof_slope(p, M, x_eave, x_ridge, z_eave, z_ridge, y0, y1, t, mat='Shop_Roof
             p.hexa([M @ Vector((x - 0.35, y0, z)), M @ Vector((x + 0.35, y0, z + 0.0)), M @ Vector((x + 0.35, y0, z + 0.22)),
                     M @ Vector((x - 0.35, y0, z + 0.22)),
                     M @ Vector((x - 0.35, y1, z)), M @ Vector((x + 0.35, y1, z)), M @ Vector((x + 0.35, y1, z + 0.22)),
-                    M @ Vector((x - 0.35, y1, z + 0.22))], 'Shop_Roof_Dark')
+                    M @ Vector((x - 0.35, y1, z + 0.22))], course_mat)
     return pts
 
 

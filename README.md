@@ -125,3 +125,29 @@ counter with a gold paw (room behind it for an NPC), red runner + round paw rug,
 ```
 python3 blender/tower_of_pets/build_shop_pack.py
 ```
+
+## Tower of Pets hatchery / eggs (`blender/TowerOfPets_Hatchery.blend`, also placed in the lobby)
+The Eggs building rebuilt from the hatchery reference (`blender/tower_of_pets/hatchery.py`), in the castle
+masonry language: block-built facade with corner quoins and a deep round arch (outer voussoirs, gold ring,
+recessed purple inner arch), gold-framed purple band with the glowing EGGS lettering, raised purple parapet with
+the egg emblem (glowing egg + paw in a stone/gold frame, fan of purple crystals), banner pillars with lanterns,
+purple-panelled wings with lean-to purple roofs and lantern pillars, crystal planters; back wall with a raised
+purple panel and two egg emblems. Interior: octagonal hall under a ribbed dome with a glowing oculus, arched niche
+shelves of eggs, central tiered hatchery platform with the floating glowing egg, magic rings and sparkles,
+crystal pedestals, egg pedestals, display stands, purple runner + paw medallion, bracket lanterns, banners.
+
+- eggs: `Egg_Blue`, `Egg_Cyan`, `Egg_Pink`, `Egg_Purple`, `Egg_Gold`, `Egg_Green`, `Egg_Fire`, `Egg_Ice`,
+  `Egg_Crystal`, `Egg_Dark` (one collection each under `EGGS`)
+- kit (`HATCHERY_KIT`, "Hatch_" prefix): `Hatch_Stone_Block/Wall/Corner/Pillar/Arch`, `Hatch_Purple_Wall`,
+  `Hatch_Roof_Piece`, `Hatch_Gold_Trim`, `Hatch_Egg_Sign`, `Hatch_Egg_Emblem`, `Hatch_Purple_Banner`,
+  `Hatch_Crystal(_Cluster_Purple/_Blue)`, `Hatch_Lantern`, `Hatch_Egg_Pedestal_S/M/L`, `Hatch_Egg_Display`,
+  `Hatch_Central_Hatchery_Platform`, `Hatch_Big_Egg`, `Hatch_Interior_Shelf`, `Hatch_Decorative_Paw`, `Hatch_Planter`
+- collections: `TOWER_OF_PETS_HATCHERY / BUILDING (Walls, Pillars, Arches, Roof, Gold_Trim), SIGNAGE (Eggs_Sign,
+  Egg_Emblem), BANNERS, INTERIOR (Central_Platform, Shelves, Pedestals, Decorations), EGGS, CRYSTALS, LANTERNS,
+  LANDSCAPING, LIGHTING` - in the lobby, names already used by the shop/tower get a " (hatchery)" suffix
+- cameras: `CAM_Hatchery_Front/_Interior/_Side/_Rear/_Player`; lobby `CAM_13_Hatchery_Front`
+- scale: arch opening 13 x 17.5 studs, hall 30 studs across, ~108k triangles with landscaping
+
+```
+python3 blender/tower_of_pets/build_hatchery_pack.py
+```

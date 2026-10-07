@@ -97,6 +97,8 @@ def build_plaza():
     rnd = random.Random(5)
     for k in range(8):
         mid = k * 45 + 22.5
+        if mid in (22.5, 337.5):          # beside the hatchery: it brings its own landscaping
+            continue
         if mid in (67.5, 112.5):          # beside the grand stairs: low planters only
             inst('Stone_Planter', f'Planter_Stairs_{k}', c, polar(84, mid), math.radians(mid - 90))
             inst('Lantern_Stone', f'LanternStone_Stairs_{k}', c, polar(96, mid + (6 if mid < 90 else -6)))
@@ -308,45 +310,10 @@ def build_pets():
 
 
 def build_eggs():
-    root = facility('Eggs'); c = 'Eggs'
-    p = Part('Eggs_Building', c, 0.15)
-    plinth(p, 36, 28)
-    # barrel-vault hall open at the front
-    for s in (-1, 1):
-        p.box((s * 15, 2, 7.0), (2.4, 20, 11.6), 'Hub_Stone_Warm')
-        p.box((s * 15.2, -8.5, 7.5), (3.4, 3.4, 12.6), 'Hub_Stone')
-        p.cone((s * 15.2, -8.5, 13.8), 2.2, 3.2, 'Eggs_Purple', 4)
-    p.box((0, 11.5, 7.0), (31, 2, 11.6), 'Hub_Stone_Warm')
-    outer = round_arch(34, 12.8, 12); inner = round_arch(28, 12.8, 12)
-    p.strip_xz(outer, inner, -9.5, 12.5, 'Eggs_Purple')
-    p.strip_xz(round_arch(35, 12.8, 12), round_arch(33.6, 12.8, 12), -10.3, -9.5, 'Gold')
-    p.prism_xz(round_arch(28, 12.8, 12), 11.0, 12.5, 'Eggs_Purple')            # back cap
-    # display tiers & pedestals
-    p.cyl((0, 2, 2.2), 7.5, 2.0, 'Hub_Stone', 32)
-    p.cyl((0, 2, 3.5), 5.5, 0.6, 'Eggs_Purple', 32)
-    p.torus((0, 2, 3.8), 5.6, 0.25, 'Eggs_Purple_Glow', 32, 4)
-    for i, x in enumerate((-10.5, 10.5)):
-        p.cyl((x, 4, 3.0), 2.2, 3.6, 'Hub_Stone', 12)
-        p.cyl((x, 4, 5.0), 2.6, 0.4, 'Gold', 12)
-    p.finish(parent=root)
-    eg = Part('Eggs_Eggs', c)
-    eg.uvsphere((0, 2, 8.4), 3.6, 'Egg_Glow', 20, 12, (1, 1, 1.3))
-    for x, m in ((-10.5, 'Crystal_Blue'), (10.5, 'Crystal_Pink')):
-        eg.uvsphere((x, 4, 7.4), 1.7, m, 16, 10, (1, 1, 1.3))
-    for i in range(6):                                    # small eggs on the front tier
-        a = math.pi * (0.15 + 0.7 * i / 5)
-        eg.uvsphere((math.cos(a) * 6.5, 2 - math.sin(a) * 6.5, 4.2), 0.9,
-                    ('Egg_Shell', 'Crystal_Blue', 'Egg_Glow', 'Pets_Green_Glow')[i % 4], 12, 8, (1, 1, 1.3))
-    eg.finish(parent=root)
-    # glowing hatch circle in front
-    p = Part('Eggs_HatchCircle', c)
-    p.cyl((0, -18, 0.3), 6.5, 0.6, 'Hub_Stone_Warm', 32)
-    p.cyl((0, -18, 0.65), 5.2, 0.1, 'Eggs_Purple_Glow', 32)
-    p.finish(parent=root)
-    for s in (-1, 1):
-        inst('Crystals_A', f'Eggs_Crystals_{s}', c, (s * 19.5, -6, 1.2), s * 0.4, 2.4, root)
-        inst('Crystals_A', f'Eggs_CrystalsBack_{s}', c, (s * 19.0, 6, 1.2), s * 1.4, 1.8, root)
-    sign('Eggs_Sign', 'EGGS', c, root, 23.0, -11.0, 'Eggs_Purple', 16, 4.0)
+    """the detailed hatchery (hatchery.py) on the hub's Eggs slot, front facing the fountain"""
+    import hatchery
+    deg = SLOT['Eggs']
+    hatchery.build_hatchery(HUB, polar(R_BUILD + 2.0, deg), math.radians(deg - 90))
 
 
 def build_trading():

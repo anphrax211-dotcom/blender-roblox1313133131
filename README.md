@@ -19,3 +19,10 @@ python3 boss_eggs.py --only Magmaw --blend       # one egg, also save .blend
 python3 render_previews.py ../exports ../previews
 ```
 Or open `blender/boss_eggs.py` in Blender's Scripting tab and run it.
+
+## Tower of Pets NPCs (`exports/NPCs/*_NPC.fbx`)
+12 redesigned lobby NPCs (Shop, Egg, Trading, Upgrades, Pets, Leaderboards, Tower Guide,
+Tower Entrance, Codes, Daily Rewards, Index, Settings) — `blender/tower_npcs.py` →
+`blender/TowerOfPets_NPCs.blend`. Roblox R15-proportioned blocky bodies (~1.49 m / 5.3 studs),
+R15 part names with joint-pivot origins; every other part is `<Bone>_<Item>` with a `bone`
+custom property. Previews: `previews/NPCs_Lineup.png`, `previews/NPCs_Turnarounds.png`.

@@ -285,7 +285,8 @@ Cloudridge summit at about 320.
   - MYSTIC_WILDS (World Tree Grove, Mossy Caverns, Beast Cave)
   - JUNGLE_FORTRESS (the biggest and highest plateau, Sky Guardian ledge, Sky Temple island)
   - Plus four secret islets.
-- **Path network:** 25 routes, 22–32 studs wide (12 for secret paths) and rideable. Ramps stay under about 27°.
+- **Path network:** 25 routes, 22–32 studs wide (12 for secret paths) and rideable. Most ramps are under 28°; the steepest climbs (Sky Stair,
+  Swamp Ascent, Fortress Canyon) are about 31°.
   Routes branch and loop, with shortcuts (Forest Highroad, West Cliff Trail, Lake Loop, Swamp Ascent, two routes
   into the fortress). Where a path crosses the void it becomes a natural rock bridge (`TERRAIN/NATURAL_BRIDGES`).
   Fortress approaches are carved canyon ramps.

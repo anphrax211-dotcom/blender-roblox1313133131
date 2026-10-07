@@ -155,14 +155,22 @@ PADS = tuple((n, x, y, r, z * ZS) for n, x, y, r, z in PADS)
 
 
 def chaikin(pts, it=2):
-    """round the corners of a path polyline (end points kept)"""
+    """round the corners of a path (end points kept); heights are re-spread along the new length so the
+    climb stays as even as the original ramp"""
+    def cum(p):
+        c = [0.0]
+        for a, b in zip(p, p[1:]):
+            c.append(c[-1] + math.hypot(b[0] - a[0], (b[1] - a[1]) * 1.5))
+        return [x / (c[-1] or 1) for x in c]
+    f0, z0 = cum(pts), [p[2] for p in pts]
+    xy = [p[:2] for p in pts]
     for _ in range(it):
-        out = [pts[0]]
-        for a, b in zip(pts, pts[1:]):
-            out += [tuple(a[k] * 0.75 + b[k] * 0.25 for k in range(3)), tuple(a[k] * 0.25 + b[k] * 0.75 for k in range(3))]
-        out.append(pts[-1])
-        pts = out
-    return pts
+        out = [xy[0]]
+        for a, b in zip(xy, xy[1:]):
+            out += [(a[0] * 0.75 + b[0] * 0.25, a[1] * 0.75 + b[1] * 0.25), (a[0] * 0.25 + b[0] * 0.75, a[1] * 0.25 + b[1] * 0.75)]
+        out.append(xy[-1])
+        xy = out
+    return [(x, y, float(np.interp(g, f0, z0))) for (x, y), g in zip(xy, cum(xy))]
 
 
 PATHS = tuple((n, w, chaikin([(x, y, z * ZS) for x, y, z in pts])) for n, w, pts in PATHS)

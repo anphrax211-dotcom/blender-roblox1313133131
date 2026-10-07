@@ -2,8 +2,8 @@
   "files": {
     "Floor1_Verdant_Forest": {
       "parts": 28,
-      "triangles": 32470,
-      "largest_part": 5230,
+      "triangles": 32460,
+      "largest_part": 5222,
       "root": "Floor1_Verdant_Forest",
       "root_position_roblox": [
         0.0,
@@ -38,7 +38,7 @@
     },
     "Floor1_Mystic_Wilds": {
       "parts": 17,
-      "triangles": 18644,
+      "triangles": 18648,
       "largest_part": 3190,
       "root": "Floor1_Mystic_Wilds",
       "root_position_roblox": [
@@ -62,8 +62,8 @@
     },
     "Floor1_Natural_Bridges": {
       "parts": 4,
-      "triangles": 4336,
-      "largest_part": 1596,
+      "triangles": 4342,
+      "largest_part": 1598,
       "root": "Floor1_Natural_Bridges",
       "root_position_roblox": [
         0.0,

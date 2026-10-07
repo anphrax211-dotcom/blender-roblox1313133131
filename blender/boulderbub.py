@@ -16,7 +16,7 @@ Run in Blender (Scripting tab -> Run Script) or headless:
 Saves Boulderbub.blend next to this script and prints the full path.
 """
 import bpy, bmesh, math, os, random
-from mathutils import Vector, Matrix, Euler, noise
+from mathutils import Vector, Matrix, Euler
 
 HERE = os.path.dirname(os.path.abspath(__file__)) if '__file__' in globals() else os.getcwd()
 
@@ -62,38 +62,17 @@ def material(name, rgb, rough=0.45, coat=0.25, emit=0.0, variation=0.0):
         nt.links.new(tc.outputs['Object'], nz.inputs['Vector'])
         nt.links.new(nz.outputs['Fac'], ramp.inputs['Fac'])
         nt.links.new(ramp.outputs['Color'], b.inputs['Base Color'])
-        # fine grain + pitting bump so it reads as rock, not plastic
-        gr = nt.nodes.new('ShaderNodeTexNoise')
-        gr.inputs['Scale'].default_value = 28.0
-        gr.inputs['Detail'].default_value = 6.0
-        gr.inputs['Roughness'].default_value = 0.65
-        vo = nt.nodes.new('ShaderNodeTexVoronoi')
-        vo.feature = 'DISTANCE_TO_EDGE'
-        vo.inputs['Scale'].default_value = 7.0
-        mx = nt.nodes.new('ShaderNodeMath'); mx.operation = 'MULTIPLY_ADD'
-        mx.inputs[1].default_value = 0.6
-        bp = nt.nodes.new('ShaderNodeBump')
-        bp.inputs['Strength'].default_value = 0.35
-        bp.inputs['Distance'].default_value = 0.015
-        nt.links.new(tc.outputs['Object'], gr.inputs['Vector'])
-        nt.links.new(tc.outputs['Object'], vo.inputs['Vector'])
-        nt.links.new(gr.outputs['Fac'], mx.inputs[0])
-        nt.links.new(vo.outputs['Distance'], mx.inputs[2])
-        nt.links.new(mx.outputs['Value'], bp.inputs['Height'])
-        nt.links.new(bp.outputs['Normal'], b.inputs['Normal'])
-        b.inputs['Roughness'].default_value = max(rough, 0.62)
-        b.inputs['Coat Weight'].default_value = min(coat, 0.12)
     m.diffuse_color = (*rgb, 1)
     MATS[name] = m
 
 
 def build_materials():
     # (linear colour values; the comment gives the sRGB / Roblox Color3 equivalent)
-    material('Stone_Taupe', (0.23, 0.175, 0.135), 0.5, 0.2, variation=0.2)       # ~133,117,103 body
-    material('Stone_WarmGray', (0.2, 0.16, 0.13), 0.5, 0.2, variation=0.2)     # ~124,112,101 plates
-    material('Stone_Sandy', (0.36, 0.25, 0.15), 0.5, 0.2, variation=0.16)         # ~162,137,108 lighter plates
+    material('Stone_Taupe', (0.23, 0.175, 0.135), 0.5, 0.2, variation=0.12)       # ~133,117,103 body
+    material('Stone_WarmGray', (0.2, 0.16, 0.13), 0.5, 0.2, variation=0.12)     # ~124,112,101 plates
+    material('Stone_Sandy', (0.36, 0.25, 0.15), 0.5, 0.2, variation=0.1)         # ~162,137,108 lighter plates
     material('Stone_TanBelly', (0.5, 0.36, 0.2), 0.45, 0.25, variation=0.08)   # ~188,162,124 belly patch
-    material('Stone_Dark', (0.15, 0.12, 0.095), 0.5, 0.2, variation=0.2)         # ~108,97,87 arms & feet
+    material('Stone_Dark', (0.15, 0.12, 0.095), 0.5, 0.2, variation=0.12)         # ~108,97,87 arms & feet
     material('Eye_Socket', (0.10, 0.075, 0.06), 0.4, 0.3)                        # ~89,77,69 recessed rim
     material('Eye_Iris', (0.05, 0.022, 0.013), 0.22, 0.25)                          # ~53,33,25 glossy brown
     material('Eye_Pupil', (0.006, 0.004, 0.004), 0.2, 0.25)                     # ~13,11,11 glossy black
@@ -137,31 +116,8 @@ def new_object(name, bm, mat, smooth=False, bevel=0.0, center=None):
     return ob
 
 
-def chisel(bm, cuts, depth, seed, avoid=None):
-    """slice flat planes off a mesh (like chipped rock faces) and cap the holes.
-    depth = (min, max) fraction of the mesh's extent along each random direction."""
-    rnd = random.Random(seed)
-    done = 0
-    tries = 0
-    while done < cuts and tries < cuts * 6:
-        tries += 1
-        d = Vector((rnd.gauss(0, 1), rnd.gauss(0, 1), rnd.gauss(0, 1))).normalized()
-        if avoid and avoid(d):
-            continue
-        sup = max(v.co.dot(d) for v in bm.verts)
-        low = min(v.co.dot(d) for v in bm.verts)
-        co = d * (sup - (sup - low) * rnd.uniform(*depth))
-        geom = bm.verts[:] + bm.edges[:] + bm.faces[:]
-        bmesh.ops.bisect_plane(bm, geom=geom, plane_co=co, plane_no=d, clear_outer=True)
-        edges = [e for e in bm.edges if e.is_boundary]
-        if edges:
-            bmesh.ops.holes_fill(bm, edges=edges, sides=0)
-        done += 1
-    return bm
-
-
-def rock_bm(size, seed, subdiv=1, jitter=0.12, flat_bottom=None, cuts=6):
-    """chunky faceted stone: jittered icosphere scaled to `size`, then chipped flat"""
+def rock_bm(size, seed, subdiv=1, jitter=0.12, flat_bottom=None):
+    """chunky faceted stone: jittered icosphere scaled to `size` (x, y, z)"""
     rnd = random.Random(seed)
     bm = bmesh.new()
     bmesh.ops.create_icosphere(bm, subdivisions=subdiv, radius=1.0)
@@ -170,8 +126,6 @@ def rock_bm(size, seed, subdiv=1, jitter=0.12, flat_bottom=None, cuts=6):
         v.co = Vector((v.co.x * size[0], v.co.y * size[1], v.co.z * size[2]))
         if flat_bottom is not None and v.co.z < flat_bottom:
             v.co.z = flat_bottom
-    chisel(bm, cuts, (0.1, 0.24), seed + 500)
-    bmesh.ops.dissolve_limit(bm, angle_limit=math.radians(4), verts=bm.verts, edges=bm.edges)
     return bm
 
 
@@ -207,23 +161,11 @@ def build_body():
     rnd = random.Random(1)
     bm = bmesh.new()
     bmesh.ops.create_icosphere(bm, subdivisions=3, radius=1.0)
-
-    def face_zone(d):     # front area holding the eyes & mouth: keep it smooth
-        return d.y < -0.55 and -0.35 < d.z < 0.62
-
-    # lumpy, irregular boulder outline (low-frequency noise), smoother on the face
+    # merge into larger facets: dissolve shallow edges after jittering
     for v in bm.verts:
-        d = v.co.normalized()
-        lump = noise.noise(d * 1.6 + Vector((3.1, 7.2, 1.3)))
-        w = 0.35 if face_zone(d) else 1.0
-        v.co *= 1.0 + 0.11 * lump * w + rnd.uniform(-0.03, 0.03) * w
+        v.co *= 1.0 + rnd.uniform(-0.025, 0.025)
         v.co = Vector((v.co.x * BODY_R.x, v.co.y * BODY_R.y, v.co.z * BODY_R.z))
-        if v.co.z < -0.5:          # flatter base where it sits on its feet
-            v.co.z = -0.5 + (v.co.z + 0.5) * 0.35
-    # big chipped planes around the sides, top and back, like a split boulder
-    chisel(bm, 20, (0.06, 0.13), 7,
-           avoid=lambda d: face_zone(d) or (d.y < -0.3 and d.z < -0.2))
-    bmesh.ops.dissolve_limit(bm, angle_limit=math.radians(9), verts=bm.verts, edges=bm.edges)
+    bmesh.ops.dissolve_limit(bm, angle_limit=math.radians(5.5), verts=bm.verts, edges=bm.edges)
     bmesh.ops.triangulate(bm, faces=bm.faces)
     place(bm, BODY_C)
     new_object('Body', bm, 'Stone_Taupe', smooth=False, bevel=0.006, center=BODY_C.copy())
@@ -291,20 +233,63 @@ def disc(name, center, normal, rx, rz, depth, mat, segs=16, smooth=True, front_b
     return new_object(name, bm, mat, smooth=smooth, center=Vector(center))
 
 
+def carve_socket(body, center, normal, rx, rz, depth, name):
+    """carve a shallow eye socket into the body (boolean difference, applied so the
+    body stays a plain editable mesh). The bowl walls get the dark Eye_Socket rim colour."""
+    bm = bmesh.new()
+    bmesh.ops.create_uvsphere(bm, u_segments=20, v_segments=10, radius=1.0)
+    n = Vector(normal).normalized()
+    xax = Vector((0, 0, 1)).cross(n).normalized()
+    M = Matrix((xax, n.cross(xax), n)).transposed()
+    for v in bm.verts:
+        v.co = M @ Vector((v.co.x * rx, v.co.y * rz, v.co.z * depth)) + Vector(center) - body.location
+    me = bpy.data.meshes.new(name)
+    bm.to_mesh(me)
+    bm.free()
+    me.materials.append(MATS['Eye_Socket'])
+    cutter = bpy.data.objects.new(name, me)
+    cutter.location = body.location
+    COLL.objects.link(cutter)
+    if 'Eye_Socket' not in body.data.materials:
+        body.data.materials.append(MATS['Eye_Socket'])
+    bev = body.modifiers.get('Bevel')
+    if bev:
+        bev.show_viewport = bev.show_render = False
+    mod = body.modifiers.new('Socket', 'BOOLEAN')
+    mod.operation, mod.solver, mod.object = 'DIFFERENCE', 'EXACT', cutter
+    mod.material_mode = 'TRANSFER'
+    bpy.context.view_layer.update()
+    dg = bpy.context.evaluated_depsgraph_get()
+    new_me = bpy.data.meshes.new_from_object(body.evaluated_get(dg))
+    body.modifiers.remove(mod)
+    old_me = body.data
+    body.data = new_me
+    new_me.name = old_me.name
+    bpy.data.meshes.remove(old_me)
+    new_me.shade_flat()
+    bpy.data.objects.remove(cutter)
+    bpy.data.meshes.remove(me)
+    if bev:
+        bev.show_viewport = bev.show_render = True
+
+
 def build_face():
+    body = bpy.data.objects['Body']
     for s, side in ((-1, 'Right'), (1, 'Left')):
         theta, phi = math.radians(s * 27), math.radians(15)
         p, n = body_point(theta, phi)
-        disc(f'Eye_{side}_Socket', p - n * 0.02, n, 0.2, 0.225, 0.05, 'Eye_Socket', 18)
-        disc(f'Eye_{side}', p + n * 0.01, n, 0.17, 0.195, 0.075, 'Eye_Iris', 18)
-        disc(f'Eye_{side}_Pupil', p + n * 0.06, n, 0.115, 0.13, 0.035, 'Eye_Pupil', 16)
+        # eyes sit IN the face: a socket is carved into the body, the glossy eye dome
+        # fills it and finishes roughly flush with the body surface (as in the art)
+        carve_socket(body, p + n * 0.03, n, 0.215, 0.24, 0.14, f'Eye_{side}_SocketCutter')
+        disc(f'Eye_{side}', p - n * 0.06, n, 0.175, 0.2, 0.075, 'Eye_Iris', 20)
+        disc(f'Eye_{side}_Pupil', p - n * 0.018, n, 0.115, 0.135, 0.04, 'Eye_Pupil', 18)
         # highlights: a big one up toward the centre + a small one below it
         xax = Vector((0, 0, 1)).cross(n).normalized()
         up = n.cross(xax)
-        disc(f'Eye_{side}_Highlight', p + n * 0.1 + xax * (-s * 0.055) + up * 0.075, n,
-             0.05, 0.05, 0.02, 'Eye_Highlight', 10)
-        disc(f'Eye_{side}_Highlight_Small', p + n * 0.095 + xax * (-s * 0.095) + up * -0.005, n,
-             0.022, 0.022, 0.012, 'Eye_Highlight', 8)
+        disc(f'Eye_{side}_Highlight', p + n * 0.012 + xax * (-s * 0.05) + up * 0.065, n,
+             0.045, 0.045, 0.018, 'Eye_Highlight', 10)
+        disc(f'Eye_{side}_Highlight_Small', p + n * 0.006 + xax * (-s * 0.085) + up * -0.01, n,
+             0.02, 0.02, 0.01, 'Eye_Highlight', 8)
     # smile: small curved tube between and below the eyes
     bm = bmesh.new()
     pts = []

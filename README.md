@@ -59,3 +59,24 @@ TREE_PARTS (Trunks, Branches, Leaves, Roots, Vines), PLANTERS`.
 ```
 python3 blender/tower_of_pets/build_foliage_pack.py     # prints per-asset triangle counts
 ```
+
+## Tower of Pets floating islands pack (`blender/TowerOfPets_Islands.blend`)
+Stylised Roblox floating islands built from the floating-islands reference sheet (`blender/tower_of_pets/islands.py`).
+Layered faceted cliff blocks (light/mid/dark warm grey) tapering to a point, bright grass caps overhanging the rim,
+moss drapes and vines, cyan waterfalls, rope bridges, lanterns, crystals — trees come from the foliage pack.
+
+| Asset | Tris | Notes |
+|---|---|---|
+| Large_Island / Medium_Island / Small_Island | 2.9k / 2.0k / 1.4k | grass radius ~40 / 24 / 12 studs, walkable tops |
+| Tall_Island / Rock_Formation / Crystal_Island | 1.5k / 0.7k / 1.7k | vertical variation, background rock, crystal cliff |
+| Waterfall_Small / _Medium / _Large / _Wide | 0.3k–0.7k | origin at the lip, flows toward -Y into the clouds |
+| Bridge_Short / _Medium / _Long | ~1.2k–4k | 20 / 40 / 70 studs along +Y |
+| Rock_*, Grass_Patch/Tuft, Moss_Drape_A/B, Lantern_Wood, Crystal_*, Stone_Block, Stone_Pillar, Paw_Banner, Wood_Fence | small | modular decoration |
+
+Variations `Island_A` … `Island_H` (collections; place with *Add > Collection Instance*): A large tree + waterfall +
+bridge, B small trees + lantern, C crystals + waterfall, D tall + vines, E open grassy platform, F rock-only,
+G big waterfall, H bridge connector. The lobby places them around the tower and hub the same way.
+
+```
+python3 blender/tower_of_pets/build_islands_pack.py
+```

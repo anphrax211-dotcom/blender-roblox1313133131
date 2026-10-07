@@ -1,17 +1,22 @@
 """TOWER OF PETS - FLOOR 1: THE VERDANT KINGDOM - base terrain pass (terrain only, no buildings or props).
 
 Built on the layout traced from the Floor 1 map sheet (pixels; px() maps them with one uniform scale of 1.1 studs per
-pixel, north = +Y), so every region keeps its place on the sheet. The terrain is one large connected kingdom:
-  * every region's outline is grown into the gaps between them and the outlines are smoothly merged, so the main
-    regions form ONE continent; only the Sky Temple, the four secret isles and two optional islets still float;
+pixel, north = +Y) and then scaled up 5x (WORLD), so every region keeps its place on the sheet. The kingdom is four
+big landmasses split by open sky and linked by natural rock bridges:
+  * Verdant mainland (Entrance, Meadows, Village, Whispering Forest), Central highlands (Ruins, Cloudridge, World Tree,
+    Emerald Lake, Riverfall Valley, Mossy Caverns), the Lotus Swamp, and the Jungle Fortress with Beast Cave; inside a
+    landmass the regions' outlines are grown into the gaps and merged; the Sky Temple, four secret isles and two
+    optional islets float on their own;
   * each region has its own height and terrain style (rolling fields, forest hills, terraced ruin foundations,
     mountain ridges, crags, jungle hills); where two regions meet at similar heights the ground slopes from one to the
     other (ride-able), where the height difference is large it becomes a cliff;
-  * on top: Cloudridge peaks, a deep enclosed Waterfall Valley with four big falls, a ravine through the Whispering
+  * on top: Cloudridge peaks, a deep Waterfall Valley with three big falls, a ravine through the Whispering
     Forest, a rift across the ruins, the World Tree's root ridges, Beast Cave crags, and the Jungle Fortress as the
-    largest region: a jungle ring at ~130 studs around a cliff-walled inner plateau at ~240 (final boss arena);
+    largest region: a jungle ring at ~640 studs around a cliff-walled inner plateau at ~1,200 (final boss arena);
   * paths are organic (bowed, smoothed) and follow the ground with a grade limit, cutting canyons or raising
     causeways where they must; where a path crosses open sky it becomes a natural rock bridge.
+Terrain, heights, water and landmarks are 5x; player-scale things (path widths, markers, checkpoint and mini-boss
+pads, climb limits) are not, so the world is bigger to ride across, not bigger to stand in.
 
 Five biomes (TERRAIN/<BIOME>, one Top / Cliffs / Underside mesh per area so each area can be refined later):
   VERDANT_FOREST    Floor_Entrance, Sunlit_Meadows, Verdant_Village, Whispering_Forest (+ Mistfall secret, treasure islet)
@@ -30,11 +35,12 @@ from common import Part, MATS, mat_plain, mat_noise, coll, text_mesh, round_arch
 from castle import frame_strip
 
 ROOT = 'TOWER_OF_PETS_FLOOR_1'
-S = 6.0                                   # grid spacing (studs)
-EXT = 999.0                               # grid half extent
+WORLD = 5.0                               # world scale: the 1x sheet layout below is blown up 5x
+S = 12.0                                  # grid spacing (studs)
+EXT = 4992.0                              # grid half extent
 BIOMES = ('VERDANT_FOREST', 'WATERFALL_VALLEY', 'ANCIENT_RUINS', 'MYSTIC_WILDS', 'JUNGLE_FORTRESS')
 VF, WV, AR, MW, JF = BIOMES
-CLOUD_Z = -380.0
+CLOUD_Z = -380.0 * WORLD
 
 MAP_SCALE = 1.1                           # studs per map-sheet pixel (uniform: the world keeps the sheet's proportions)
 MAP_CX, MAP_CY = 690.0, 510.0             # sheet pixel at the world origin
@@ -42,13 +48,14 @@ MAP_CX, MAP_CY = 690.0, 510.0             # sheet pixel at the world origin
 
 def px(x, y):
     """map-sheet pixel -> world studs (north/up = +Y)"""
-    return (x - MAP_CX) * MAP_SCALE, (MAP_CY - y) * MAP_SCALE
+    return (x - MAP_CX) * MAP_SCALE * WORLD, (MAP_CY - y) * MAP_SCALE * WORLD
 
 
-# ---------------------------------------------------------------- layout (map-sheet pixels, heights in studs) ---
+# ------------------------------------------- layout (map-sheet pixels; heights / sizes in 1x studs, x WORLD below) ---
 # z: base height of the area's ground. style: (kind, amplitude, wavelength) - see style_height().
-# irr: edge irregularity. grow: studs the outline is grown into the gaps (connected areas). kind: 'land' areas are
-# merged into the continent, 'inner' sits inside another area as a cliff-walled plateau, 'float' stays an island.
+# irr: edge irregularity. grow: studs the outline is grown into the gaps inside its landmass. kind: 'land' areas
+# merge with the other areas of their landmass (LANDMASS), 'inner' sits inside another area as a cliff-walled plateau,
+# 'float' stays an island.
 Area = namedtuple('Area', 'name biome z style irr seed dark levels label poly kind grow')
 AREAS = (
     # --- Verdant Forest: the big starting region in the south-west
@@ -85,7 +92,7 @@ AREAS = (
     Area('World_Tree_Grove', MW, 160, ('hills', 12.0, 140), 0.6, 14, False, 'Lv 45-60', (870, 30),
          [(612, 150), (640, 80), (700, 20), (780, -5), (870, 0), (950, 40), (975, 110), (960, 190), (905, 238),
           (830, 262), (750, 266), (680, 256), (630, 222)], 'land', 22),
-    Area('Mossy_Caverns', MW, 72, ('crags', 16.0, 90), 0.6, 15, False, 'Lv 25-40', (880, 765),
+    Area('Mossy_Caverns', MW, 72, ('crags', 16.0, 90), 0.6, 15, False, 'Lv 25-40', (905, 690),
          [(762, 522), (820, 502), (900, 498), (980, 508), (1042, 532), (1050, 600), (1040, 670), (1000, 720),
           (940, 746), (860, 752), (790, 736), (762, 690), (752, 600)], 'land', 22),
     Area('Beast_Cave', MW, 150, ('crags', 30.0, 80), 0.7, 16, True, 'Lv 30-45', (1250, 250),
@@ -123,11 +130,18 @@ OPTIONAL_ISLETS = (('Islet_Treasure', VF, -20, (10, 1000), 34), ('Islet_Rare_Pet
 AREAS += tuple(Area(n, b, z, ('flat', 1.0, 90), 0.4, 50 + k, False, '', None, islet_poly(c[0], c[1], r, 50 + k),
                     'float', 0) for k, (n, b, z, c, r) in enumerate(OPTIONAL_ISLETS))
 AREA_INDEX = {a.name: k for k, a in enumerate(AREAS)}
+LANDMASS = {  # areas that are joined; different landmasses are split by open sky (natural bridges cross it)
+    'Floor_Entrance': 'Verdant_Mainland', 'Sunlit_Meadows': 'Verdant_Mainland', 'Verdant_Village': 'Verdant_Mainland',
+    'Whispering_Forest': 'Verdant_Mainland',
+    'Ancient_Ruins': 'Central_Highlands', 'Cloudridge_Peaks': 'Central_Highlands', 'World_Tree_Grove': 'Central_Highlands',
+    'Emerald_Lake': 'Central_Highlands', 'Riverfall_Valley': 'Central_Highlands', 'Mossy_Caverns': 'Central_Highlands',
+    'Lotus_Swamp': 'Lotus_Swamp',
+    'Jungle_Fortress': 'Jungle_Fortress', 'Fortress_Heights': 'Jungle_Fortress', 'Beast_Cave': 'Jungle_Fortress'}
+GAP = 46.0 * WORLD                        # open sky kept between two landmasses (narrowest)
 
 # region pairs that must meet as a cliff even though their heights are close (otherwise: < SOFT_DH -> slope)
-SOFT_DH = 46.0
-FORCE_CLIFF = {frozenset(p) for p in (('Riverfall_Valley', 'Verdant_Village'), ('Ancient_Ruins', 'World_Tree_Grove'),
-                                      ('Riverfall_Valley', 'Whispering_Forest'))}
+SOFT_DH = 46.0 * WORLD
+FORCE_CLIFF = {frozenset(p) for p in (('Ancient_Ruins', 'World_Tree_Grove'),)}
 REGIONS = (  # the five regions shown on the map: label, levels, label position (px)
     ('VERDANT FOREST', 'Lv 1-20', (250, 640)), ('WATERFALL VALLEY', 'Lv 10-35', (590, 590)),
     ('ANCIENT RUINS', 'Lv 20-50', (520, 160)), ('MYSTIC WILDS', 'Lv 25-60', (800, 110)),
@@ -152,7 +166,6 @@ ROOTS = ((-160, 230), (-115, 190), (-60, 240), (-20, 160), (25, 220), (70, 180),
 RAVINES = (
     ('Whispering_Ravine', [(220, 330, 40), (290, 410, 38), (296, 416, 20), (445, 550, 18)], 44, 14),
     ('Ruins_Rift', [(545, 300, 84), (610, 335, 82), (690, 350, 84)], 30, 10),
-    ('Riverfall_Gorge', [(700, 678, -16), (728, 735, -18), (760, 792, -20)], 56, 16),
 )
 # lakes / ponds: name, outline (px), water z, depth
 LAKES = (
@@ -175,7 +188,6 @@ RIVERS = (
     ('Ruins_Cascade', [(612, 455), (602, 498)], 115.0, 12),
     ('Mossy_Spring', [(800, 600), (752, 592)], 68.0, 12),
     ('Riverfall_River', [(470, 575), (560, 605), (640, 640), (700, 680)], -11.0, 18),
-    ('Riverfall_Gorge_River', [(702, 682), (728, 735), (762, 795)], -19.0, 18),
     ('Lotus_Drain', [(995, 935), (1005, 995)], -25.0, 16),
     ('World_Tree_Falls', [(880, 215), (888, 245)], 157.0, 14),
     ('Beast_Stream', [(1150, 280), (1095, 278)], 146.0, 10),
@@ -190,19 +202,20 @@ SPRINGS = (
     ('Whispering_West_Falls', (170, 560), 200, None, 12),
     ('Fortress_East_Falls', (1420, 600), 0, None, 14),
 )
-# flattened pads: name, px, py, radius studs, z (None = keep the ground at the centre)
+# flattened pads: name, px, py, radius (1x studs), z (1x, None = keep the ground at the centre), radius scale
+# (WORLD for region-sized pads, 2 for the boss arena, 1 for player-scale pads)
 PADS = (
-    ('Spawn', 215, 860, 50, 12), ('Village_Square', 520, 765, 70, 26), ('Ruins_Plaza', 650, 380, 60, 118),
-    ('World_Tree_Pad', 800, 150, 64, 172), ('Sky_Temple_Pad', 1240, 130, 56, 310),
-    ('Fortress_Arena', 1190, 600, 70, 240), ('Fortress_Keep', 1300, 520, 58, 240),
-    ('Meadow_Riding_Field', 130, 690, 95, None), ('Jungle_Clearing', 1380, 690, 48, None),
-    ('MiniBoss_1', 440, 430, 36, None), ('MiniBoss_2', 970, 690, 36, None), ('MiniBoss_3', 1170, 140, 28, 310),
-    ('Lake_Islet', 960, 330, 22, 101),
-    ('CP_1', 400, 676, 16, None), ('CP_2', 560, 600, 16, None), ('CP_3', 815, 455, 16, None),
-    ('CP_4', 1108, 292, 16, None), ('CP_5', 1305, 160, 16, 310), ('CP_6', 880, 700, 16, None),
+    ('Spawn', 215, 860, 60, 12, 1), ('Village_Square', 520, 765, 70, 26, WORLD), ('Ruins_Plaza', 650, 380, 60, 118, WORLD),
+    ('World_Tree_Pad', 800, 150, 80, 172, WORLD), ('Sky_Temple_Pad', 1240, 130, 56, 310, WORLD),
+    ('Fortress_Arena', 1190, 600, 70, 240, 2), ('Fortress_Keep', 1300, 520, 58, 240, WORLD),
+    ('Meadow_Riding_Field', 130, 690, 95, None, WORLD), ('Jungle_Clearing', 1380, 690, 48, None, WORLD),
+    ('MiniBoss_1', 440, 430, 36, None, 2), ('MiniBoss_2', 970, 690, 36, None, 2), ('MiniBoss_3', 1170, 140, 28, 310, 2),
+    ('Lake_Islet', 960, 330, 22, 101, WORLD),
+    ('CP_1', 400, 676, 16, None, 1), ('CP_2', 560, 600, 16, None, 1), ('CP_3', 815, 455, 16, None, 1),
+    ('CP_4', 1108, 292, 16, None, 1), ('CP_5', 1305, 160, 16, 310, 1), ('CP_6', 880, 700, 16, None, 1),
 )
 # paths: name, kind, [(px, py, z or None)] - None follows the ground. kind -> width, max grade, bank width
-PATH_KINDS = {'main': (36, 0.42, 18), 'secondary': (26, 0.46, 16), 'hidden': (14, 0.55, 10)}
+PATH_KINDS = {'main': (48, 0.42, 40), 'secondary': (34, 0.46, 30), 'hidden': (18, 0.55, 16)}
 PATHS = (
     # main routes
     ('Entrance_Road', 'main', [(215, 860, 12), (290, 815, None), (360, 765, None)]),
@@ -260,21 +273,37 @@ EGGS = (('World_Egg_1_Beast_Crags', 1250, 405), ('World_Egg_2_Lake_Islet', 960, 
         ('World_Egg_3_Whispering_Ravine', 335, 465), ('World_Egg_4_Cloudridge', 560, 125),
         ('World_Egg_5_Behind_Spillway_Falls', 722, 548), ('World_Egg_6_Lotus', 1100, 940))
 # caves: name, start px (inside the higher ground), direction (deg, world), mouth width
-CAVES = (('Cave_Beast_Main', (1190, 330), 205, 64), ('Cave_Mossy_South', (905, 600), -80, 30),
-         ('Cave_Mossy_West', (905, 600), 190, 30), ('Cave_Whispering_Hollow', (250, 330), -55, 26),
-         ('Cave_Cloudridge_Ice', (500, 65), -90, 30), ('Cave_Fortress_Undergate', (1190, 600), 200, 34),
-         ('Cave_World_Tree_Roots', (800, 150), -100, 30), ('Cave_Ruins_Undercroft', (615, 440), -90, 26))
+CAVES = (('Cave_Beast_Main', (1190, 330), 205, 200), ('Cave_Mossy_South', (905, 600), -80, 80),
+         ('Cave_Mossy_West', (905, 600), 190, 80), ('Cave_Whispering_Hollow', (250, 330), -55, 70),
+         ('Cave_Cloudridge_Ice', (500, 65), -90, 80), ('Cave_Fortress_Undergate', (1190, 600), 200, 100),
+         ('Cave_World_Tree_Roots', (800, 150), -100, 90), ('Cave_Ruins_Undercroft', (615, 440), -90, 70))
 # cave pairs to be joined by interior tunnels later (the heightfield has no overhangs)
 CAVE_ROUTES = (('Cave_Mossy_South', 'Cave_Mossy_West'), ('Cave_Ruins_Undercroft', 'Cave_World_Tree_Roots'),
                ('Cave_Beast_Main', 'Cave_Fortress_Undergate'))
 SECRETS = (('Secret_Mistfall_Isle', 40, 440), ('Secret_Lotus_Grotto', 555, 975), ('Secret_Cloud_Perch', 1068, 70),
            ('Secret_Overlook', 1530, 600), ('Islet_Treasure', 10, 1000), ('Islet_Rare_Pet', 1360, 930))
-RESERVED = (('Reserved_Verdant_Village', 520, 765, 'rect', 230, 150), ('Reserved_Ruins_Plaza', 650, 380, 'circle', 60, 0),
-            ('Reserved_Ruins_West', 560, 340, 'circle', 40, 0), ('Reserved_Ruins_East', 760, 330, 'circle', 34, 0),
-            ('Reserved_Ruins_Undercroft', 615, 470, 'circle', 22, 0),
-            ('Reserved_World_Tree', 800, 150, 'circle', 64, 0), ('Reserved_Sky_Temple', 1240, 130, 'rect', 170, 90),
-            ('Reserved_Fortress_Arena', 1190, 600, 'circle', 70, 0), ('Reserved_Fortress_Keep', 1300, 520, 'rect', 110, 110),
-            ('Reserved_Entrance_Gate', 215, 860, 'circle', 50, 0))
+W_ = WORLD
+RESERVED = (('Reserved_Verdant_Village', 520, 765, 'rect', 230 * W_, 150 * W_),
+            ('Reserved_Ruins_Plaza', 650, 380, 'circle', 60 * W_, 0),
+            ('Reserved_Ruins_West', 560, 340, 'circle', 40 * W_, 0), ('Reserved_Ruins_East', 760, 330, 'circle', 34 * W_, 0),
+            ('Reserved_Ruins_Undercroft', 615, 470, 'circle', 60, 0),
+            ('Reserved_World_Tree', 800, 150, 'circle', 80 * W_, 0), ('Reserved_Sky_Temple', 1240, 130, 'rect', 170 * W_, 90 * W_),
+            ('Reserved_Fortress_Arena', 1190, 600, 'circle', 140, 0),
+            ('Reserved_Fortress_Keep', 1300, 520, 'rect', 110 * W_, 110 * W_),
+            ('Reserved_Entrance_Gate', 215, 860, 'circle', 60, 0))
+
+# ---- blow the 1x layout up to world scale (player-scale sizes above stay as they are) ----
+AREAS = tuple(a._replace(z=a.z * WORLD, style=(a.style[0], a.style[1] * WORLD,
+                                               a.style[2] if a.style[0] == 'terraced' else a.style[2] * WORLD),
+                         grow=a.grow * WORLD) for a in AREAS)
+FEATURES = tuple((x, y, r * WORLD, h * WORLD, e) for x, y, r, h, e in FEATURES)
+ROOTS = tuple((a, l * WORLD) for a, l in ROOTS)
+RAVINES = tuple((n, [(x, y, z * WORLD) for x, y, z in pts], w * WORLD, b * WORLD) for n, pts, w, b in RAVINES)
+LAKES = tuple((n, pts, z * WORLD, d * WORLD) for n, pts, z, d in LAKES)
+RIVERS = tuple((n, pts, z * WORLD, w * 3) for n, pts, z, w in RIVERS)
+SPRINGS = tuple((n, p, a, None if z is None else z * WORLD, w * 3) for n, p, a, z, w in SPRINGS)
+PADS = tuple((n, x, y, r * k, None if z is None else z * WORLD) for n, x, y, r, z, k in PADS)
+PATHS = tuple((n, kind, [(x, y, None if z is None else z * WORLD) for x, y, z in pts]) for n, kind, pts in PATHS)
 
 
 # ---------------------------------------------------------------- materials -
@@ -337,7 +366,7 @@ def field_noise(X, Y, seed, wl=90.0, octaves=4):
 def style_height(a, X, Y):
     """an area's ground: base height + its terrain style"""
     kind, amp, wl = a.style
-    n = field_noise(X, Y, a.seed, wl if kind != 'terraced' else 160.0, 2)     # broad shapes only: ride-able
+    n = field_noise(X, Y, a.seed, wl if kind != 'terraced' else 160.0 * WORLD, 2)     # broad shapes: ride-able
     if kind == 'flat' or kind == 'rolling':
         return a.z + amp * n
     if kind == 'hills':                                        # rolling hills with a second, shorter wave
@@ -346,10 +375,10 @@ def style_height(a, X, Y):
         rng = random.Random(a.seed)
         xs = [px(*p) for p in a.poly]
         x0, x1 = min(p[0] for p in xs), max(p[0] for p in xs); y0, y1 = min(p[1] for p in xs), max(p[1] for p in xs)
-        h = a.z + 4.0 * n
+        h = a.z + 4.0 * WORLD * n
         for _ in range(int(wl)):
             cx, cy = rng.uniform(x0, x1), rng.uniform(y0, y1)
-            hw, hh, ang = rng.uniform(18, 55), rng.uniform(14, 40), rng.uniform(0, math.pi)
+            hw, hh, ang = rng.uniform(18, 55) * WORLD, rng.uniform(14, 40) * WORLD, rng.uniform(0, math.pi)
             u = (X - cx) * math.cos(ang) + (Y - cy) * math.sin(ang)
             v = -(X - cx) * math.sin(ang) + (Y - cy) * math.cos(ang)
             inside = (np.abs(u) < hw) & (np.abs(v) < hh)
@@ -395,10 +424,10 @@ def organic(pts, w, seed):
     out, pins = [], {}
     for k, ((ax, ay, az), (bx, by, bz)) in enumerate(zip(pts, pts[1:])):
         L = math.hypot(bx - ax, by - ay)
-        n = max(2, int(L / 6))
+        n = max(2, int(L / S))
         nx, ny = -(by - ay) / (L or 1), (bx - ax) / (L or 1)
-        bow = rng.choice((-1, 1)) * rng.uniform(0.35, 1.0) * min(0.13 * L, 0.9 * w)
-        wig = rng.uniform(0.0, 0.25) * min(0.13 * L, 0.9 * w)
+        bow = rng.choice((-1, 1)) * rng.uniform(0.35, 1.0) * min(0.12 * L, 6 * w)
+        wig = rng.uniform(0.0, 0.25) * min(0.12 * L, 6 * w)
         ph = rng.uniform(0, TAU)
         if k == 0 and az is not None:
             pins[0] = az
@@ -431,7 +460,8 @@ class Terrain:
         K = len(AREAS)
         sd = np.empty((K, n, n)); hs = np.empty((K, n, n)); real = np.empty((K, n, n))
         for k, a in enumerate(AREAS):
-            d = poly_sd(X, Y, [px(*p) for p in a.poly]) + a.irr * 9.0 * field_noise(X, Y, a.seed, 45.0) + a.grow
+            d = poly_sd(X, Y, [px(*p) for p in a.poly]) + a.irr * 9.0 * WORLD * field_noise(X, Y, a.seed, 45.0 * WORLD) \
+                + a.grow
             real[k] = d
             if a.kind == 'inner':                              # sits inside its parent: always wins where inside
                 d = np.where(d > 0, d + 5000.0, d - 5000.0)
@@ -439,10 +469,17 @@ class Terrain:
             hs[k] = style_height(a, X, Y)
         land_k = [k for k, a in enumerate(AREAS) if a.kind != 'float']
         float_k = [k for k, a in enumerate(AREAS) if a.kind == 'float']
-        # --- the continent: smooth union of the grown outlines (inner plateaus count with their real distance)
-        Lc = np.full((n, n), -1e9)
+        # --- landmasses: smooth union of the grown outlines of each landmass (inner plateaus count with their real
+        # distance); between two landmasses a channel of open sky at least GAP wide is kept
+        masses = sorted({LANDMASS[AREAS[k].name] for k in land_k})
+        Lm = np.full((len(masses), n, n), -1e9)
         for k in land_k:
-            Lc = smax(Lc, real[k], 50.0)
+            g = masses.index(LANDMASS[AREAS[k].name])
+            Lm[g] = smax(Lm[g], real[k], 50.0 * WORLD)
+        top2 = -np.sort(-Lm, axis=0)[:2]
+        gap = GAP * (1 + 0.35 * field_noise(X, Y, 99, 120 * WORLD))
+        Lc = np.minimum(top2[0], (top2[0] - top2[1] - gap) / 2)
+        mass_of = np.array([masses.index(LANDMASS[AREAS[k].name]) for k in land_k])
         # --- heights: owner = best area, blended with the runner-up -> slope (similar heights) or cliff
         sdl = sd[land_k]
         order = np.argsort(-sdl, axis=0)
@@ -454,7 +491,8 @@ class Terrain:
         for p in FORCE_CLIFF:
             u, v = (land_k.index(AREA_INDEX[q]) for q in p)
             cliff |= ((ia == u) & (ib == v)) | ((ia == v) & (ib == u))
-        W = np.where(cliff, 5.0, 130.0)
+        cliff |= mass_of[ia] != mass_of[ib]                    # never blend across open sky
+        W = np.where(cliff, 2 * S, 130.0 * WORLD)
         wt = 0.5 * (1 - smooth(0.0, 1.0, np.minimum(sa - sb, 1e6) / W))
         H = ha + (hb - ha) * wt
         own = np.array(land_k)[ia]
@@ -476,14 +514,14 @@ class Terrain:
             a = math.radians(ang)
             b = (tx + math.cos(a) * length, ty + math.sin(a) * length)
             d, t = seg_dist(X, Y, (tx, ty), b)
-            w = 30 - 18 * t
-            H = H + np.where(land0, 26 * (1 - t) ** 0.8 * np.clip(1 - (d / w) ** 2, 0, 1), 0)
+            w = (30 - 18 * t) * WORLD
+            H = H + np.where(land0, 26 * WORLD * (1 - t) ** 0.8 * np.clip(1 - (d / w) ** 2, 0, 1), 0)
         # --- ravines, rifts and gorges (steep banks)
         self.ravine = np.full((n, n), 1e9)
         for name, pts, w, bank in RAVINES:
             for (ax, ay, az), (bx, by, bz) in zip(pts, pts[1:]):
                 d, t = seg_dist(X, Y, px(ax, ay), px(bx, by))
-                tgt = az + (bz - az) * t + smooth(w / 2, w / 2 + bank, d) * 400
+                tgt = az + (bz - az) * t + smooth(w / 2, w / 2 + bank, d) * 400 * WORLD
                 H = np.where(land0 & (d < w / 2 + bank), np.minimum(H, tgt), H)
                 self.ravine = np.minimum(self.ravine, d - w / 2)
         # --- lakes and ponds (bowl + soft banks)
@@ -491,7 +529,7 @@ class Terrain:
         self.lake_z = np.zeros((n, n))
         for name, poly, zw, depth in LAKES:
             d = poly_sd(X, Y, [px(*p) for p in poly])
-            rr = max(12.0, float(d.max()))
+            rr = max(12.0 * WORLD, float(d.max()))
             g_ = 1.0 - d / rr
             tgt = np.where(g_ < 1, zw - depth * (1 - g_ ** 2) - 0.6, zw - 0.6 + (g_ - 1) / 0.35 * (H - zw + 0.6))
             m = (g_ < 1.35) & land0
@@ -503,8 +541,9 @@ class Terrain:
         for name, pts, zw, w in RIVERS:
             for (ax, ay), (bx, by) in zip(pts, pts[1:]):
                 d, t = seg_dist(X, Y, px(ax, ay), px(bx, by))
-                tgt = zw - 2.5 + smooth(w / 2, w / 2 + 7, d) * 60
-                H = np.where((d < w / 2 + 7) & land0, np.minimum(H, tgt), H)
+                b = 7 * WORLD
+                tgt = zw - 2.5 * WORLD + smooth(w / 2, w / 2 + b, d) * 60 * WORLD
+                H = np.where((d < w / 2 + b) & land0, np.minimum(H, tgt), H)
         # --- flat pads
         self.H, self.land = H, land0
         for name, cx, cy, r, z in PADS:
@@ -512,9 +551,10 @@ class Terrain:
             if z is None:
                 z = self.bilinear(wx, wy)
             d = np.hypot(X - wx, Y - wy)
-            t = smooth(r, r + 16, d)
+            b = max(16.0, 0.3 * r)
+            t = smooth(r, r + b, d)
             Hb = np.where(H < -1e6, z, H)
-            H = np.where((d < r + 16) & (L > -20), z * (1 - t) + Hb * t, H)
+            H = np.where((d < r + b) & (L > -20), z * (1 - t) + Hb * t, H)
             L = np.maximum(L, np.where(L > -20, r + 2 - d, -1e9))
         self.H = H; self.land = L > 0
         # --- paths: profiles follow the ground (grade-limited), then cut / fill the corridor
@@ -570,7 +610,7 @@ class Terrain:
         for i, v in pins.items():
             z[i] = v; ok[i] = True
         z = np.interp(s, s[ok], z[ok])
-        k = 9                                                  # ~55-stud moving average
+        k = 20                                                 # ~240-stud moving average
         zp = np.pad(z, k, mode='edge')
         z = np.convolve(zp, np.ones(2 * k + 1) / (2 * k + 1), mode='same')[k:-k]
         for i, v in pins.items():
@@ -612,11 +652,12 @@ class Terrain:
         Hs = np.where(self.land, self.H, 0.0)
         for _ in range(6):                                          # blur the top for a calm underside
             Hs = (Hs + np.roll(Hs, 1, 0) + np.roll(Hs, -1, 0) + np.roll(Hs, 1, 1) + np.roll(Hs, -1, 1)) / 5
-        dd = np.minimum(d, 400)
-        zu = Hs - 40 - np.minimum(dd, 70) * 1.5 - np.maximum(dd - 70, 0) * 0.9 \
-            + 10 * field_noise(self.X, self.Y, 77, 60)
-        zu = np.maximum(zu, -560)
-        self.zu = np.minimum(zu, self.H - 36)
+        dd = np.minimum(d, 400 * WORLD)
+        W_ = WORLD
+        zu = Hs - 40 * W_ - np.minimum(dd, 70 * W_) * 1.5 - np.maximum(dd - 70 * W_, 0) * 0.9 \
+            + 10 * W_ * field_noise(self.X, self.Y, 77, 60 * W_)
+        zu = np.maximum(zu, -560 * W_)
+        self.zu = np.minimum(zu, self.H - 36 * W_)
 
     def _snap_edges(self):
         """move boundary vertices onto the land iso-line -> smooth coastlines instead of grid steps"""
@@ -657,7 +698,7 @@ class Terrain:
             return 'F1_Lakebed'
         if self.lake_f[i, j] < 1.3 and zmax < self.lake_z[i, j] + 1.6:
             return 'F1_Sand'
-        if a.name == 'Cloudridge_Peaks' and zmax > 290:
+        if a.name == 'Cloudridge_Peaks' and zmax > 290 * WORLD:
             return 'F1_Snow'
         if a.name == 'Cloudridge_Peaks' and slope > 0.7:
             return 'F1_Rock'
@@ -760,31 +801,31 @@ def waterfall(p, T, start, ang, zw, w, name, falls):
     """walk from start along ang until the ground drops away, hang a water sheet there"""
     d = Vector((math.cos(math.radians(ang)), math.sin(math.radians(ang))))
     q = Vector(start)
-    for _ in range(200):
-        q2 = q + d * 2.0
+    for _ in range(600):
+        q2 = q + d * 4.0
         h, land = T.sample(q2.x, q2.y)
-        if not land or h < zw - 6:
+        if not land or h < zw - 20:
             break
         q = q2
     else:
         return None
-    hb, landb = T.sample(*(q + d * 16))
-    zb = hb + 0.2 if landb and hb < zw - 4 else CLOUD_Z + 10
+    hb, landb = T.sample(*(q + d * 60))
+    zb = hb + 0.2 if landb and hb < zw - 20 else CLOUD_Z + 10
     top = zw + 0.3
     side = Vector((-d.y, d.x)) * (w / 2)
-    c = q + d * 1.2
+    c = q + d * 4.0
     bm = p.bm
-    n = max(2, int((top - zb) / 12))
+    n = max(2, int((top - zb) / 30))
     rows = []
     for k in range(n + 1):
         z = top - (top - zb) * k / n
-        bulge = d * (1.5 * math.sin(math.pi * k / n) + 3.0 * k / n)
+        bulge = d * (6.0 * math.sin(math.pi * k / n) + 14.0 * k / n)
         rows.append((bm.verts.new((c.x + side.x + bulge.x, c.y + side.y + bulge.y, z)),
                      bm.verts.new((c.x - side.x + bulge.x, c.y - side.y + bulge.y, z))))
     for (a0, b0), (a1, b1) in zip(rows, rows[1:]):
         f = bm.faces.new((a0, b0, b1, a1)); f.material_index = p.mi('F1_Waterfall')
     if landb and zb > CLOUD_Z + 20:                              # splash pool
-        p.cyl(Vector((c.x + d.x * 5, c.y + d.y * 5, zb + 0.15)), w * 0.75, 0.3, 'F1_Waterfall', 16)
+        p.cyl(Vector((c.x + d.x * 20, c.y + d.y * 20, zb + 0.15)), w * 0.75, 0.3, 'F1_Waterfall', 16)
     falls.append(dict(name=name, top=round(top, 1), bottom=round(zb, 1), x=round(c.x, 1), y=round(c.y, 1)))
     return q
 
@@ -796,7 +837,7 @@ def build_water(T):
     wf = Part('F1_Waterfalls', coll('Waterfalls', 'WATER').name)
     for name, pts, zw, w in RIVERS:
         wp = [(*px(x, y), zw) for x, y in pts]
-        ribbon(rv, densify(wp), w + 1.0, 'F1_Water')
+        ribbon(rv, densify(wp, 24.0), w + 1.0, 'F1_Water')
         (ax, ay, _), (bx, by, _) = wp[-2], wp[-1]
         ang = math.degrees(math.atan2(by - ay, bx - ax))
         waterfall(wf, T, (bx, by), ang, zw, w, name + '_Falls', falls)
@@ -829,28 +870,34 @@ def build_landmarks(T):
     # the World Tree: flared trunk, limbs and a huge canopy - visible from most of the floor
     tx, ty = px(*WORLD_TREE)
     z0 = ground(T, *WORLD_TREE)
-    p = Part('Landmark_World_Tree', c)
-    for r0, r1, za, zb in ((70, 46, -6, 36), (46, 38, 36, 150), (38, 30, 150, 250)):
-        p.cyl((tx, ty, z0 + (za + zb) / 2), r0, zb - za, 'F1_Tree_Bark', 16, r2=r1)
+    W_ = WORLD
+    # (one object per piece: each stays under Roblox's 2,048-stud MeshPart limit)
+    for k, (r0, r1, za, zb) in enumerate(((70, 46, -6, 36), (46, 38, 36, 150), (38, 30, 150, 250))):
+        p = Part(f'Landmark_World_Tree_Trunk_{k + 1}', c)
+        p.cyl((tx, ty, z0 + (za + zb) / 2 * W_), r0 * W_, (zb - za) * W_, 'F1_Tree_Bark', 24, r2=r1 * W_)
+        p.finish()
+    p = Part('Landmark_World_Tree_Limbs', c)
     for k in range(7):
         a = TAU * k / 7 + 0.3
-        tip = Vector((tx + math.cos(a) * 120, ty + math.sin(a) * 120, z0 + 300 + rnd.uniform(-20, 20)))
-        p.beam(Vector((tx, ty, z0 + 200 + k * 7)), tip, 16, 16, 'F1_Tree_Bark')
+        tip = Vector((tx + math.cos(a) * 120 * W_, ty + math.sin(a) * 120 * W_, z0 + (300 + rnd.uniform(-20, 20)) * W_))
+        p.beam(Vector((tx, ty, z0 + (200 + k * 7) * W_)), tip, 16 * W_, 16 * W_, 'F1_Tree_Bark')
+    p.finish()
     for k in range(16):
         a = rnd.uniform(0, TAU); r = rnd.uniform(0, 170) if k else 0
-        p.ico((tx + math.cos(a) * r, ty + math.sin(a) * r, z0 + 300 + rnd.uniform(-25, 55) - r * 0.15),
-              rnd.uniform(70, 105), 'F1_Tree_Canopy', 2, (1.0, 1.0, 0.62))
-    p.finish()
+        p = Part(f'Landmark_World_Tree_Canopy_{k + 1}', c)
+        p.ico((tx + math.cos(a) * r * W_, ty + math.sin(a) * r * W_, z0 + (300 + rnd.uniform(-25, 55) - r * 0.15) * W_),
+              rnd.uniform(70, 105) * W_, 'F1_Tree_Canopy', 2, (1.0, 1.0, 0.62))
+        p.finish()
     # Jungle Fortress: stepped keep + towers behind the arena (reserved footprint, massing only)
     kx, ky = px(1300, 520)
     kz = ground(T, 1300, 520)
     p = Part('Landmark_Fortress_Keep', c)
     for s, h, z in ((110, 40, 0), (82, 40, 40), (56, 46, 80), (30, 40, 126)):
-        p.box((kx, ky, kz + z + h / 2), (s, s, h), 'F1_Blockout')
+        p.box((kx, ky, kz + (z + h / 2) * W_), (s * W_, s * W_, h * W_), 'F1_Blockout')
     for sx in (-1, 1):
         for sy in (-1, 1):
-            p.cyl((kx + sx * 62, ky + sy * 62, kz + 50), 9, 100, 'F1_Blockout', 10)
-            p.cone((kx + sx * 62, ky + sy * 62, kz + 100), 11, 26, 'F1_Blockout', 10)
+            p.cyl((kx + sx * 62 * W_, ky + sy * 62 * W_, kz + 50 * W_), 9 * W_, 100 * W_, 'F1_Blockout', 12)
+            p.cone((kx + sx * 62 * W_, ky + sy * 62 * W_, kz + 100 * W_), 11 * W_, 26 * W_, 'F1_Blockout', 12)
     p.finish()
     # Ancient Ruins: ring of colossal broken pillars round the plaza
     rx, ry = px(650, 380)
@@ -859,8 +906,9 @@ def build_landmarks(T):
     for k in range(10):
         a = TAU * k / 10 + 0.15
         h = rnd.choice((18, 30, 48, 62, 80))
-        p.cyl((rx + math.cos(a) * 76, ry + math.sin(a) * 76, rz + h / 2 - 2), 8, h, 'F1_Ruins_Stone', 10)
-    p.box((rx, ry + 76, rz + 86), (60, 12, 10), 'F1_Ruins_Stone')     # the one lintel still standing
+        p.cyl((rx + math.cos(a) * 76 * W_, ry + math.sin(a) * 76 * W_, rz + (h / 2 - 2) * W_), 8 * W_, h * W_,
+              'F1_Ruins_Stone', 12)
+    p.box((rx, ry + 76 * W_, rz + 86 * W_), (60 * W_, 12 * W_, 10 * W_), 'F1_Ruins_Stone')   # the one lintel left
     p.finish()
 
 
@@ -924,21 +972,21 @@ def build_blockouts(T):
     for name, (x, y), ang, w in CAVES:
         d = Vector((math.cos(math.radians(ang)), math.sin(math.radians(ang))))
         q = Vector(px(x, y)); h0 = T.sample(*q)[0]
-        for _ in range(250):
-            q2 = q + d * 2.0
+        for _ in range(1500):
+            q2 = q + d * 4.0
             h, land = T.sample(*q2)
-            if not land or h < h0 - 10:
+            if not land or h < h0 - 40:
                 break
             q = q2
-        hb, landb = T.sample(*(q + d * 16))
-        zf = hb if landb else T.sample(*q)[0] - 24
+        hb, landb = T.sample(*(q + d * 60))
+        zf = hb if landb else T.sample(*q)[0] - 24 * WORLD
         top = T.sample(*q)[0]
         hh = min(w * 0.85, max(12.0, top - zf - 3))
         M = Matrix.Translation((q.x - d.x * 3, q.y - d.y * 3, zf)) @ Matrix.Rotation(math.atan2(d.y, d.x) + math.pi / 2, 4, 'Z')
         FLIP = Matrix(((1, 0, 0, 0), (0, 0, 1, 0), (0, 1, 0, 0), (0, 0, 0, 1)))
         p = Part(name, cv)
         arch = round_arch(w, max(1.0, hh - w / 2), 10)
-        p.prism(arch, -3.0, 28.0, 'F1_Cave', M @ FLIP)
+        p.prism(arch, -3.0, 0.9 * w, 'F1_Cave', M @ FLIP)
         frame_strip(p, M, round_arch(w + 7, max(1.0, hh - w / 2), 10), arch, -4.5, 1.5, 'F1_Rock')
         p.finish()
         wc = M @ Vector((0, 0, 0))
@@ -950,17 +998,23 @@ def build_blockouts(T):
 # ---------------------------------------------------------------- clouds / guides --
 def build_clouds():
     c = coll('CLOUDS', ROOT).name
-    p = Part('F1_Cloud_Sea', c)
-    p.cyl((0, 0, CLOUD_Z), 4500.0, 2.0, 'F1_Cloud', 64)
+    p = Part('F1_Cloud_Sea', c)                                # tiles: Roblox MeshParts stay under 2,048 studs
+    t, R_ = 1800.0, 9000.0
+    for i in range(-8, 8):
+        for j in range(-8, 8):
+            x, y = (i + 0.5) * t, (j + 0.5) * t
+            if math.hypot(x, y) < R_:
+                p.box((x, y, CLOUD_Z), (t, t, 2.0), 'F1_Cloud')
     p.finish()
     rnd = random.Random(42)
     q = Part('F1_Cloud_Puffs', c)
     for k in range(140):
-        a = rnd.uniform(0, TAU); r = rnd.uniform(150, 1500)
+        a = rnd.uniform(0, TAU); r = rnd.uniform(150, 1200) * WORLD
         x, y = math.cos(a) * r, math.sin(a) * r
-        s = rnd.uniform(28, 75)
+        s = rnd.uniform(28, 75) * WORLD
         for j in range(3):
-            q.ico((x + rnd.uniform(-1, 1) * s, y + rnd.uniform(-1, 1) * s, CLOUD_Z + rnd.uniform(4, 20) + j * 4),
+            q.ico((x + rnd.uniform(-1, 1) * s, y + rnd.uniform(-1, 1) * s,
+                   CLOUD_Z + (rnd.uniform(4, 20) + j * 4) * WORLD),
                   s * rnd.uniform(0.6, 1.0), 'F1_Cloud', 2, (1.0, 1.0, 0.45))
     q.finish()
 
@@ -975,25 +1029,26 @@ def label(name, txt, coll_name, size, mat, x, y, z):
 def build_guides(T, falls, marks):
     gc = coll('GUIDES', ROOT).name
     lc = coll('Map_Labels', gc).name
-    top = 700.0                                                # above the World Tree canopy
+    top = 700.0 * WORLD                                        # above the World Tree canopy
     for title, lv, (cx, cy) in REGIONS:                        # the five regions
         wx, wy = px(cx, cy)
-        label(f'Label_Region_{title}', title, lc, 34, 'F1_Label_Gold', wx, wy + 12, top + 2)
-        label(f'Label_Region_{title}_Lv', lv, lc, 20, 'F1_Label_Gold', wx, wy - 22, top + 2)
+        label(f'Label_Region_{title}', title, lc, 34 * WORLD, 'F1_Label_Gold', wx, wy + 12 * WORLD, top + 10)
+        label(f'Label_Region_{title}_Lv', lv, lc, 20 * WORLD, 'F1_Label_Gold', wx, wy - 22 * WORLD, top + 10)
     for a in AREAS:                                            # smaller place names (secrets stay unlabelled)
         if a.label is None or a.name in ('Jungle_Fortress', 'Fortress_Heights'):   # the region label covers these
             continue
         wx, wy = px(*a.label)
-        label(f'Label_{a.name}', a.name.replace('_', ' ').upper(), lc, 21, 'F1_Label', wx, wy, top)
-    label('Label_Floor_Title', 'FLOOR 1 - THE VERDANT KINGDOM', lc, 40, 'F1_Label_Gold', *px(240, -60), top)
+        label(f'Label_{a.name}', a.name.replace('_', ' ').upper(), lc, 21 * WORLD, 'F1_Label', wx, wy, top)
+    label('Label_Floor_Title', 'FLOOR 1 - THE VERDANT KINGDOM', lc, 40 * WORLD, 'F1_Label_Gold', *px(240, -60), top)
     rs = Part('Reserved_Footprints', gc)
     for name, cx, cy, kind, a, b in RESERVED:
         wx, wy = px(cx, cy)
         z = T.sample(wx, wy)[0] + 0.5
         if kind == 'circle':
-            rs.torus((wx, wy, z), a, 0.7, 'F1_Reserved', 48, 4)
+            rs.torus((wx, wy, z), a, 0.7 * WORLD, 'F1_Reserved', 64, 4)
         else:
-            for sx, sy, w_, h_ in ((0, -b / 2, a, 1.4), (0, b / 2, a, 1.4), (-a / 2, 0, 1.4, b), (a / 2, 0, 1.4, b)):
+            t_ = 1.4 * WORLD
+            for sx, sy, w_, h_ in ((0, -b / 2, a, t_), (0, b / 2, a, t_), (-a / 2, 0, t_, b), (a / 2, 0, t_, b)):
                 rs.box((wx + sx, wy + sy, z), (w_, h_, 1.0), 'F1_Reserved')
     rs.finish()
 
@@ -1013,17 +1068,18 @@ def build_scale_refs(T):
 # ---------------------------------------------------------------- cameras ---
 def build_floor1_cameras(coll_name='CAMERAS'):
     out = {}
-    P3 = lambda x, y, z: (*px(x, y), z)
-    specs = (('CAM_F1_Map_TopDown', (70, -10, 4000), (70, -10, 0), 'ORTHO', 1950),
-             ('CAM_F1_Overview', (-1150, -1450, 1000), (80, 20, -20), 'PERSP', 28),
-             ('CAM_F1_Entrance_Player', P3(150, 930, 30), P3(340, 640, 50), 'PERSP', 24),
+    W_ = WORLD
+    P3 = lambda x, y, z: (*px(x, y), z * W_)
+    specs = (('CAM_F1_Map_TopDown', (70 * W_, -10 * W_, 4000 * W_), (70 * W_, -10 * W_, 0), 'ORTHO', 1950 * W_),
+             ('CAM_F1_Overview', (-1150 * W_, -1450 * W_, 1000 * W_), (80 * W_, 20 * W_, -20 * W_), 'PERSP', 28),
+             ('CAM_F1_Entrance_Player', P3(205, 905, 18), P3(340, 640, 40), 'PERSP', 24),
              ('CAM_F1_Valley_View', P3(470, 660, 14), P3(700, 470, 60), 'PERSP', 22),
              ('CAM_F1_World_Tree_View', P3(1010, 470, 135), P3(800, 150, 250), 'PERSP', 24),
              ('CAM_F1_Fortress_View', P3(880, 720, 120), P3(1240, 560, 250), 'PERSP', 24),
-             ('CAM_F1_Side_Elevation', (60, -2500, 220), (60, 0, 80), 'PERSP', 32))
+             ('CAM_F1_Side_Elevation', (60 * W_, -2500 * W_, 220 * W_), (60 * W_, 0, 80 * W_), 'PERSP', 32))
     for name, loc, tgt, kind, lens in specs:
         cam = bpy.data.cameras.new(name)
-        cam.clip_start = 1.0; cam.clip_end = 60000
+        cam.clip_start = 2.0; cam.clip_end = 300000
         if kind == 'ORTHO':
             cam.type = 'ORTHO'; cam.ortho_scale = lens
         else:

@@ -188,6 +188,26 @@ def split_mesh(src_me, base_name):
             if cur:
                 chunks.append(cur)
             chunks = [set(g.index for g in ch) for ch in chunks]
+        ext = CFG.get('max_extent')
+        if ext:                                             # Roblox MeshParts must stay under 2,048 studs a side
+            bm.faces.ensure_lookup_table()
+            fixed = []
+            for keep in chunks:
+                idx = range(len(bm.faces)) if keep is None else sorted(keep)
+                vs = [v.co for i in idx for v in bm.faces[i].verts]
+                size = max(max(c[a] for c in vs) - min(c[a] for c in vs) for a in range(3))
+                if size <= ext:
+                    fixed.append(keep)
+                    continue
+                cell = ext * 0.9
+                tiles = {}
+                for i in idx:
+                    c_ = bm.faces[i].calc_center_median()
+                    tiles.setdefault((int(c_.x // cell), int(c_.y // cell), int(c_.z // cell)), []).append(i)
+                for key in sorted(tiles):
+                    t = tiles[key]
+                    fixed += [set(t[j:j + LIM]) for j in range(0, len(t), LIM)]
+            chunks = fixed
         for k, keep in enumerate(chunks):
             if keep is None:
                 b2 = bm
@@ -279,10 +299,16 @@ def main(**cfg):
                                  axis_forward='-Z', axis_up='Y', mesh_smooth_type='FACE', use_mesh_modifiers=False,
                                  add_leaf_bones=False, bake_anim=False, path_mode='STRIP', use_custom_props=False)
         biggest = max((len(o.data.polygons) for o in made), default=0)
-        manifest[fname] = dict(parts=len(made), triangles=tris, largest_part=biggest,
+        span = 0.0                                     # largest part size along any axis (Roblox limit: 2,048)
+        for key, mw, nm in items[fname]:
+            for mname, me in cache[key]:
+                if me.vertices:
+                    co = [mw @ v.co for v in me.vertices]
+                    span = max(span, *(max(c[a] for c in co) - min(c[a] for c in co) for a in range(3)))
+        manifest[fname] = dict(parts=len(made), triangles=tris, largest_part=biggest, largest_extent=round(span, 1),
                                root=root.name, root_position_roblox=to_roblox(root.matrix_world.translation),
                                size_mb=round(os.path.getsize(path) / 1e6, 2))
-        print(f'{fname}: {len(made)} parts, {tris:,} tris (largest {biggest:,}), '
+        print(f'{fname}: {len(made)} parts, {tris:,} tris (largest {biggest:,}, widest {span:,.0f} studs), '
               f'{manifest[fname]["size_mb"]} MB')
         for o in made:
             bpy.data.objects.remove(o)

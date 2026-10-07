@@ -29,5 +29,5 @@ GROUPS = (
 if __name__ == '__main__':
     sx, sy = floor1.px(*floor1.SPAWN)
     export_fbx.main(blend=os.path.join(os.path.dirname(HERE), 'TowerOfPets_Floor1.blend'), groups=GROUPS, exclude={},
-                    out=os.path.join(ROOT_DIR, 'exports', 'TowerOfPets', 'Floor1'), tri_limit=6000, prefix='Floor1',
-                    spawn=(sx, sy, 12.0), precise=('_Top__', '_Cliffs__', 'Natural_Bridges'))
+                    out=os.path.join(ROOT_DIR, 'exports', 'TowerOfPets', 'Floor1'), tri_limit=6000, prefix='Floor1', max_extent=1900,
+                    spawn=(sx, sy, 12.0 * floor1.WORLD), precise=('_Top__', '_Cliffs__', 'Natural_Bridges'))

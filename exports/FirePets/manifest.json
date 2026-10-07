@@ -1,0 +1,61 @@
+{
+  "Ashrat": {
+    "parts": {
+      "Ashrat_Body": 12346,
+      "Ashrat_Fire": 2808
+    },
+    "triangles": 15154,
+    "size_studs_wide_long_tall": [
+      3.98,
+      4.86,
+      3.06
+    ],
+    "fbx_mb": 0.91
+  },
+  "Cinderkit": {
+    "parts": {
+      "Cinderkit_Body": 12402,
+      "Cinderkit_Fire": 6224
+    },
+    "triangles": 18626,
+    "size_studs_wide_long_tall": [
+      3.25,
+      4.4,
+      3.6
+    ],
+    "fbx_mb": 1.2
+  },
+  "Flarecat": {
+    "parts": {
+      "Flarecat_Body": 11540,
+      "Flarecat_Fire": 9802
+    },
+    "triangles": 21342,
+    "size_studs_wide_long_tall": [
+      3.4,
+      4.46,
+      3.71
+    ],
+    "fbx_mb": 1.46
+  },
+  "Smoulderat": {
+    "parts": {
+      "Smoulderat_Body": 12280,
+      "Smoulderat_Fire": 5516
+    },
+    "triangles": 17796,
+    "size_studs_wide_long_tall": [
+      4.63,
+      5.97,
+      3.57
+    ],
+    "fbx_mb": 1.22
+  },
+  "_notes": {
+    "studs_per_metre": 3.0,
+    "texture_px": 1024,
+    "front": "-Z",
+    "up": "+Y",
+    "pivot": "feet, ground"
+  }
+}

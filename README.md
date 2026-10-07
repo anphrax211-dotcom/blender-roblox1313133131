@@ -357,7 +357,12 @@ the four keep the sheet's relative sizes. The tail silhouettes are traced from t
 - **Previews:** `previews/FirePets_Turnaround.png` is laid out like the reference sheet. Also
   `FirePets_<Pet>_<View>.png`, `FirePets_Overview_ThreeQuarter.png` and `FirePets_Lineup_Front.png`.
 
+- **Roblox:** `exports/FirePets/<Pet>.fbx` has two MeshParts, `<Pet>_Body` and `<Pet>_Fire`, sharing one
+  1024² colour texture that is baked from the materials and embedded. The pet faces −Z, Y is up, the pivot is at
+  the feet, and the scale is 3 studs per metre. See `exports/FirePets/IMPORT.md`.
+
 ```
 python3 blender/fire_pets.py                          # rebuild blender/FirePets.blend
 python3 blender/fire_pets.py --render previews        # also render every turnaround camera + the sheet
+python3 blender/export_fire_pets.py                   # rebuild exports/FirePets/*.fbx + textures
 ```

@@ -318,7 +318,7 @@ def build_foundation():
         p.cone(P(R_FOUND + 3, deg, 108), 8.5, 10, 'Stone_Trim', 4)
         # arched windows between buttresses (upper half only, away from the gatehouse)
         degf = deg + 360 / n / 2
-        if abs(((degf - 270) + 180) % 360 - 180) > 13:
+        if abs(((degf - 270) + 180) % 360 - 180) > 35:          # front faces get castle masonry (castle.py)
             ap = R_FOUND * math.cos(math.pi / n)
             for zz in (52, 80):
                 p.prism(pointed_arch(14, 14, 7), 0, 0.6, 'Window_Warm', face_M(ap, degf, zz))
@@ -326,11 +326,13 @@ def build_foundation():
                         face_M(ap, degf, zz))
     # upper wall to z=200 (recessed), cornice, crenellations
     ru = 276.0
-    p.prism(ngon(ru, n, rot + 7.5), 112, 192, 'Hub_Stone_Warm')
-    p.prism(ngon(ru + 10, n, rot + 7.5), 192, 200, 'Stone_Trim')
+    p.prism(ngon(ru, n, rot), 112, 192, 'Hub_Stone_Warm')           # a flat face points at the plaza (upper gate)
+    p.prism(ngon(ru + 10, n, rot), 192, 200, 'Stone_Trim')
     ap = ru * math.cos(math.pi / n)
     for i in range(n):
-        deg = rot + 7.5 + (i + 0.5) * 360 / n
+        deg = rot + (i + 0.5) * 360 / n
+        if abs(((deg - 270) + 180) % 360 - 180) < 35:
+            continue
         p.prism(round_arch(16, 16, 6), 0, 0.6, 'Window_Warm', face_M(ap, deg, 132))
         p.prism(pointed_arch(10, 12, 5), 0, 0.6, 'Window_Warm', face_M(ap, deg, 165))
     for i in range(n * 3):

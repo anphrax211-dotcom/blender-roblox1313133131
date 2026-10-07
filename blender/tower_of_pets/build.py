@@ -24,8 +24,8 @@ HERE = os.path.dirname(os.path.abspath(__file__)) if '__file__' in globals() els
 if HERE not in sys.path:
     sys.path.insert(0, HERE)
 import bpy
-import common, foliage, islands, hub, entrance, tower, environment
-for m in (common, foliage, islands, hub, entrance, tower, environment):        # re-running inside Blender picks up edits
+import common, foliage, islands, castle, hub, entrance, tower, environment
+for m in (common, foliage, islands, castle, hub, entrance, tower, environment):        # re-running inside Blender picks up edits
     importlib.reload(m)
 
 OUT = os.path.join(os.path.dirname(HERE), 'TowerOfPets_Lobby.blend')
@@ -36,6 +36,7 @@ def main(path=OUT):
     common.build_materials()
     foliage.build_foliage_materials()
     islands.build_island_materials()
+    castle.build_castle_materials()
     common.coll('TOWER_OF_PETS')
     for c in ('HUB', 'TOWER_ENTRANCE', 'TOWER_TEMPLATE', 'FLOATING_ISLANDS', 'WATERFALLS', 'ENVIRONMENT',
               'LIGHTING', 'CAMERAS'):
@@ -45,6 +46,7 @@ def main(path=OUT):
     foliage.build_foliage_assets(common.ASSET_COLL)
     islands.build_island_assets(common.ASSET_COLL)
     islands.build_variations()
+    castle.build_castle_kit(common.ASSET_COLL)
     hub.build_hub()
     entrance.build_entrance()
     tower.build_tower()

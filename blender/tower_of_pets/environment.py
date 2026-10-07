@@ -353,6 +353,12 @@ def build_cameras():
     top.data.clip_start = 700            # hub only (render.py also hides the tower floors for this camera)
     top['hide_collections'] = 'Jungle,Desert,Ice,Lava,Crystal,Shadow,Forest,Kingdom,Cloud,Celestial,Divine,Sky_Clouds,FLOATING_ISLANDS'
     camera('CAM_6_HeroFullTower', (-300, -1750, 190), (0, 475, 960), 20)
+    # castle base cameras (castle-base reference)
+    camera('CAM_7_Castle_Reference', (0, -40, 34), (0, 152, 62), 22)
+    camera('CAM_8_Castle_Front', (0, -150, 70), (0, 152, 70), 30)
+    camera('CAM_9_Castle_Close', (-24, 110, 32), (-8, 152, 44), 30)
+    camera('CAM_10_Castle_Side', (-150, 88, 46), (-10, 160, 52), 28)
+    camera('CAM_11_Castle_Player', (6, 44, 5.2), (0, 152, 40), 22)
     bpy.context.scene.camera = c1
 
 
@@ -361,7 +367,8 @@ def build_environment():
         coll(c, 'TOWER_OF_PETS')
     coll(SKY, ENV)
     build_hub_rock()
-    build_aqueduct_wings()
+    import castle
+    castle.build_side_arcades(random.Random(77))
     build_floating_islands()
     build_bridges()
     build_mountain_assets()

@@ -162,9 +162,20 @@ def build_spawn_and_fountain():
 
     # paw fountain -------------------------------------------------------------------------------
     z0 = 1.2
-    p = Part('Fountain_Basin', cf, 0.12)
-    p.ring_sector(17.0, 19.0, 0, TAU, z0, z0 + 2.6, 'Hub_Stone', 48)
-    p.ring_sector(16.6, 19.6, 0, TAU, z0 + 2.6, z0 + 3.2, 'Stone_Trim', 48)
+    from castle import bevel_box
+    p = Part('Fountain_Basin', cf)
+    # masonry basin wall: two courses of chamfered blocks (staggered) + cap stones, all real geometry
+    nb = 24
+    for row in range(2):
+        for k in range(nb):
+            a = TAU * (k + 0.5 * row) / nb
+            M = Matrix.Translation((math.cos(a) * 18.0, math.sin(a) * 18.0, 0)) @ Matrix.Rotation(a + math.pi / 2, 4, 'Z')
+            bevel_box(p, M, (0, 0, z0 + 0.65 + row * 1.3), (2 * 18.0 * math.sin(math.pi / nb) * 1.04 - 0.16, 2.0, 1.22),
+                      ('Castle_Stone', 'Castle_Stone_Light')[(k + row) % 2], 0.16)
+    for k in range(nb):
+        a = TAU * (k + 0.25) / nb
+        M = Matrix.Translation((math.cos(a) * 18.1, math.sin(a) * 18.1, 0)) @ Matrix.Rotation(a + math.pi / 2, 4, 'Z')
+        bevel_box(p, M, (0, 0, z0 + 2.9), (2 * 18.1 * math.sin(math.pi / nb) * 1.06 - 0.14, 3.0, 0.6), 'Castle_Trim', 0.15)
     p.ring_sector(16.6, 16.9, 0, TAU, z0 + 3.2, z0 + 3.35, 'Gold', 48)
     p.cyl((0, 0, z0 + 1.2), 6.0, 2.4, 'Hub_Stone', 24)                   # pedestal
     p.cone((0, 0, z0 + 2.4), 4.0, 2.4, 'Hub_Stone_Warm', 24, r_top=9.5)  # upper bowl
@@ -190,10 +201,13 @@ def build_spawn_and_fountain():
     p = Part('Fountain_PawOrb', cf)
     oc = Vector((0, 0, z0 + 10.6))
     p.uvsphere(oc, 4.6, 'Fountain_Orb', 24, 12, (1.0, 0.92, 1.0))
-    for s in (-1, 1):
-        tilt = Euler((0, s * 0.42, 0)).to_matrix()
-        base = oc + Vector((s * 2.6, 0, 3.0))
-        p.cyl(base + tilt @ Vector((0, 0, 1.2)), 1.7, 2.6, 'Fountain_Orb', 8, r2=0.2, rot=tilt, smooth=True)
+    # flame / teardrop finial with small side spikes (castle-base reference)
+    p.cone(oc + Vector((0, 0, 3.6)), 1.9, 4.2, 'Fountain_Orb', 10)
+    for k in range(4):
+        a = TAU * k / 4 + 0.4
+        tilt = Euler((math.sin(a) * 0.9, -math.cos(a) * 0.9, 0)).to_matrix()
+        base = oc + Vector((math.cos(a) * 3.6, math.sin(a) * 3.6, 2.0))
+        p.cyl(base + tilt @ Vector((0, 0, 0.7)), 0.7, 1.4, 'Fountain_Orb', 6, r2=0.05, rot=tilt)
     for side, rz in ((-1, 0.0), (1, math.pi)):           # paw on the front (-Y) and back
         paw(p, M_front(0, oc.y + side * 4.15, oc.z - 0.3, rz), 5.2, 0.8, 'Paw_White_Glow')
     p.torus(oc - Vector((0, 0, 4.0)), 4.4, 0.35, 'Magic_Glow', 40, 6)

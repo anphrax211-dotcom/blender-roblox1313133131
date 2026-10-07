@@ -5,7 +5,7 @@ the six cameras and the compositor (atmospheric haze from the mist pass + bloom)
 import math, random
 import bpy
 from mathutils import Vector, Matrix, Euler
-from common import (Part, coll, inst, ASSETS, ASSET_COLL, canopy, tree, waterfall, rock_blob, round_arch,
+from common import (Part, coll, inst, ASSETS, ASSET_COLL, canopy, waterfall, rock_blob, round_arch,
                     TAU, _asset_part, _register)
 from hub import R_ISLAND, polar
 from tower import TC, LEDGES, P as TP
@@ -111,7 +111,7 @@ def build_aqueduct_wings():
         p.finish()
         for i in range(n + 1):
             deg = d0 + (d1 - d0) * i / n
-            inst(rnd.choice(('Tree_A', 'Tree_B', 'Bush_B')), f'Aqueduct_{side}_Tree_{i}', ENV,
+            inst(rnd.choice(('Tree_Medium_High', 'Tree_Small', 'Bush_02')), f'Aqueduct_{side}_Tree_{i}', ENV,
                  polar(R, deg, top), rnd.uniform(0, TAU), rnd.uniform(0.9, 1.4))
         for k in range(2):                       # falls spilling out of the channel, outward over the rim
             deg = d0 + (d1 - d0) * (k * 4 + 1.5) / n
@@ -138,13 +138,9 @@ def build_island_assets():
         p.loft(rings, 'Cliff_Rock')
         p.prism([(x * 1.04, y * 1.04) for x, y in top], 0.0, 0.1, 'Grass')
         rr = random.Random(710 + k)
-        for t in range(ntree):
-            a = rr.uniform(0, TAU); d = rr.uniform(0, 0.55)
-            tree(p, (math.cos(a) * d, math.sin(a) * d, 0.1), rr.uniform(0.32, 0.5), rr.uniform(0.18, 0.26), rr,
-                 ('Leaf_Green', 'Leaf_Light', 'Leaf_Dark'))
         for t in range(14):
             a = rr.uniform(0, TAU); d = rr.uniform(0.5, 1.0)
-            p.ico((math.cos(a) * d, math.sin(a) * d, 0.12), rr.uniform(0.08, 0.14), 'Leaf_Green', 1, (1, 1, 0.7))
+            p.ico((math.cos(a) * d, math.sin(a) * d, 0.12), rr.uniform(0.06, 0.1), 'Leaves_Mid', 1, (1, 1, 0.7))
         if ruin:
             for i in range(4):
                 a = TAU * i / 4 + 0.3
@@ -163,6 +159,28 @@ def place_island(name, loc, size, rot=0.0, falls=False, seed=0):
     kind = 'ABC'[seed % 3]
     ob = inst(f'Island_{kind}', name, ISL, loc, rot, size)
     ISLANDS.append((Vector(loc), size))
+    # trees, bushes and hanging vines from the foliage pack (far islands use the low LODs)
+    rnd = random.Random(seed)
+    far = 'Hub' not in name
+    loc = Vector(loc)
+    s = max(0.6, min(2.4, size / 34))
+    for t in range((3, 2, 4)[seed % 3]):
+        a = rnd.uniform(0, TAU); d = rnd.uniform(0, 0.5) * size
+        kind_t = rnd.choice(('Large', 'Medium', 'Small', 'Tall_Thin'))
+        nm = {('Large', False): 'Tree_Large_High', ('Medium', False): 'Tree_Medium_High',
+              ('Small', False): 'Tree_Small', ('Tall_Thin', False): 'Tree_Tall_Thin'}.get((kind_t, far),
+                                                                                         f'Tree_{kind_t}_Low')
+        inst(nm, f'{name}_Tree_{t}', ISL, loc + Vector((math.cos(a) * d, math.sin(a) * d, size * 0.1)),
+             rnd.uniform(0, TAU), s * rnd.uniform(0.8, 1.2))
+    for t in range(3):
+        a = rnd.uniform(0, TAU); d = rnd.uniform(0.45, 0.8) * size
+        inst(rnd.choice(('Bush_01', 'Bush_02', 'Bush_03')), f'{name}_Bush_{t}', ISL,
+             loc + Vector((math.cos(a) * d, math.sin(a) * d, size * 0.1)), rnd.uniform(0, TAU), s * 1.2)
+    for t in range(4):
+        a = rot + TAU * t / 4 + rnd.uniform(-0.4, 0.4)
+        inst(rnd.choice(('Vine_Medium', 'Vine_Long')), f'{name}_Vine_{t}', ISL,
+             loc + Vector((math.cos(a) * size * 0.92, math.sin(a) * size * 0.92, size * 0.02)), rnd.uniform(0, TAU),
+             s * 1.4)
     if falls:
         a = rot + 0.7
         d = (math.cos(a), math.sin(a))
@@ -382,7 +400,7 @@ def build_cameras():
     top = camera('CAM_5_TopDownHub', (0, 25, 1200), (0, 25, 0), 50, ortho=420)
     top.rotation_euler = (0, 0, 0)
     top.data.clip_start = 700            # hub only (render.py also hides the tower floors for this camera)
-    top['hide_collections'] = 'Jungle,Desert,Ice,Lava,Crystal,Shadow,Forest,Kingdom,Cloud,Celestial,Divine,Sky_Clouds'
+    top['hide_collections'] = 'Jungle,Desert,Ice,Lava,Crystal,Shadow,Forest,Kingdom,Cloud,Celestial,Divine,Sky_Clouds,FLOATING_ISLANDS'
     camera('CAM_6_HeroFullTower', (-300, -1750, 190), (0, 475, 960), 20)
     bpy.context.scene.camera = c1
 

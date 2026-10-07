@@ -9,6 +9,7 @@ import math, random
 from mathutils import Vector, Matrix
 import bpy
 from common import Part, coll, inst, paw, M_front, pointed_arch, text_mesh, TAU
+from foliage import tree_in_planter, vine
 
 C = 'TOWER_ENTRANCE'
 STAIR_Y0, RUN, RISE, N_STEPS = 100.0, 1.5, 1.0, 20
@@ -74,9 +75,9 @@ def build_stairs():
         for k in range(4):
             yy = STAIR_Y0 + 3 + k * 7.5
             zz = (yy - STAIR_Y0) / RUN * RISE + 3.3
-            inst(('Bush_A', 'Bush_Flowers', 'Bush_B', 'Bush_C')[k], f'Entrance_StairBush_{s}_{k}', C,
+            inst(('Bush_01', 'Ground_Plant_01', 'Bush_02', 'Bush_03')[k], f'Entrance_StairBush_{s}_{k}', C,
                  (s * (STAIR_W / 2 + 10), yy, zz), rnd.uniform(0, TAU), 1.2)
-        inst('Planter', f'Entrance_FootPlanter_{s}', C, (s * (STAIR_W / 2 + 13), STAIR_Y0 - 9, 0), 0, 1.2)
+        inst('Stone_Planter', f'Entrance_FootPlanter_{s}', C, (s * (STAIR_W / 2 + 13), STAIR_Y0 - 9, 0), 0, 1.2)
 
 
 def build_landing():
@@ -223,9 +224,10 @@ def build_gatehouse():
     for s in (-1, 1):
         inst('Lantern_Post', f'Entrance_Lantern_Landing_{s}', C, (s * 21.0, yf - 13, z0), 0, 1.25)
         inst('Lantern_Post', f'Entrance_Lantern_Outer_{s}', C, (s * 46.0, yf - 13, z0), 0, 1.25)
-        inst('Bush_B', f'Entrance_Bush_{s}', C, (s * 42.0, yf - 6, z0), 0, 1.6)
-        inst('Bush_Flowers', f'Entrance_Flowers_{s}', C, (s * 26.0, yf - 4, z0), 0, 1.1)
-        inst('Tree_C', f'Entrance_Tree_{s}', C, (s * 47.0, yf - 2, z0), 0.5 * s, 1.2)
+        inst('Bush_02', f'Entrance_Bush_{s}', C, (s * 42.0, yf - 6, z0), 0, 1.3)
+        inst('Ground_Plant_01', f'Entrance_Flowers_{s}', C, (s * 26.0, yf - 4, z0), 0, 1.0)
+        inst('Tree_Small', f'Entrance_Tree_{s}', C, (s * 47.0, yf - 4, z0), 0.5 * s, 1.0)
+        tree_in_planter(f'Entrance_LobbyTree_{s}', C, (s * 64.0, STAIR_Y0 + 14, 0), 0.0, 'Tree_Large_High', seed=400 + s)
 
     # hanging vines over the gatehouse cornice ----------------------------------------------------
     v = Part('Entrance_Vines', C)
@@ -236,9 +238,7 @@ def build_gatehouse():
             continue
         L = rnd.uniform(8, 26)
         zt = z0 + 92
-        for j in range(int(L / 2)):
-            v.ico((x + rnd.uniform(-0.5, 0.5), yf - 0.8, zt - j * 2.0), rnd.uniform(0.7, 1.1),
-                  rnd.choice(('Leaf_Green', 'Leaf_Dark')), 1, (1, 0.6, 1))
+        vine(v, (x, yf - 0.8, zt), L, rnd, 1.6)
     v.finish()
 
 

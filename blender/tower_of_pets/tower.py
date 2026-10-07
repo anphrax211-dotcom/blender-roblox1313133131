@@ -25,6 +25,7 @@ import bpy
 from mathutils import Vector, Matrix, Euler
 from common import (Part, coll, inst, paw, M_front, pointed_arch, round_arch, canopy, waterfall,
                     rock_blob, ASSETS, TAU)
+from foliage import vine
 
 TC = Vector((0.0, 475.0, 0.0))          # tower axis
 R_FOUND = 300.0
@@ -343,12 +344,12 @@ def build_foundation():
     # terrace greenery (tree-tops visible above the walls, as in the hub sheets)
     for k in range(40):
         deg = 180 + k * 180 / 39 + rnd.uniform(-2, 2)
-        inst(rnd.choice(('Tree_A', 'Tree_B', 'Tree_C')), f'HubBase_Tree_{k}', c,
-             P(rnd.uniform(ru + 6, R_FOUND - 4), deg, 112), rnd.uniform(0, TAU), rnd.uniform(1.6, 2.4))
+        inst(rnd.choice(('Tree_Large_Low', 'Tree_Medium_Low', 'Tree_Small_Low')), f'HubBase_Tree_{k}', c,
+             P(rnd.uniform(ru + 6, R_FOUND - 4), deg, 112), rnd.uniform(0, TAU), rnd.uniform(1.1, 1.6))
     for k in range(20):
         deg = 200 + k * 140 / 19
-        inst(rnd.choice(('Tree_A', 'Tree_B')), f'HubBase_TopTree_{k}', c,
-             P(rnd.uniform(ru - 12, ru + 4), deg, 200), rnd.uniform(0, TAU), rnd.uniform(1.8, 2.6))
+        inst(rnd.choice(('Tree_Large_Low', 'Tree_Medium_Low')), f'HubBase_TopTree_{k}', c,
+             P(rnd.uniform(ru - 12, ru + 4), deg, 200), rnd.uniform(0, TAU), rnd.uniform(1.2, 1.7))
     # waterfalls pouring off the first terrace and the top (flanking the gatehouse)
     for k, (deg, z, w, drop) in enumerate(((222, 112, 14, 112), (318, 112, 14, 112), (250, 200, 10, 88),
                                            (290, 200, 10, 88), (196, 112, 12, 160), (344, 112, 12, 160))):
@@ -375,9 +376,7 @@ def jungle(s, rnd):
         top = (z1 - 4) if k % 2 else zm + 1
         rr = (ru + 6) if k % 2 else (r + 4.5)
         L = rnd.uniform(10, 40)
-        for j in range(int(L / 3)):
-            p.ico(P(rr + 0.5, deg + rnd.uniform(-0.3, 0.3), top - j * 3), rnd.uniform(1.0, 1.7),
-                  rnd.choice(('Leaf_Green', 'Leaf_Dark', 'Leaf_Light')), 1, (1, 1, 1.3))
+        vine(p, P(rr + 0.8, deg, top), L, rnd, 3.0)
     # canopy masses spilling over the cornice and terrace edges
     for k in range(30):
         deg = k * 12 + rnd.uniform(-4, 4)
@@ -388,8 +387,8 @@ def jungle(s, rnd):
     p.finish()
     for k in range(16):
         deg = k * 22.5 + rnd.uniform(-6, 6)
-        inst(rnd.choice(('Tree_A', 'Tree_B')), f'Jungle_Tree_{k}', c, P(r + rnd.uniform(6, 16), deg, z0 + 2),
-             rnd.uniform(0, TAU), rnd.uniform(2.0, 3.0))
+        inst(rnd.choice(('Tree_Large_Low', 'Tree_Medium_Low')), f'Jungle_Tree_{k}', c, P(r + rnd.uniform(6, 16), deg, z0 + 2),
+             rnd.uniform(0, TAU), rnd.uniform(1.4, 2.0))
     for k, deg in enumerate((215, 252, 293, 330, 40, 120)):
         a = math.radians(deg)
         waterfall(f'Waterfall_Jungle_{k}', WF, P(r + 6, deg, zm + 1), (math.cos(a), math.sin(a)),
@@ -426,7 +425,7 @@ def desert(s, rnd):
     p.finish()
     for k in range(5):
         deg = rnd.uniform(0, 360)
-        inst('Tree_C', f'Desert_Palm_{k}', c, P(r + 9, deg, z0 + 2), 0, 1.4)
+        inst('Tree_Tall_Thin_Low', f'Desert_Palm_{k}', c, P(r + 9, deg, z0 + 2), 0, 1.2)
 
 
 def ice(s, rnd):
@@ -455,7 +454,7 @@ def ice(s, rnd):
         p.cyl(b + tilt @ Vector((0, 0, h / 2)), 0, h, 'Ice_Clear', 6, r2=rnd.uniform(1.4, 2.6), rot=tilt)
     p.finish()
     for k in range(10):
-        inst('Pine', f'Ice_Pine_{k}', c, P(r + rnd.uniform(6, 14), rnd.uniform(0, 360), z0 + 2), 0, 1.6)
+        inst('Tree_Tall_Thin_Low', f'Ice_Tree_{k}', c, P(r + rnd.uniform(6, 14), rnd.uniform(0, 360), z0 + 2), 0, 1.6)
 
 
 def lava(s, rnd):

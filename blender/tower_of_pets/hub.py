@@ -16,6 +16,7 @@ import math, random
 from mathutils import Vector, Matrix, Euler
 from common import (Part, coll, empty, inst, paw, M_front, text_mesh, pointed_arch, round_arch,
                     ellipse, canopy, avatar, TAU)
+from foliage import tree_in_planter
 
 R_PLAZA = 128.0          # paved plaza radius
 R_ISLAND = 172.0         # grassy island rim
@@ -73,9 +74,10 @@ def build_plaza():
         g.ring_sector(r0 + 1, r1 - 1, a0 + 0.02, a1 - 0.02, 1.0, 1.75, 'Grass', 12)
         mid = (deg0 + deg1) / 2
         # landscaping in the wedge
-        inst('Tree_' + 'ABC'[k % 3], f'Tree_Inner_{k}', c, polar(64, mid, 1.7), rnd.uniform(0, TAU), 0.75)
+        inst(('Tree_Medium_High', 'Tree_Small', 'Tree_Tall_Thin')[k % 3], f'Tree_Inner_{k}', c, polar(64, mid, 1.7),
+             rnd.uniform(0, TAU), (0.85, 1.0, 0.85)[k % 3])
         for j, (rr, dd) in enumerate(((56, -11), (56, 11), (69, -14), (69, 14), (60, 0))):
-            inst(('Bush_A', 'Bush_Flowers', 'Bush_C', 'Bush_B', 'Bush_Flowers')[j], f'Bush_Inner_{k}_{j}', c,
+            inst(('Bush_01', 'Ground_Plant_01', 'Bush_03', 'Bush_02', 'Ground_Plant_02')[j], f'Bush_Inner_{k}_{j}', c,
                  polar(rr, mid + dd, 1.7), rnd.uniform(0, TAU), rnd.uniform(0.8, 1.1))
     p.finish(); g.finish()
 
@@ -96,15 +98,16 @@ def build_plaza():
     for k in range(8):
         mid = k * 45 + 22.5
         if mid in (67.5, 112.5):          # beside the grand stairs: low planters only
-            inst('Planter', f'Planter_Stairs_{k}', c, polar(84, mid), math.radians(mid - 90))
+            inst('Stone_Planter', f'Planter_Stairs_{k}', c, polar(84, mid), math.radians(mid - 90))
             inst('Lantern_Stone', f'LanternStone_Stairs_{k}', c, polar(96, mid + (6 if mid < 90 else -6)))
             continue
-        inst('Tree_' + 'BAC'[k % 3], f'Tree_Outer_{k}', c, polar(108, mid), rnd.uniform(0, TAU), 1.05)
-        inst('Tree_' + 'CAB'[k % 3], f'Tree_Outer_{k}b', c, polar(124, mid + 7), rnd.uniform(0, TAU), 0.9)
-        inst('Planter', f'Planter_Outer_{k}', c, polar(86, mid), math.radians(mid - 90))
+        tree_in_planter(f'LobbyTree_Outer_{k}', c, polar(108, mid), math.radians(mid - 90), 'Tree_Large_High', seed=300 + k)
+        inst(('Tree_Tall_Thin', 'Tree_Medium_High')[k % 2], f'Tree_Outer_{k}b', c, polar(126, mid + 9),
+             rnd.uniform(0, TAU), 0.9)
+        inst('Stone_Planter', f'Planter_Outer_{k}', c, polar(86, mid), math.radians(mid - 90))
         for j in range(3):
-            inst(('Bush_B', 'Bush_A', 'Bush_Flowers')[j], f'Bush_Outer_{k}_{j}', c,
-                 polar(98 + j * 6, mid + rnd.uniform(-8, 8)), rnd.uniform(0, TAU))
+            inst(('Bush_02', 'Bush_01', 'Ground_Plant_01')[j], f'Bush_Outer_{k}_{j}', c,
+                 polar(97 + j * 10, mid + (-11 if j % 2 else 11)), rnd.uniform(0, TAU))
         inst('Lantern_Stone', f'LanternStone_{k}', c, polar(116, mid - 6))
 
     # lawn rim: trees, rocks and a low balustrade on the island edge ------------------------------
@@ -114,9 +117,9 @@ def build_plaza():
         if 55 < deg < 125:                 # tower foundation side
             continue
         r = rnd.uniform(138, 160)
-        inst(rnd.choice(('Tree_A', 'Tree_B', 'Tree_C', 'Pine')), f'Tree_Rim_{k}', c, polar(r, deg, 0.3),
-             rnd.uniform(0, TAU), rnd.uniform(0.9, 1.35))
-        inst(rnd.choice(('Bush_A', 'Bush_B', 'Bush_C')), f'Bush_Rim_{k}', c, polar(r - 7, deg + 3, 0.3),
+        inst(rnd.choice(('Tree_Medium_High', 'Tree_Large_High', 'Tree_Small', 'Tree_Tall_Thin')), f'Tree_Rim_{k}', c,
+             polar(r, deg, 0.3), rnd.uniform(0, TAU), rnd.uniform(0.85, 1.15))
+        inst(rnd.choice(('Bush_01', 'Bush_02', 'Bush_03', 'Ground_Plant_01')), f'Bush_Rim_{k}', c, polar(r - 7, deg + 3, 0.3),
              rnd.uniform(0, TAU), rnd.uniform(1.0, 1.5))
     p = Part('Island_Balustrade', c, 0.15)
     for k in range(72):
@@ -152,7 +155,7 @@ def build_spawn_and_fountain():
     rnd = random.Random(12)
     for k in range(8):
         for j, d in enumerate((16, 29)):
-            inst(('Bush_C', 'Bush_Flowers')[j], f'Spawn_Bush_{k}_{j}', cs,
+            inst(('Bush_01', 'Ground_Plant_01')[j], f'Spawn_Bush_{k}_{j}', cs,
                  polar(R_CORE - 1.6, k * 45 + d, 3.0), rnd.uniform(0, TAU), 0.7)
         if k % 2 == 0:
             inst('Lantern_Stone', f'Spawn_Lantern_{k}', cs, polar(R_CORE - 1.6, k * 45 + 22.5, 3.0))
@@ -302,7 +305,7 @@ def build_shop():
     p.finish(parent=root)
     for s in (-1, 1):
         inst('Lantern_Post', f'Shop_Lantern_{s}', c, (s * 19, -12, 1.2), 0, 1.0, root)
-        inst('Bush_Flowers', f'Shop_Bush_{s}', c, (s * 15.5, -13.5, 1.2), 0, 0.8, root)
+        inst('Bush_02', f'Shop_Bush_{s}', c, (s * 15.5, -13.5, 1.2), 0, 0.8, root)
 
 
 def build_pets():
@@ -339,8 +342,8 @@ def build_pets():
     sign('Pets_Sign', 'PETS', c, root, 31.5, -10.5, 'Pets_Green', 16, 4.0)
     for s in (-1, 1):
         inst('Lantern_Post', f'Pets_Lantern_{s}', c, (s * 19, -12, 1.2), 0, 1.0, root)
-        inst('Bush_B', f'Pets_Bush_{s}', c, (s * 16, 10, 1.2), 0, 1.0, root)
-        inst('Bush_Flowers', f'Pets_Flowers_{s}', c, (s * 11.5, -15.5, 1.2), 0, 0.7, root)
+        inst('Bush_02', f'Pets_Bush_{s}', c, (s * 16, 10, 1.2), 0, 1.0, root)
+        inst('Ground_Plant_01', f'Pets_Flowers_{s}', c, (s * 11.5, -15.5, 1.2), 0, 0.7, root)
 
 
 def build_eggs():
@@ -425,7 +428,7 @@ def build_trading():
     sign('Trading_Sign', 'TRADING', c, root, 29.5, -12.5, 'Board_Navy', 22, 3.4, 'Trade_Gold_Glow')
     for s in (-1, 1):
         inst('Lantern_Post', f'Trading_Lantern_{s}', c, (s * 19, -12, 1.2), 0, 1.0, root)
-        inst('Bush_A', f'Trading_Bush_{s}', c, (s * 18.5, 6, 1.2), 0, 1.1, root)
+        inst('Bush_03', f'Trading_Bush_{s}', c, (s * 18.5, 6, 1.2), 0, 1.1, root)
 
 
 def build_upgrades():
@@ -497,7 +500,7 @@ def build_leaderboards():
     sign('Leaderboards_Sign', 'LEADERBOARDS', c, root, 38.5, -2.6, 'Board_Navy', 30, 2.9, 'Trade_Gold_Glow')
     for s in (-1, 1):
         inst('Lantern_Post', f'Leaderboards_Lantern_{s}', c, (s * 23.5, -10, 1.2), 0, 1.0, root)
-        inst('Bush_Flowers', f'Leaderboards_Bush_{s}', c, (s * 7.3, -9.5, 1.2), 0, 0.8, root)
+        inst('Ground_Plant_02', f'Leaderboards_Bush_{s}', c, (s * 7.3, -9.5, 1.2), 0, 0.8, root)
 
 
 def build_hub():

@@ -679,61 +679,20 @@ def rock_blob(p, c, r, mat, rnd, sub=1, squash=(1, 1, 0.7), jitter=0.22):
     return vs
 
 
-def canopy(p, c, r, mats, rnd, n=6, flat=0.8):
-    """cluster of soft leaf blobs (stylised tree crown / bush)"""
+def canopy(p, c, r, mats, rnd, n=6, flat=0.8, low=True):
+    """crown mass made of the foliage pack's faceted leaf clusters (mats kept for API compatibility)"""
+    from foliage import leaf_cluster
     c = Vector(c)
-    p.ico(c, r, rnd.choice(mats), 2, (1, 1, flat))
+    leaf_cluster(p, c, r, rnd, squash=flat, low=low)
     for i in range(n):
         a = TAU * i / n + rnd.uniform(-0.3, 0.3)
-        rr = r * rnd.uniform(0.55, 0.8)
         off = Vector((math.cos(a) * r * 0.7, math.sin(a) * r * 0.7, rnd.uniform(-0.3, 0.35) * r))
-        p.ico(c + off, rr, rnd.choice(mats), 2, (1, 1, flat))
-
-
-def tree(p, base, h, crown_r, rnd, mats=('Leaf_Green', 'Leaf_Light'), trunk='Wood', lean=0.08):
-    base = Vector(base)
-    top = base + Vector((rnd.uniform(-lean, lean) * h, rnd.uniform(-lean, lean) * h, h))
-    p.cyl((base + top) / 2, h * 0.07, h, trunk, 8, r2=h * 0.045,
-          rot=(top - base).to_track_quat('Z', 'Y').to_matrix())
-    # two branches
-    for k in range(2):
-        a = rnd.uniform(0, TAU)
-        b0 = base + (top - base) * rnd.uniform(0.5, 0.7)
-        b1 = b0 + Vector((math.cos(a) * crown_r * 0.6, math.sin(a) * crown_r * 0.6, h * 0.2))
-        p.beam(b0, b1, h * 0.04, h * 0.04, trunk)
-    canopy(p, top, crown_r, mats, rnd, 6)
+        leaf_cluster(p, c + off, r * rnd.uniform(0.55, 0.8), rnd, squash=flat, low=low)
 
 
 def build_assets():
     lib = coll(ASSET_COLL)
     rnd = random.Random(11)
-    # trees ---------------------------------------------------------------------------------------
-    for k, (h, cr, mats) in enumerate(((14, 7.5, ('Leaf_Green', 'Leaf_Light')),
-                                       (18, 8.5, ('Leaf_Green', 'Leaf_Dark')),
-                                       (11, 6.0, ('Leaf_Light', 'Leaf_Green')))):
-        p = _asset_part(f'Tree_{"ABC"[k]}')
-        tree(p, (0, 0, 0), h, cr, random.Random(20 + k), mats)
-        _register(f'Tree_{"ABC"[k]}', p)
-    # conifer for cliffs / ice
-    p = _asset_part('Pine')
-    p.cyl((0, 0, 3), 0.8, 6, 'Wood', 6)
-    for i, (z, r) in enumerate(((4, 5.5), (8, 4.3), (11.5, 3.0), (14.5, 1.8))):
-        p.cone((0, 0, z), r, 5.5 - i * 0.6, 'Leaf_Dark', 8)
-    _register('Pine', p)
-    # bushes --------------------------------------------------------------------------------------
-    for k, (r, mats) in enumerate(((2.4, ('Leaf_Green', 'Leaf_Light')), (3.2, ('Leaf_Dark', 'Leaf_Green')),
-                                   (1.8, ('Leaf_Light',)))):
-        p = _asset_part(f'Bush_{"ABC"[k]}')
-        canopy(p, (0, 0, r * 0.6), r, mats, random.Random(40 + k), 5, 0.75)
-        _register(f'Bush_{"ABC"[k]}', p)
-    # flowers bush (small coloured dots)
-    p = _asset_part('Bush_Flowers')
-    canopy(p, (0, 0, 1.4), 2.2, ('Leaf_Green',), random.Random(50), 5, 0.7)
-    for i in range(10):
-        a = rnd.uniform(0, TAU); rr = rnd.uniform(0.8, 2.4)
-        p.ico((math.cos(a) * rr, math.sin(a) * rr, rnd.uniform(1.6, 2.9)), 0.35,
-              rnd.choice(('Shop_Red', 'Crystal_Pink', 'Gold')), 1)
-    _register('Bush_Flowers', p)
     # lantern post (hub) ---------------------------------------------------------------------------
     p = _asset_part('Lantern_Post')
     p.box((0, 0, 0.5), (1.6, 1.6, 1.0), 'Stone_Dark')
@@ -753,13 +712,6 @@ def build_assets():
     p.box((0, 0, 3.8), (1.6, 1.6, 1.2), 'Lantern_Glow')
     p.cone((0, 0, 4.4), 1.6, 1.2, 'Stone_Dark', 4)
     _register('Lantern_Stone', p)
-    # planter box with hedge ---------------------------------------------------------------------
-    p = _asset_part('Planter')
-    p.box((0, 0, 1.0), (8, 4, 2.0), 'Hub_Stone')
-    p.box((0, 0, 2.05), (8.4, 4.4, 0.3), 'Stone_Trim')
-    for i in range(4):
-        p.ico((-3 + i * 2, 0, 3.0), 1.6, ('Leaf_Green', 'Leaf_Light')[i % 2], 2, (1, 1, 0.8))
-    _register('Planter', p)
     # rocks ---------------------------------------------------------------------------------------
     for k in range(3):
         p = _asset_part(f'Rock_{"ABC"[k]}')

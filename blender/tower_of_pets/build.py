@@ -13,16 +13,17 @@ Collections:
                   / TOWER_ENTRANCE
                   / TOWER_TEMPLATE (Hub_Base, Jungle ... Divine)
                   / FLOATING_ISLANDS / WATERFALLS / ENVIRONMENT / LIGHTING / CAMERAS
-    _ASSET_LIBRARY (excluded) - source meshes for every linked-duplicate tree, bush, lantern,
-                                planter, rock, cloud, crystal, island and mountain
+    _ASSET_LIBRARY (excluded) - source meshes for every linked duplicate: lanterns, rocks, clouds,
+                                crystals, islands, mountains and the TOWER_OF_PETS_FOLIAGE pack
+                                (trees, bushes, plants, vines, planters - see foliage.py)
 """
 import os, sys, importlib
 HERE = os.path.dirname(os.path.abspath(__file__)) if '__file__' in globals() else os.getcwd()
 if HERE not in sys.path:
     sys.path.insert(0, HERE)
 import bpy
-import common, hub, entrance, tower, environment
-for m in (common, hub, entrance, tower, environment):        # re-running inside Blender picks up edits
+import common, foliage, hub, entrance, tower, environment
+for m in (common, foliage, hub, entrance, tower, environment):        # re-running inside Blender picks up edits
     importlib.reload(m)
 
 OUT = os.path.join(os.path.dirname(HERE), 'TowerOfPets_Lobby.blend')
@@ -31,12 +32,14 @@ OUT = os.path.join(os.path.dirname(HERE), 'TowerOfPets_Lobby.blend')
 def main(path=OUT):
     common.reset_scene()
     common.build_materials()
+    foliage.build_foliage_materials()
     common.coll('TOWER_OF_PETS')
     for c in ('HUB', 'TOWER_ENTRANCE', 'TOWER_TEMPLATE', 'FLOATING_ISLANDS', 'WATERFALLS', 'ENVIRONMENT',
               'LIGHTING', 'CAMERAS'):
         common.coll(c, 'TOWER_OF_PETS')
     common.coll(common.ASSET_COLL)
     common.build_assets()
+    foliage.build_foliage_assets(common.ASSET_COLL)
     hub.build_hub()
     entrance.build_entrance()
     tower.build_tower()

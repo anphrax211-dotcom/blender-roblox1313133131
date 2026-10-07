@@ -16,7 +16,7 @@ Run in Blender (Scripting tab -> Run Script) or headless:
 Saves Boulderbub.blend next to this script and prints the full path.
 """
 import bpy, bmesh, math, os, random
-from mathutils import Vector, Matrix, Euler
+from mathutils import Vector, Matrix, Euler, noise
 
 HERE = os.path.dirname(os.path.abspath(__file__)) if '__file__' in globals() else os.getcwd()
 
@@ -62,17 +62,38 @@ def material(name, rgb, rough=0.45, coat=0.25, emit=0.0, variation=0.0):
         nt.links.new(tc.outputs['Object'], nz.inputs['Vector'])
         nt.links.new(nz.outputs['Fac'], ramp.inputs['Fac'])
         nt.links.new(ramp.outputs['Color'], b.inputs['Base Color'])
+        # fine grain + pitting bump so it reads as rock, not plastic
+        gr = nt.nodes.new('ShaderNodeTexNoise')
+        gr.inputs['Scale'].default_value = 28.0
+        gr.inputs['Detail'].default_value = 6.0
+        gr.inputs['Roughness'].default_value = 0.65
+        vo = nt.nodes.new('ShaderNodeTexVoronoi')
+        vo.feature = 'DISTANCE_TO_EDGE'
+        vo.inputs['Scale'].default_value = 7.0
+        mx = nt.nodes.new('ShaderNodeMath'); mx.operation = 'MULTIPLY_ADD'
+        mx.inputs[1].default_value = 0.6
+        bp = nt.nodes.new('ShaderNodeBump')
+        bp.inputs['Strength'].default_value = 0.35
+        bp.inputs['Distance'].default_value = 0.015
+        nt.links.new(tc.outputs['Object'], gr.inputs['Vector'])
+        nt.links.new(tc.outputs['Object'], vo.inputs['Vector'])
+        nt.links.new(gr.outputs['Fac'], mx.inputs[0])
+        nt.links.new(vo.outputs['Distance'], mx.inputs[2])
+        nt.links.new(mx.outputs['Value'], bp.inputs['Height'])
+        nt.links.new(bp.outputs['Normal'], b.inputs['Normal'])
+        b.inputs['Roughness'].default_value = max(rough, 0.62)
+        b.inputs['Coat Weight'].default_value = min(coat, 0.12)
     m.diffuse_color = (*rgb, 1)
     MATS[name] = m
 
 
 def build_materials():
     # (linear colour values; the comment gives the sRGB / Roblox Color3 equivalent)
-    material('Stone_Taupe', (0.23, 0.175, 0.135), 0.5, 0.2, variation=0.12)       # ~133,117,103 body
-    material('Stone_WarmGray', (0.2, 0.16, 0.13), 0.5, 0.2, variation=0.12)     # ~124,112,101 plates
-    material('Stone_Sandy', (0.36, 0.25, 0.15), 0.5, 0.2, variation=0.1)         # ~162,137,108 lighter plates
+    material('Stone_Taupe', (0.23, 0.175, 0.135), 0.5, 0.2, variation=0.2)       # ~133,117,103 body
+    material('Stone_WarmGray', (0.2, 0.16, 0.13), 0.5, 0.2, variation=0.2)     # ~124,112,101 plates
+    material('Stone_Sandy', (0.36, 0.25, 0.15), 0.5, 0.2, variation=0.16)         # ~162,137,108 lighter plates
     material('Stone_TanBelly', (0.5, 0.36, 0.2), 0.45, 0.25, variation=0.08)   # ~188,162,124 belly patch
-    material('Stone_Dark', (0.15, 0.12, 0.095), 0.5, 0.2, variation=0.12)         # ~108,97,87 arms & feet
+    material('Stone_Dark', (0.15, 0.12, 0.095), 0.5, 0.2, variation=0.2)         # ~108,97,87 arms & feet
     material('Eye_Socket', (0.10, 0.075, 0.06), 0.4, 0.3)                        # ~89,77,69 recessed rim
     material('Eye_Iris', (0.05, 0.022, 0.013), 0.22, 0.25)                          # ~53,33,25 glossy brown
     material('Eye_Pupil', (0.006, 0.004, 0.004), 0.2, 0.25)                     # ~13,11,11 glossy black
@@ -116,8 +137,31 @@ def new_object(name, bm, mat, smooth=False, bevel=0.0, center=None):
     return ob
 
 
-def rock_bm(size, seed, subdiv=1, jitter=0.12, flat_bottom=None):
-    """chunky faceted stone: jittered icosphere scaled to `size` (x, y, z)"""
+def chisel(bm, cuts, depth, seed, avoid=None):
+    """slice flat planes off a mesh (like chipped rock faces) and cap the holes.
+    depth = (min, max) fraction of the mesh's extent along each random direction."""
+    rnd = random.Random(seed)
+    done = 0
+    tries = 0
+    while done < cuts and tries < cuts * 6:
+        tries += 1
+        d = Vector((rnd.gauss(0, 1), rnd.gauss(0, 1), rnd.gauss(0, 1))).normalized()
+        if avoid and avoid(d):
+            continue
+        sup = max(v.co.dot(d) for v in bm.verts)
+        low = min(v.co.dot(d) for v in bm.verts)
+        co = d * (sup - (sup - low) * rnd.uniform(*depth))
+        geom = bm.verts[:] + bm.edges[:] + bm.faces[:]
+        bmesh.ops.bisect_plane(bm, geom=geom, plane_co=co, plane_no=d, clear_outer=True)
+        edges = [e for e in bm.edges if e.is_boundary]
+        if edges:
+            bmesh.ops.holes_fill(bm, edges=edges, sides=0)
+        done += 1
+    return bm
+
+
+def rock_bm(size, seed, subdiv=1, jitter=0.12, flat_bottom=None, cuts=6):
+    """chunky faceted stone: jittered icosphere scaled to `size`, then chipped flat"""
     rnd = random.Random(seed)
     bm = bmesh.new()
     bmesh.ops.create_icosphere(bm, subdivisions=subdiv, radius=1.0)
@@ -126,6 +170,8 @@ def rock_bm(size, seed, subdiv=1, jitter=0.12, flat_bottom=None):
         v.co = Vector((v.co.x * size[0], v.co.y * size[1], v.co.z * size[2]))
         if flat_bottom is not None and v.co.z < flat_bottom:
             v.co.z = flat_bottom
+    chisel(bm, cuts, (0.1, 0.24), seed + 500)
+    bmesh.ops.dissolve_limit(bm, angle_limit=math.radians(4), verts=bm.verts, edges=bm.edges)
     return bm
 
 
@@ -161,11 +207,23 @@ def build_body():
     rnd = random.Random(1)
     bm = bmesh.new()
     bmesh.ops.create_icosphere(bm, subdivisions=3, radius=1.0)
-    # merge into larger facets: dissolve shallow edges after jittering
+
+    def face_zone(d):     # front area holding the eyes & mouth: keep it smooth
+        return d.y < -0.55 and -0.35 < d.z < 0.62
+
+    # lumpy, irregular boulder outline (low-frequency noise), smoother on the face
     for v in bm.verts:
-        v.co *= 1.0 + rnd.uniform(-0.025, 0.025)
+        d = v.co.normalized()
+        lump = noise.noise(d * 1.6 + Vector((3.1, 7.2, 1.3)))
+        w = 0.35 if face_zone(d) else 1.0
+        v.co *= 1.0 + 0.11 * lump * w + rnd.uniform(-0.03, 0.03) * w
         v.co = Vector((v.co.x * BODY_R.x, v.co.y * BODY_R.y, v.co.z * BODY_R.z))
-    bmesh.ops.dissolve_limit(bm, angle_limit=math.radians(5.5), verts=bm.verts, edges=bm.edges)
+        if v.co.z < -0.5:          # flatter base where it sits on its feet
+            v.co.z = -0.5 + (v.co.z + 0.5) * 0.35
+    # big chipped planes around the sides, top and back, like a split boulder
+    chisel(bm, 20, (0.06, 0.13), 7,
+           avoid=lambda d: face_zone(d) or (d.y < -0.3 and d.z < -0.2))
+    bmesh.ops.dissolve_limit(bm, angle_limit=math.radians(9), verts=bm.verts, edges=bm.edges)
     bmesh.ops.triangulate(bm, faces=bm.faces)
     place(bm, BODY_C)
     new_object('Body', bm, 'Stone_Taupe', smooth=False, bevel=0.006, center=BODY_C.copy())

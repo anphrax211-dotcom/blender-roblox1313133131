@@ -9,6 +9,7 @@ from common import (Part, coll, inst, ASSETS, ASSET_COLL, canopy, waterfall, roc
                     TAU, _asset_part, _register)
 from hub import R_ISLAND, polar
 from tower import TC, LEDGES, P as TP
+from islands import place_variation, bridge_mesh
 
 ENV, ISL, WF, LIT, CAM = 'ENVIRONMENT', 'FLOATING_ISLANDS', 'WATERFALLS', 'LIGHTING', 'CAMERAS'
 SKY = 'Sky_Clouds'
@@ -121,128 +122,78 @@ def build_aqueduct_wings():
 
 
 # ---------------------------------------------------------------- islands ---
-def build_island_assets():
-    rnd = random.Random(700)
-    for k, (r, depth, ntree, ruin) in enumerate(((1.0, 1.3, 5, False), (1.0, 1.7, 3, True), (1.0, 1.0, 6, False))):
-        name = f'Island_{"ABC"[k]}'
-        p = _asset_part(name)
-        n = 14
-        top = [(math.cos(TAU * i / n) * r * rnd.uniform(0.85, 1.1), math.sin(TAU * i / n) * r * rnd.uniform(0.85, 1.1))
-               for i in range(n)]
-        rings = []
-        for j, (s, z) in enumerate(((1.0, 0.0), (0.92, -0.18), (0.7, -0.5 * depth), (0.42, -0.8 * depth),
-                                    (0.15, -1.05 * depth), (0.02, -1.25 * depth))):
-            ox, oy = rnd.uniform(-0.06, 0.06), rnd.uniform(-0.06, 0.06)
-            rings.append([Vector((x * s * rnd.uniform(0.9, 1.08) + ox, y * s * rnd.uniform(0.9, 1.08) + oy, z))
-                          for x, y in top])
-        p.loft(rings, 'Cliff_Rock')
-        p.prism([(x * 1.04, y * 1.04) for x, y in top], 0.0, 0.1, 'Grass')
-        rr = random.Random(710 + k)
-        for t in range(14):
-            a = rr.uniform(0, TAU); d = rr.uniform(0.5, 1.0)
-            p.ico((math.cos(a) * d, math.sin(a) * d, 0.12), rr.uniform(0.06, 0.1), 'Leaves_Mid', 1, (1, 1, 0.7))
-        if ruin:
-            for i in range(4):
-                a = TAU * i / 4 + 0.3
-                p.cyl((math.cos(a) * 0.35, math.sin(a) * 0.35, 0.22), 0.05, 0.25 + 0.1 * (i % 2), 'Hub_Stone', 8)
-            p.box((0, 0, 0.47), (0.8, 0.8, 0.06), 'Hub_Stone')
-            p.uvsphere((0, 0, 0.5), 0.3, 'Roof_Blue', 12, 6, (1, 1, 0.8))
-        _register(name, p)
-    for o in coll(ASSET_COLL).objects:
-        o.hide_render = True
-
-
+# The islands are collection instances of the floating-island pack's variations (islands.py).
+# Nominal grass radius of each variation (studs, unscaled) - used to scale them to a target size.
+VAR_R = {'Island_A': 40, 'Island_B': 24, 'Island_C': 20, 'Island_D': 11, 'Island_E': 40, 'Island_F': 15,
+         'Island_G': 31, 'Island_H': 15.6}
 ISLANDS = []     # (location, radius) of placed islands
 
 
-def place_island(name, loc, size, rot=0.0, falls=False, seed=0):
-    kind = 'ABC'[seed % 3]
-    ob = inst(f'Island_{kind}', name, ISL, loc, rot, size)
-    ISLANDS.append((Vector(loc), size))
-    # trees, bushes and hanging vines from the foliage pack (far islands use the low LODs)
+def place_island(name, loc, size, rot=0.0, key=None, seed=0):
     rnd = random.Random(seed)
-    far = 'Hub' not in name
-    loc = Vector(loc)
-    s = max(0.6, min(2.4, size / 34))
-    for t in range((3, 2, 4)[seed % 3]):
-        a = rnd.uniform(0, TAU); d = rnd.uniform(0, 0.5) * size
-        kind_t = rnd.choice(('Large', 'Medium', 'Small', 'Tall_Thin'))
-        nm = {('Large', False): 'Tree_Large_High', ('Medium', False): 'Tree_Medium_High',
-              ('Small', False): 'Tree_Small', ('Tall_Thin', False): 'Tree_Tall_Thin'}.get((kind_t, far),
-                                                                                         f'Tree_{kind_t}_Low')
-        inst(nm, f'{name}_Tree_{t}', ISL, loc + Vector((math.cos(a) * d, math.sin(a) * d, size * 0.1)),
-             rnd.uniform(0, TAU), s * rnd.uniform(0.8, 1.2))
-    for t in range(3):
-        a = rnd.uniform(0, TAU); d = rnd.uniform(0.45, 0.8) * size
-        inst(rnd.choice(('Bush_01', 'Bush_02', 'Bush_03')), f'{name}_Bush_{t}', ISL,
-             loc + Vector((math.cos(a) * d, math.sin(a) * d, size * 0.1)), rnd.uniform(0, TAU), s * 1.2)
-    for t in range(4):
-        a = rot + TAU * t / 4 + rnd.uniform(-0.4, 0.4)
-        inst(rnd.choice(('Vine_Medium', 'Vine_Long')), f'{name}_Vine_{t}', ISL,
-             loc + Vector((math.cos(a) * size * 0.92, math.sin(a) * size * 0.92, size * 0.02)), rnd.uniform(0, TAU),
-             s * 1.4)
-    if falls:
-        a = rot + 0.7
-        d = (math.cos(a), math.sin(a))
-        lip = Vector(loc) + Vector((d[0] * size * 0.85, d[1] * size * 0.85, size * 0.05))
-        waterfall(f'Waterfall_{name}', WF, lip, d, size * 3.0, max(3.0, size * 0.18), seed=seed, foam=False)
+    if key is None:
+        z = loc[2]
+        key = 'Island_C' if 780 < z < 1000 else rnd.choice(('Island_A', 'Island_G', 'Island_B', 'Island_A',
+                                                             'Island_G', 'Island_E', 'Island_D'))
+    s = max(0.5, min(2.6, size / VAR_R[key]))
+    ob = place_variation(key, name, ISL, loc, rot, s)
+    ISLANDS.append((Vector(loc), size))
     return ob
 
 
 def build_floating_islands():
     rnd = random.Random(720)
     # around the tower, spiralling up with it
-    k = 0
-    for i in range(30):
+    for i in range(26):
         deg = i * 137.5 + rnd.uniform(-10, 10)
         if 250 < deg % 360 < 290 and i % 2:
             deg += 50                                        # keep the front sight-line mostly clear
-        z = 160 + i * 68 + rnd.uniform(-30, 30)
-        dist = rnd.uniform(400, 620) + (z / 2100) * rnd.uniform(0, 120)
-        loc = TP(dist, deg, z)
-        size = rnd.uniform(70, 110) if i % 4 == 1 else rnd.uniform(26, 50)
-        place_island(f'Island_Tower_{i:02d}', loc, size, rnd.uniform(0, TAU), i % 3 == 0, 800 + i)
+        z = 170 + i * 80 + rnd.uniform(-30, 30)
+        size = rnd.uniform(75, 115) if i % 3 == 1 else rnd.uniform(38, 62)
+        dist = 330 + size * 1.1 + rnd.uniform(0, 90)       # big lush islands hug the tower
+        place_island(f'Island_Tower_{i:02d}', TP(dist, deg, z), size, rnd.uniform(0, TAU), seed=800 + i)
     # around the hub, below and to the sides (visible from the plaza)
     for i in range(14):
         deg = rnd.choice((rnd.uniform(-60, 45), rnd.uniform(135, 240)))
         dist = rnd.uniform(330, 560)
-        loc = Vector(polar(dist, deg, rnd.uniform(-60, 240)))
-        place_island(f'Island_Hub_{i:02d}', loc, rnd.uniform(12, 30), rnd.uniform(0, TAU), i % 3 == 1, 900 + i)
+        place_island(f'Island_Hub_{i:02d}', Vector(polar(dist, deg, rnd.uniform(-60, 240))), rnd.uniform(14, 34),
+                     rnd.uniform(0, TAU), ('Island_B', 'Island_D', 'Island_H', 'Island_G', 'Island_C')[i % 5], 900 + i)
+    # rock-only formations and loose floating rocks in the distant background
+    for i in range(30):
+        deg = rnd.uniform(0, 360)
+        dist = rnd.uniform(1100, 2200)
+        z = rnd.uniform(-150, 2300)
+        if i % 3:
+            place_island(f'RockFormation_{i:02d}', TP(dist, deg, z), rnd.uniform(25, 60), rnd.uniform(0, TAU),
+                         'Island_F', 1000 + i)
+        else:
+            inst(rnd.choice(('Rock_Large', 'Rock_Medium')), f'FloatingRock_{i:02d}', ISL, TP(dist, deg, z),
+                 rnd.uniform(0, TAU), rnd.uniform(1.5, 4.0))
 
 
 def rope_bridge(name, a, b, sag, width=7.0):
-    a, b = Vector(a), Vector(b)
+    """wooden rope bridge in the floating-island pack style between two world points"""
     p = Part(name, ISL)
-    L = (b - a).length
-    n = max(6, int(L / 2.2))
-    d = (b - a).normalized()
-    side = Vector((-d.y, d.x, 0)).normalized()
-    pts = [a + (b - a) * (i / n) - Vector((0, 0, sag * math.sin(math.pi * i / n))) for i in range(n + 1)]
-    for i, q in enumerate(pts):
-        p.box(q, (width, 1.6, 0.35), 'Wood', Matrix.Rotation(math.atan2(d.y, d.x) + math.pi / 2, 3, 'Z'))
-    for s in (-1, 1):
-        for i in range(n):
-            p.beam(pts[i] + side * s * width / 2 + Vector((0, 0, 3.2)),
-                   pts[i + 1] + side * s * width / 2 + Vector((0, 0, 3.2)), 0.25, 0.25, 'Rope')
-        for i in range(0, n + 1, 2):
-            p.beam(pts[i] + side * s * width / 2, pts[i] + side * s * width / 2 + Vector((0, 0, 3.4)), 0.35, 0.35,
-                   'Wood')
-        for q in (a, b):
-            p.box(q + side * s * (width / 2 + 0.6) + Vector((0, 0, 3)), (1.2, 1.2, 6.5), 'Wood')
+    bridge_mesh(p, random.Random(len(name)), 0, width, sag, a, b)
     return p.finish()
 
 
 def build_bridges():
     rnd = random.Random(730)
+    keys = ('Island_B', 'Island_G', 'Island_E', 'Island_B', 'Island_C', 'Island_G', 'Island_B', 'Island_E',
+            'Island_G', 'Island_B')
     for i, (key, deg) in enumerate((('Jungle', 205), ('Desert', 335), ('Ice', 150), ('Lava', 30), ('Crystal', 222),
                                     ('Shadow', 315), ('Forest', 190), ('Kingdom', 345), ('Cloud', 230),
                                     ('Celestial', 320))):
         z, rl = LEDGES[key]
         span = rnd.uniform(70, 110)
-        size = rnd.uniform(26, 40)
-        isl = TP(rl + span + size * 0.8, deg, z - 3)
-        place_island(f'Island_Bridge_{key}', isl, size, math.radians(deg), i % 2 == 0, 950 + i)
-        rope_bridge(f'Bridge_{key}', TP(rl - 2, deg, z + 0.3), TP(rl + span, deg, z - 2.6), span * 0.08)
+        isl_key = keys[i]
+        s = 1.2
+        r_isl = VAR_R[isl_key] * s
+        # island rotated so its waterfall side faces away from the bridge
+        place_island(f'Island_Bridge_{key}', TP(rl + span + r_isl * 0.95, deg, z), r_isl,
+                     math.radians(deg) + math.pi / 2, isl_key, 950 + i)
+        rope_bridge(f'Bridge_{key}', TP(rl - 2, deg, z + 0.3), TP(rl + span, deg, z + 0.2), span * 0.07)
 
 
 # ---------------------------------------------------------------- far world -
@@ -411,7 +362,6 @@ def build_environment():
     coll(SKY, ENV)
     build_hub_rock()
     build_aqueduct_wings()
-    build_island_assets()
     build_floating_islands()
     build_bridges()
     build_mountain_assets()

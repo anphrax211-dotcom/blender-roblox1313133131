@@ -212,7 +212,10 @@ M.Materials = {
 
 -- decorative / effect pieces players should walk through
 M.NoCollide = {"Particles", "Energy", "EnergyRing", "Sparkle", "Cloud", "Leaf", "Leaves", "Vine", "Banner",
-	"Waterfall", "Mist", "Glow", "Grass_Tuft", "Ground_Plant", "Flower"}
+	"Waterfall", "Mist", "Glow", "Grass_Tuft", "Ground_Plant", "Flower", "Rivers", "Lakes"}
+
+-- walkable terrain: exact collision (needs Studio / command bar permission, ignored in game scripts)
+M.PreciseCollision = {}
 
 function M.apply(root)
 	for _, part in ipairs(root:GetDescendants()) do
@@ -230,6 +233,12 @@ function M.apply(root)
 				part.TextureID = ""
 			end
 			part.Anchored = true
+			for _, pat in ipairs(M.PreciseCollision) do
+				if part.Name:find(pat) then
+					pcall(function() part.CollisionFidelity = Enum.CollisionFidelity.PreciseConvexDecomposition end)
+					break
+				end
+			end
 			if part.Name:find("TeleportTrigger") then  -- invisible touch volumes
 				part.Transparency, part.CanCollide, part.CastShadow = 1, false, false
 			else

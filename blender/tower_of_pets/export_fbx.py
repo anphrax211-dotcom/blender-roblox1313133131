@@ -43,6 +43,9 @@ GROUPS = (
     ('TowerOfPets_SkyClouds', ('Sky_Clouds',), None),
 )
 EXCLUDE_FROM = {'TowerOfPets_Environment': ('Sky_Clouds',)}
+# current export settings (main() overrides them, e.g. build_floor1_export.py)
+CFG = dict(blend=BLEND, groups=GROUPS, exclude=EXCLUDE_FROM, out=OUT, tri_limit=TRI_LIMIT, prefix='TowerOfPets',
+           spawn=(0.0, -58.0, 0.0), precise=())
 
 # Blender (x, y, z) -> Roblox (x, z, -y)  (FBX export axis_up='Y', axis_forward='-Z')
 def to_roblox(v):
@@ -141,7 +144,8 @@ def split_mesh(src_me, base_name):
             f.material_index = 0
         mname = mat.name if mat else 'None'
         faces = list(bm.faces)
-        if len(faces) <= TRI_LIMIT:
+        LIM = CFG['tri_limit']
+        if len(faces) <= LIM:
             chunks = [None]
         else:                                               # pack connected pieces by x, slice big pieces
             bm.faces.ensure_lookup_table()
@@ -161,15 +165,24 @@ def split_mesh(src_me, base_name):
                 comps.append(comp)
             pieces = []
             for comp in comps:
-                if len(comp) > TRI_LIMIT:
-                    comp.sort(key=lambda g: g.calc_center_median().x)
-                    pieces += [comp[i:i + TRI_LIMIT] for i in range(0, len(comp), TRI_LIMIT)]
+                if len(comp) > LIM:                         # big connected surface -> square-ish xy tiles
+                    cs = [g.calc_center_median() for g in comp]
+                    x0, x1 = min(c.x for c in cs), max(c.x for c in cs) + 1e-3
+                    y0, y1 = min(c.y for c in cs), max(c.y for c in cs) + 1e-3
+                    k = max(1, math.ceil(math.sqrt(len(comp) * 1.3 / LIM)))
+                    tiles = {}
+                    for g, c_ in zip(comp, cs):
+                        key = (int((c_.x - x0) / (x1 - x0) * k), int((c_.y - y0) / (y1 - y0) * k))
+                        tiles.setdefault(key, []).append(g)
+                    for t in tiles.values():
+                        t.sort(key=lambda g: g.calc_center_median().x)
+                        pieces += [t[i:i + LIM] for i in range(0, len(t), LIM)]
                 else:
                     pieces.append(comp)
             pieces.sort(key=lambda cp: sum(g.calc_center_median().x for g in cp) / len(cp))
             chunks, cur = [], []
             for cp in pieces:
-                if len(cur) + len(cp) > TRI_LIMIT and cur:
+                if len(cur) + len(cp) > LIM and cur:
                     chunks.append(cur); cur = []
                 cur += cp
             if cur:
@@ -192,8 +205,10 @@ def split_mesh(src_me, base_name):
     return out
 
 
-def main():
-    bpy.ops.wm.open_mainfile(filepath=BLEND)
+def main(**cfg):
+    CFG.update(cfg)
+    GROUPS, EXCLUDE_FROM, OUT = CFG['groups'], CFG['exclude'], CFG['out']
+    bpy.ops.wm.open_mainfile(filepath=CFG['blend'])
     os.makedirs(OUT, exist_ok=True)
     mats = prepare_materials()
     C = bpy.data.collections
@@ -285,7 +300,7 @@ def main():
     write_lua(mats, lights)
     with open(os.path.join(OUT, 'manifest.json'), 'w') as f:
         json.dump(dict(files=manifest, materials=len(mats), lights=len(lights),
-                       spawn_roblox=to_roblox((0.0, -58.0, 0.0))), f, indent=2)
+                       spawn_roblox=to_roblox(CFG['spawn'])), f, indent=2)
     print('materials', len(mats), 'lights', len(lights))
 
 
@@ -300,7 +315,9 @@ def write_lua(mats, lights):
     L += ['}', '',
           '-- decorative / effect pieces players should walk through',
           'M.NoCollide = {"Particles", "Energy", "EnergyRing", "Sparkle", "Cloud", "Leaf", "Leaves", "Vine", "Banner",',
-          '\t"Waterfall", "Mist", "Glow", "Grass_Tuft", "Ground_Plant", "Flower"}', '',
+          '\t"Waterfall", "Mist", "Glow", "Grass_Tuft", "Ground_Plant", "Flower", "Rivers", "Lakes"}', '',
+          '-- walkable terrain: exact collision (needs Studio / command bar permission, ignored in game scripts)',
+          'M.PreciseCollision = {' + ', '.join(f'"{p}"' for p in CFG['precise']) + '}', '',
           'function M.apply(root)',
           '\tfor _, part in ipairs(root:GetDescendants()) do',
           '\t\tif part:IsA("MeshPart") then',
@@ -317,6 +334,12 @@ def write_lua(mats, lights):
           '\t\t\t\tpart.TextureID = ""',
           '\t\t\tend',
           '\t\t\tpart.Anchored = true',
+          '\t\t\tfor _, pat in ipairs(M.PreciseCollision) do',
+          '\t\t\t\tif part.Name:find(pat) then',
+          '\t\t\t\t\tpcall(function() part.CollisionFidelity = Enum.CollisionFidelity.PreciseConvexDecomposition end)',
+          '\t\t\t\t\tbreak',
+          '\t\t\t\tend',
+          '\t\t\tend',
           '\t\t\tif part.Name:find("TeleportTrigger") then  -- invisible touch volumes',
           '\t\t\t\tpart.Transparency, part.CanCollide, part.CastShadow = 1, false, false',
           '\t\t\telse',
@@ -327,7 +350,7 @@ def write_lua(mats, lights):
           '\t\tend',
           '\tend',
           'end', '', 'return M', '']
-    with open(os.path.join(OUT, 'TowerOfPets_Materials.lua'), 'w') as f:
+    with open(os.path.join(CFG['out'], CFG['prefix'] + '_Materials.lua'), 'w') as f:
         f.write('\n'.join(L))
     L = ['-- Tower of Pets: lamps from the Blender lobby as PointLight specs (generated by export_fbx.py).',
          '-- Positions are world studs, valid when the FBX files were imported with "Insert Using Scene Position".',
@@ -353,7 +376,7 @@ def write_lua(mats, lights):
           '\t\tp.Parent = parent',
           '\tend',
           'end', '', 'return M', '']
-    with open(os.path.join(OUT, 'TowerOfPets_Lights.lua'), 'w') as f:
+    with open(os.path.join(CFG['out'], CFG['prefix'] + '_Lights.lua'), 'w') as f:
         f.write('\n'.join(L))
 
 

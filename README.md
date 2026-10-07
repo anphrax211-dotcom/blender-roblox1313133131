@@ -267,3 +267,43 @@ gold paws) facing the centre from pedestals with glowing paw panels, and a navy/
 ```
 python3 blender/tower_of_pets/build_leaderboards_pack.py
 ```
+
+## Tower of Pets Floor 1: The Verdant Kingdom, greybox layout (`blender/TowerOfPets_Floor1.blend`)
+Base terrain only, built from the Floor 1 map sheet as a spatial blueprint (`blender/tower_of_pets/floor1.py`).
+The sheet is mapped onto about 1,500 × 1,500 studs (north = +Y), and every labelled area is its own floating
+landmass at its own height. Heights are exaggerated 1.3× for verticality, from the Lotus Swamp at about −5 to the
+Cloudridge summit at about 320.
+- **Terrain:** cliffs between levels, deep inverted-mountain rock undersides over a cloud sea, rivers, lakes and
+  ponds, waterfalls (into lower ground or into the clouds), a cavern hill, crags, fortress rim spires and peaks.
+- **Not built yet:** buildings, trees, decorations and detailed assets.
+
+- **Five biomes** (`TERRAIN/<BIOME>`), with one `_Top` / `_Cliffs` / `_Underside` mesh per area so each island can be
+  refined on its own:
+  - VERDANT_FOREST (Floor Entrance, Sunlit Meadows, Verdant Village, Whispering Forest)
+  - WATERFALL_VALLEY (Riverfall Valley, Emerald Lake, Lotus Swamp)
+  - ANCIENT_RUINS (Ancient Ruins plateau, Cloudridge Peaks)
+  - MYSTIC_WILDS (World Tree Grove, Mossy Caverns, Beast Cave)
+  - JUNGLE_FORTRESS (the biggest and highest plateau, Sky Guardian ledge, Sky Temple island)
+  - Plus four secret islets.
+- **Path network:** 25 routes, 22–32 studs wide (12 for secret paths) and rideable. Ramps stay under about 27°.
+  Routes branch and loop, with shortcuts (Forest Highroad, West Cliff Trail, Lake Loop, Swamp Ascent, two routes
+  into the fortress). Where a path crosses the void it becomes a natural rock bridge (`TERRAIN/NATURAL_BRIDGES`).
+  Fortress approaches are carved canyon ramps.
+- **Landmark blockouts:**
+  - floor-entrance spawn ring on a large flat platform
+  - 6 checkpoints, 3 mini-boss arenas, the main boss arena
+  - 7 cave mouths, 6 world-egg pads, secret-area markers
+  - flat pads reserved for the village, ruins plaza, World Tree, Sky Temple and fortress
+- `GUIDES`: map labels (area plus level range, shown only on `CAM_F1_Map_TopDown`), reserved-footprint outlines
+  and 5-stud scale figures. These are not exported.
+- **Cameras:** `CAM_F1_Map_TopDown` (orthographic, matches the sheet), `_Overview`, `_Entrance_Player`,
+  `_Valley_View`, `_Fortress_View`, `_Side_Elevation`.
+- **Roblox:** `exports/TowerOfPets/Floor1/` holds one FBX per biome plus bridges, water, blockouts and clouds.
+  Terrain chunks are 6k triangles or fewer, and `Floor1_Materials.lua` sets exact collision on the terrain.
+  `floor1_layout.json` has every spawn, checkpoint, boss, egg, cave and path waypoint in Roblox coordinates.
+  See `IMPORT.md` there.
+
+```
+python3 blender/tower_of_pets/build_floor1_pack.py      # terrain .blend + floor1_layout.json
+python3 blender/tower_of_pets/build_floor1_export.py    # exports/TowerOfPets/Floor1/*.fbx
+```

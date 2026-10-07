@@ -1,0 +1,33 @@
+"""TOWER OF PETS - export Floor 1 (blender/TowerOfPets_Floor1.blend) to Roblox-ready FBX files.
+
+    python3 blender/tower_of_pets/build_floor1_export.py      (after build_floor1_pack.py)
+
+Writes exports/TowerOfPets/Floor1/: one FBX per biome + natural bridges, water, landmark blockouts and clouds,
+all in one world space (1 unit = 1 stud), Floor1_Materials.lua, Floor1_Lights.lua (empty: sun only) and
+manifest.json. Terrain is chunked into <= 6,000-triangle MeshParts so PreciseConvexDecomposition collision
+follows the ground closely. GUIDES (labels, reserved footprints, scale figures) are not exported.
+"""
+import os, sys
+HERE = os.path.dirname(os.path.abspath(__file__)) if '__file__' in globals() else os.getcwd()
+if HERE not in sys.path:
+    sys.path.insert(0, HERE)
+import export_fbx, floor1
+
+ROOT_DIR = os.path.dirname(os.path.dirname(HERE))
+GROUPS = (
+    ('Floor1_Verdant_Forest', ('VERDANT_FOREST',), None),
+    ('Floor1_Waterfall_Valley', ('WATERFALL_VALLEY',), None),
+    ('Floor1_Ancient_Ruins', ('ANCIENT_RUINS',), None),
+    ('Floor1_Mystic_Wilds', ('MYSTIC_WILDS',), None),
+    ('Floor1_Jungle_Fortress', ('JUNGLE_FORTRESS',), None),
+    ('Floor1_Natural_Bridges', ('NATURAL_BRIDGES',), None),
+    ('Floor1_Water', ('WATER',), None),
+    ('Floor1_Landmark_Blockouts', ('LANDMARK_BLOCKOUTS',), None),
+    ('Floor1_Clouds', ('CLOUDS',), None),
+)
+
+if __name__ == '__main__':
+    sx, sy = floor1.px(205, 885)
+    export_fbx.main(blend=os.path.join(os.path.dirname(HERE), 'TowerOfPets_Floor1.blend'), groups=GROUPS, exclude={},
+                    out=os.path.join(ROOT_DIR, 'exports', 'TowerOfPets', 'Floor1'), tri_limit=6000, prefix='Floor1',
+                    spawn=(sx, sy, 6.0 * floor1.ZS), precise=('_Top__', '_Cliffs__', 'Natural_Bridges'))

@@ -246,21 +246,21 @@ def build_portal_lights():
     lc = 'LIGHTING'
     L = bpy.data.lights.new('Portal_Glow_Blue', 'AREA')
     L.shape = 'RECTANGLE'; L.size, L.size_y = 24, 50
-    L.color = (0.35, 0.6, 1.0); L.energy = 450000
+    L.color = (0.35, 0.6, 1.0); L.energy = 60000
     o = bpy.data.objects.new('Portal_Glow_Blue', L)
     o.location = (0, FACADE_Y - 3.0, Z_LAND + 26)
     o.rotation_euler = (math.radians(-90), 0, 0)             # emits toward -Y (onto the landing)
     o.visible_camera = False
     coll(lc).objects.link(o)
     L = bpy.data.lights.new('Portal_Glow_Purple', 'POINT')
-    L.color = (0.65, 0.3, 1.0); L.energy = 250000; L.shadow_soft_size = 6
+    L.color = (0.65, 0.3, 1.0); L.energy = 40000; L.shadow_soft_size = 6
     o = bpy.data.objects.new('Portal_Glow_Purple', L)
     o.location = (0, FACADE_Y - 16, Z_LAND + 8)
     coll(lc).objects.link(o)
     for s in (-1, 1):                                           # warm lantern fill
         for i, (x, y, z) in enumerate(((s * 21.0, FACADE_Y - 13, Z_LAND + 14), (s * 24.5, STAIR_Y0 - 4, 21))):
             L = bpy.data.lights.new(f'Lantern_Warm_{s}_{i}', 'POINT')
-            L.color = (1.0, 0.65, 0.3); L.energy = 9000; L.shadow_soft_size = 1.5
+            L.color = (1.0, 0.65, 0.3); L.energy = 3000; L.shadow_soft_size = 1.5
             o = bpy.data.objects.new(L.name, L); o.location = (x, y, z)
             coll(lc).objects.link(o)
 

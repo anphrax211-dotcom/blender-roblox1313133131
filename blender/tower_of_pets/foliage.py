@@ -27,11 +27,11 @@ LEAF_OUTER = ('Leaves_Light', 'Leaves_Mid', 'Leaves_Light', 'Leaves_Highlight')
 def build_foliage_materials():
     import bpy
     P = mat_plain
-    P('Leaves_Light', (0.28, 0.66, 0.02), 0.65)          # bright lime
-    P('Leaves_Mid', (0.12, 0.44, 0.03), 0.65)            # medium green
-    P('Leaves_Dark', (0.05, 0.25, 0.03), 0.75)           # dark core
-    P('Leaves_Highlight', (0.46, 0.76, 0.04), 0.6)       # yellow-green tips
-    P('Vine_Green', (0.20, 0.55, 0.06), 0.65)
+    P('Leaves_Light', (0.32, 0.78, 0.03), 0.65)          # bright lime
+    P('Leaves_Mid', (0.12, 0.56, 0.04), 0.65)            # medium green
+    P('Leaves_Dark', (0.04, 0.32, 0.04), 0.75)           # dark core
+    P('Leaves_Highlight', (0.55, 0.88, 0.05), 0.6)       # yellow-green tips
+    P('Vine_Green', (0.18, 0.66, 0.06), 0.65)
     P('Trunk_Dark', (0.20, 0.09, 0.03), 0.85)
     # warm brown trunk with soft vertical streaks (no bark scan)
     m = P('Trunk', (0.46, 0.22, 0.08), 0.8)
@@ -40,14 +40,14 @@ def build_foliage_materials():
     mp.inputs['Scale'].default_value = (1.4, 1.4, 0.18)
     nz = nt.nodes.new('ShaderNodeTexNoise'); nz.inputs['Scale'].default_value = 1.0
     ramp = nt.nodes.new('ShaderNodeValToRGB')
-    ramp.color_ramp.elements[0].position = 0.35; ramp.color_ramp.elements[0].color = (0.30, 0.13, 0.05, 1)
-    ramp.color_ramp.elements[1].position = 0.65; ramp.color_ramp.elements[1].color = (0.52, 0.26, 0.10, 1)
+    ramp.color_ramp.elements[0].position = 0.35; ramp.color_ramp.elements[0].color = (0.42, 0.18, 0.05, 1)
+    ramp.color_ramp.elements[1].position = 0.65; ramp.color_ramp.elements[1].color = (0.70, 0.36, 0.12, 1)
     L = nt.links.new
     L(tc.outputs['Object'], mp.inputs['Vector']); L(mp.outputs['Vector'], nz.inputs['Vector'])
     L(nz.outputs['Fac'], ramp.inputs['Fac']); L(ramp.outputs['Color'], b.inputs['Base Color'])
-    mat_noise('Planter_Stone', (0.58, 0.54, 0.58), (0.67, 0.63, 0.67), 0.8, 0.4, 0.15, 2.0)
-    P('Planter_Stone_Dark', (0.47, 0.43, 0.47), 0.8)
-    mat_noise('Dirt', (0.22, 0.12, 0.06), (0.32, 0.18, 0.09), 0.95, 0.8, 0.2, 3.0)
+    mat_noise('Planter_Stone', (0.74, 0.70, 0.78), (0.82, 0.78, 0.86), 0.8, 0.4, 0.15, 2.0)
+    P('Planter_Stone_Dark', (0.62, 0.58, 0.66), 0.8)
+    mat_noise('Dirt', (0.34, 0.18, 0.08), (0.46, 0.26, 0.12), 0.95, 0.8, 0.2, 3.0)
     mat_noise('Foliage_Rock', (0.45, 0.43, 0.44), (0.60, 0.58, 0.58), 0.85, 0.6, 0.2, 2.0)
 
 

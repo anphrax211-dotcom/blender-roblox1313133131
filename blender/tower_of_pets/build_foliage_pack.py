@@ -55,10 +55,10 @@ def main(path=OUT):
     p.finish()
     sc = bpy.context.scene
     w = bpy.data.worlds.new('Sky'); sc.world = w
-    w.node_tree.nodes['Background'].inputs['Color'].default_value = (0.45, 0.65, 1.0, 1)
-    w.node_tree.nodes['Background'].inputs['Strength'].default_value = 0.9
+    w.node_tree.nodes['Background'].inputs['Color'].default_value = (0.25, 0.60, 1.0, 1)
+    w.node_tree.nodes['Background'].inputs['Strength'].default_value = 1.0
     sun = bpy.data.objects.new('Sun', bpy.data.lights.new('Sun', 'SUN'))
-    sun.data.energy = 3.4; sun.data.color = (1.0, 0.93, 0.82); sun.data.angle = math.radians(3)
+    sun.data.energy = 2.6; sun.data.color = (1.0, 0.96, 0.88); sun.data.angle = math.radians(3)
     sun.rotation_euler = Vector((0.5, 0.7, -0.6)).normalized().to_track_quat('-Z', 'Y').to_euler()
     sc.collection.objects.link(sun)
 

@@ -327,18 +327,18 @@ def build_sky_and_sun():
     mr.inputs['From Max'].default_value = 0.75
     ramp = nt.nodes.new('ShaderNodeValToRGB')
     el = ramp.color_ramp.elements
-    el[0].position = 0.0; el[0].color = (0.78, 0.88, 1.0, 1)
-    el[1].position = 1.0; el[1].color = (0.10, 0.30, 0.85, 1)
-    e = el.new(0.25); e.color = (0.45, 0.68, 1.0, 1)
+    el[0].position = 0.0; el[0].color = (0.62, 0.86, 1.0, 1)
+    el[1].position = 1.0; el[1].color = (0.06, 0.38, 1.0, 1)
+    e = el.new(0.25); e.color = (0.28, 0.65, 1.0, 1)
     L = nt.links.new
     L(tc.outputs['Generated'], sep.inputs['Vector']); L(sep.outputs['Z'], mr.inputs['Value'])
     L(mr.outputs['Result'], ramp.inputs['Fac']); L(ramp.outputs['Color'], bg.inputs['Color'])
-    bg.inputs['Strength'].default_value = 0.8
+    bg.inputs['Strength'].default_value = 1.0    # bright ambient -> soft, light shadows
     w.mist_settings.start = 450
     w.mist_settings.depth = 6500
     w.mist_settings.falloff = 'QUADRATIC'
     sun = bpy.data.lights.new('Sun_Key', 'SUN')
-    sun.energy = 3.4; sun.color = (1.0, 0.92, 0.80); sun.angle = math.radians(2.5)
+    sun.energy = 2.6; sun.color = (1.0, 0.96, 0.88); sun.angle = math.radians(2.5)
     so = bpy.data.objects.new('Sun_Key', sun)
     direction = Vector((0.45, 0.75, -0.55)).normalized()
     so.rotation_euler = direction.to_track_quat('-Z', 'Y').to_euler()
@@ -356,12 +356,12 @@ def build_compositor():
     rl = N('CompositorNodeRLayers')
     lt = N('ShaderNodeMath'); lt.operation = 'LESS_THAN'; lt.inputs[1].default_value = 0.999
     mul = N('ShaderNodeMath'); mul.operation = 'MULTIPLY'
-    k = N('ShaderNodeMath'); k.operation = 'MULTIPLY'; k.inputs[1].default_value = 0.6
+    k = N('ShaderNodeMath'); k.operation = 'MULTIPLY'; k.inputs[1].default_value = 0.35
     mix = N('ShaderNodeMix'); mix.data_type = 'RGBA'; mix.blend_type = 'MIX'
     a_in = next(s for s in mix.inputs if s.identifier == 'A_Color')
     b_in = next(s for s in mix.inputs if s.identifier == 'B_Color')
     f_in = next(s for s in mix.inputs if s.identifier == 'Factor_Float')
-    b_in.default_value = (0.70, 0.83, 1.0, 1.0)
+    b_in.default_value = (0.55, 0.80, 1.0, 1.0)
     gl = N('CompositorNodeGlare')
     gl.inputs['Type'].default_value = 'Bloom'
     gl.inputs['Threshold'].default_value = 1.2

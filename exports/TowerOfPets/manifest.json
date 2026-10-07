@@ -1,0 +1,179 @@
+{
+  "files": {
+    "TowerOfPets_Plaza": {
+      "parts": 984,
+      "triangles": 252400,
+      "largest_part": 4472,
+      "root": "TowerOfPets_Plaza",
+      "root_position_roblox": [
+        0.0,
+        0.0,
+        -0.0
+      ],
+      "size_mb": 2.03
+    },
+    "TowerOfPets_TowerEntrance": {
+      "parts": 373,
+      "triangles": 236374,
+      "largest_part": 6156,
+      "root": "TowerOfPets_TowerEntrance",
+      "root_position_roblox": [
+        0.0,
+        0.0,
+        -0.0
+      ],
+      "size_mb": 4.41
+    },
+    "TowerOfPets_Shop": {
+      "parts": 360,
+      "triangles": 59282,
+      "largest_part": 2552,
+      "root": "Shop_Root.001",
+      "root_position_roblox": [
+        66.468,
+        0.0,
+        -66.468
+      ],
+      "size_mb": 1.35
+    },
+    "TowerOfPets_Hatchery": {
+      "parts": 349,
+      "triangles": 76532,
+      "largest_part": 2376,
+      "root": "Hatchery_Root.001",
+      "root_position_roblox": [
+        98.0,
+        0.0,
+        -0.0
+      ],
+      "size_mb": 1.64
+    },
+    "TowerOfPets_PetClinic": {
+      "parts": 329,
+      "triangles": 62207,
+      "largest_part": 2552,
+      "root": "PetClinic_Root.001",
+      "root_position_roblox": [
+        -66.468,
+        0.0,
+        -66.468
+      ],
+      "size_mb": 1.54
+    },
+    "TowerOfPets_PetGym": {
+      "parts": 326,
+      "triangles": 69480,
+      "largest_part": 2772,
+      "root": "PetGym_Root.001",
+      "root_position_roblox": [
+        66.468,
+        0.0,
+        66.468
+      ],
+      "size_mb": 1.61
+    },
+    "TowerOfPets_TradingPortal": {
+      "parts": 219,
+      "triangles": 69660,
+      "largest_part": 3476,
+      "root": "TradingPortal_Root.001",
+      "root_position_roblox": [
+        -100.0,
+        0.0,
+        -0.0
+      ],
+      "size_mb": 1.69
+    },
+    "TowerOfPets_Leaderboards": {
+      "parts": 265,
+      "triangles": 115842,
+      "largest_part": 12292,
+      "root": "Leaderboards_Root.001",
+      "root_position_roblox": [
+        -72.125,
+        0.0,
+        72.125
+      ],
+      "size_mb": 2.93
+    },
+    "TowerOfPets_Tower_Lower": {
+      "parts": 590,
+      "triangles": 228646,
+      "largest_part": 18996,
+      "root": "TowerOfPets_Tower_Lower",
+      "root_position_roblox": [
+        0.0,
+        0.0,
+        -0.0
+      ],
+      "size_mb": 3.33
+    },
+    "TowerOfPets_Tower_Middle": {
+      "parts": 71,
+      "triangles": 53094,
+      "largest_part": 8772,
+      "root": "TowerOfPets_Tower_Middle",
+      "root_position_roblox": [
+        0.0,
+        0.0,
+        -0.0
+      ],
+      "size_mb": 1.33
+    },
+    "TowerOfPets_Tower_Upper": {
+      "parts": 49,
+      "triangles": 48000,
+      "largest_part": 4452,
+      "root": "TowerOfPets_Tower_Upper",
+      "root_position_roblox": [
+        0.0,
+        0.0,
+        -0.0
+      ],
+      "size_mb": 0.62
+    },
+    "TowerOfPets_FloatingIslands": {
+      "parts": 2921,
+      "triangles": 681984,
+      "largest_part": 4976,
+      "root": "TowerOfPets_FloatingIslands",
+      "root_position_roblox": [
+        0.0,
+        0.0,
+        -0.0
+      ],
+      "size_mb": 5.01
+    },
+    "TowerOfPets_Environment": {
+      "parts": 563,
+      "triangles": 320512,
+      "largest_part": 2684,
+      "root": "TowerOfPets_Environment",
+      "root_position_roblox": [
+        0.0,
+        0.0,
+        -0.0
+      ],
+      "size_mb": 3.58
+    },
+    "TowerOfPets_SkyClouds": {
+      "parts": 68,
+      "triangles": 53760,
+      "largest_part": 1040,
+      "root": "TowerOfPets_SkyClouds",
+      "root_position_roblox": [
+        0.0,
+        0.0,
+        -0.0
+      ],
+      "size_mb": 0.12
+    }
+  },
+  "materials": 205,
+  "lights": 89,
+  "spawn_roblox": [
+    0.0,
+    0.0,
+    58.0
+  ]
+}

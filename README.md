@@ -36,8 +36,13 @@ Generator: `blender/tower_of_pets/` (`common`, `hub`, `entrance`, `tower`, `envi
 - all trees and foliage come from the foliage pack below (far tower/island placements use the low LODs)
 - cameras `CAM_1_MainPlayerView` … `CAM_6_HeroFullTower`; previews in `previews/TowerOfPets_CAM_*.png`
 
+Roblox export: `exports/TowerOfPets/` holds one FBX per building/area (same world space, 1 unit = 1 stud),
+plus `TowerOfPets_Materials.lua` and `TowerOfPets_Lights.lua`. See `exports/TowerOfPets/IMPORT.md` for the
+Studio import steps.
+
 ```
 python3 blender/tower_of_pets/build.py                                   # rebuild the .blend
+python3 blender/tower_of_pets/export_fbx.py                              # rebuild exports/TowerOfPets/*.fbx
 python3 blender/tower_of_pets/render.py blender/TowerOfPets_Lobby.blend previews 48 100
 ```
 

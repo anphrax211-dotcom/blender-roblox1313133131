@@ -531,9 +531,9 @@ def build_gatehouse(rnd):
         banner(pl, G @ Matrix.Translation((s * 40.5, -13.2, z0 + 104)), 9.5, 46)
     pl.finish()
     # --- side wings with blind windows, quoins, cornices, balustrade -------------------------------------
-    w = Part('Castle_Gatehouse_Wings', C)
     WT = z0 + 92
     for s in (-1, 1):
+        w = Part(f'Castle_Gatehouse_Wing_{"LR"[s > 0]}', C)          # one mesh per side (< 20k tris for Roblox)
         x0, x1 = (47.5, 73) if s > 0 else (-73, -47.5)
         Mw = G @ Matrix.Translation((0, 0.6, 0))
         wins = []
@@ -552,8 +552,10 @@ def build_gatehouse(rnd):
         # masonry on the gatehouse's side return (runs back toward the tower)
         Ms = G @ Matrix.Translation((s * 73.4, 0, 0)) @ Matrix.Rotation(s * math.pi / 2, 4, 'Z')
         xa, xb = (3.0, 44.0) if s > 0 else (-44.0, -3.0)
-        masonry(w, Ms, xa, xb, z0 + 1.6, WT, rnd, 3.2, (4.5, 7), 1.6, backing=False)
-        trim_run(w, Ms, xa, xb, WT, h=2.2, out=1.8, steps=3)
+        ret = Part(f'Castle_Gatehouse_Return_{"LR"[s > 0]}', C)
+        masonry(ret, Ms, xa, xb, z0 + 1.6, WT, rnd, 3.2, (4.5, 7), 1.6, backing=False)
+        trim_run(ret, Ms, xa, xb, WT, h=2.2, out=1.8, steps=3)
+        ret.finish()
         trim_run(w, Mw, x0, x1, z0 + 42, h=1.4, out=1.0)
         trim_run(w, Mw, x0 - 0.5, x1 + 0.5, WT, h=2.2, out=1.8, steps=3, gold=True)
         balustrade(w, G @ Matrix.Translation((0, 1.0, 0)), x0 + 1, x1 - 1, WT + 2.2, post_every=8)
@@ -572,7 +574,9 @@ def build_gatehouse(rnd):
             bevel_box(w, Ml, (0, -1.0, 0), (2.4, 2.0, 1.0), 'Lantern_Metal', 0.08)
             w.box(Ml @ Vector((0, -1.6, 1.6)), (1.4, 1.4, 2.2), 'Lantern_Glow')
             bevel_box(w, Ml, (0, -1.6, 3.0), (2.0, 2.0, 0.5), 'Lantern_Metal', 0.06)
-    # masonry under the wing cornice band between the bay and the wings (behind the pillars)
+        w.finish()
+    # masonry between the bay and the wings (behind the pillars)
+    w = Part('Castle_Gatehouse_InnerPiers', C)
     for s in (-1, 1):
         x0, x1 = (33.5, 47.5) if s > 0 else (-47.5, -33.5)
         masonry(w, G @ Matrix.Translation((0, 1.0, 0)), x0, x1, z0 + 1.6, TOP, rnd, 3.2, (4, 6), 1.6, backing=False)

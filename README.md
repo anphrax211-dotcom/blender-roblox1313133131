@@ -100,3 +100,28 @@ separate bevelled pieces.
 - cameras: `CAM_7_Castle_Reference`, `CAM_8_Castle_Front`, `CAM_9_Castle_Close`, `CAM_10_Castle_Side`,
   `CAM_11_Castle_Player`
 - each wall section is its own mesh (mostly < 20k triangles) so it can be imported into Roblox as MeshParts
+
+## Tower of Pets shop (`blender/TowerOfPets_Shop.blend`, also placed in the lobby)
+The hub shop rebuilt from the shop reference in the castle masonry language (`blender/tower_of_pets/shop.py`).
+Wide stone building with an open front between dark stone pillars (wall lanterns), red lintel over a
+segmental voussoir arch, raised arched gable carrying the big gold-framed SHOP sign with the cart icon and
+gold scrolls, curved red gable roof with tile courses and gold fascia, masonry wings with red plank panels,
+red paw banners and lantern pillars, lean-to red roofs; back wall with an arched door, barrels, crates, vines.
+Interior: plank floor, panelled walls, red back panel with a glowing cart, six stocked shelves, curved
+counter with a gold paw (room behind it for an NPC), red runner + round paw rug, beams, hanging lanterns.
+
+- collections: `TOWER_OF_PETS_SHOP / BUILDING (Walls, Pillars, Arches, Trim, Roof), SIGNAGE (Main_Shop_Sign,
+  Small_Shop_Signs), BANNERS, INTERIOR (Counter, Shelves, Carpet, Decorations), SHOP_ITEMS, LIGHTING (shop),
+  LANDSCAPING`; everything is parented to `Shop_Root` (move that to move the shop)
+- kit (`SHOP_KIT`): `Shop_Stone_Block`, `Shop_Stone_Wall`, `Shop_Stone_Corner`, `Shop_Stone_Pillar`,
+  `Shop_Stone_Arch`, `Shop_Red_Wall_Panel`, `Shop_Roof_Piece`, `Shop_Gold_Trim`, `Shop_Sign`, `Shop_Banner`,
+  `Shop_Lantern`, `Shop_Lantern_Wall`, `Shop_Counter`, `Shop_Shelf`, `Shop_Crate`, `Shop_Chest`,
+  `Shop_Gift_Box(_Blue)`, `Shop_Potion_Pink/Blue/Green/Purple`, `Shop_Pet_Item`, `Shop_Pet_Food`, `Shop_Barrel`,
+  `Shop_Carpet`, `Shop_Planter` ("Shop_" prefix because castle/island assets already use some plain names)
+- cameras: `CAM_Shop_Front` (reference perspective), `_Interior`, `_Side`, `_Rear`, `_Player`; in the lobby
+  `CAM_12_Shop_Front`
+- scale: entrance ~21 x 16 studs, counter 3.4 studs high, 4+ stud walkways; ~100k triangles with landscaping
+
+```
+python3 blender/tower_of_pets/build_shop_pack.py
+```

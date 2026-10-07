@@ -263,63 +263,10 @@ def sign(name, text, coll_name, parent, z, y, color_mat, w=None, size=3.2, text_
 
 
 def build_shop():
-    root = facility('Shop'); c = 'Shop'
-    p = Part('Shop_Building', c, 0.15)
-    plinth(p, 34, 26)
-    p.box((0, 10.5, 9.2), (30, 2, 16), 'Hub_Stone_Warm')                 # back wall
-    for s in (-1, 1):
-        p.box((s * 14, 1.5, 9.2), (2, 20, 16), 'Hub_Stone_Warm')         # side walls
-        p.box((s * 14, -9.5, 9.2), (3, 3, 16), 'Hub_Stone')              # front pillars
-        p.box((s * 14, -9.5, 1.8), (3.6, 3.6, 1.2), 'Stone_Trim')
-    p.box((0, -9.5, 18.0), (31, 3.5, 2.0), 'Shop_Red')                   # lintel
-    # red pitched roof
-    p.prism_xz([(-17.5, 17.2), (17.5, 17.2), (13, 23.5), (-13, 23.5)], -12.5, 12.5, 'Shop_Red')
-    p.box((0, 0, 23.7), (26.5, 25.5, 0.6), 'Gold')
-    # counter
-    p.box((0, -4.0, 2.4), (20, 3, 2.4), 'Shop_Red')
-    p.box((0, -4.0, 3.8), (21, 3.6, 0.5), 'Shop_White')
-    # shelves with goods on the back wall
-    rnd = random.Random(21)
-    for z in (5.0, 9.0, 13.0):
-        p.box((0, 8.6, z), (24, 2.6, 0.4), 'Wood')
-        for i in range(9):
-            x = -10.5 + i * 2.6
-            m = rnd.choice(('Crystal_Blue', 'Crystal_Pink', 'Shop_Red_Glow', 'Pets_Green_Glow', 'Gold'))
-            if i % 2:
-                p.cyl((x, 8.6, z + 1.0), 0.6, 1.6, m, 8)                  # potion
-                p.cyl((x, 8.6, z + 2.0), 0.25, 0.5, 'Shop_White', 6)
-            else:
-                p.box((x, 8.6, z + 0.9), (1.6, 1.4, 1.4), m)              # crate / boost
-    p.finish(parent=root)
-    # striped awning
-    p = Part('Shop_Awning', c, 0.05)
-    n = 10
-    for i in range(n):
-        x0 = -15 + 30 * i / n
-        rot = Matrix.Rotation(math.radians(-25), 3, 'X')
-        p.box((x0 + 1.5, -13.0, 15.2), (3.0, 7.5, 0.3), ('Shop_Red', 'Shop_White')[i % 2], rot)
-        p.cyl((x0 + 1.5, -16.4, 13.4), 1.5, 0.3, ('Shop_Red', 'Shop_White')[i % 2], 10, axis='Y')
-    p.finish(parent=root)
-    # shopping-cart icon on a white panel under the roof sign
-    cart = Part('Shop_SignIcon', c, 0.05)
-    y = -14.0
-    cart.box((0, y, 21.0), (8, 0.6, 7), 'Shop_White')
-    M = M_front(0, y - 0.35, 21.0)
-    for a, b in (((-2.6, 1.8), (-1.8, -1.0)), ((-1.8, -1.0), (2.0, -1.0)), ((2.0, -1.0), (2.8, 1.2)),
-                 ((2.8, 1.2), (-2.6, 1.2)), ((-2.6, 1.8), (-3.4, 2.2))):
-        cart.beam(M @ Vector((*a, 0.2)), M @ Vector((*b, 0.2)), 0.55, 0.4, 'Shop_Red_Glow')
-    for x in (-1.2, 1.6):
-        cart.cyl(M @ Vector((x, -2.0, 0.2)), 0.55, 0.4, 'Shop_Red_Glow', 10, axis='Y')
-    cart.finish(parent=root)
-    text_mesh('Shop_Text', 'SHOP', c, 4.2, 0.8, 'Shop_White', (0, -14.0, 27.0), 0, root)
-    p = Part('Shop_TextBoard', c, 0.1)
-    p.box((0, -13.2, 27.0), (16, 1.0, 5.6), 'Shop_Red')
-    p.box((0, -13.2, 24.4), (16.6, 1.4, 0.5), 'Gold')
-    p.box((0, -13.2, 29.8), (16.6, 1.4, 0.5), 'Gold')
-    p.finish(parent=root)
-    for s in (-1, 1):
-        inst('Lantern_Post', f'Shop_Lantern_{s}', c, (s * 19, -12, 1.2), 0, 1.0, root)
-        inst('Bush_02', f'Shop_Bush_{s}', c, (s * 15.5, -13.5, 1.2), 0, 0.8, root)
+    """the detailed shop (shop.py) on the hub's Shop slot, front facing the fountain"""
+    import shop
+    deg = SLOT['Shop']
+    shop.build_shop(HUB, polar(R_BUILD - 2.0, deg), math.radians(deg - 90))
 
 
 def build_pets():

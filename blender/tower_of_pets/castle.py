@@ -179,7 +179,7 @@ def trim_run(p, M, x0, x1, z, rnd=None, h=1.6, out=1.0, steps=2, mat='Castle_Tri
         bevel_box(p, M, ((x0 + x1) / 2, -out - 0.05, z + h * 0.5), (x1 - x0, 0.3, 0.35), 'Gold', 0.08)
 
 
-def pillar(p, M, w, z0, h, rnd, band=0.55, cap='pyramid', panel=True):
+def pillar(p, M, w, z0, h, rnd, band=0.55, cap='pyramid', panel=True, mats=STONES):
     """multi-part pillar centred at local (0, 0): base, block shaft, middle band, capital, cap"""
     bevel_box(p, M, (0, 0, z0 + 0.8), (w + 2.4, w + 2.4, 1.6), 'Castle_Trim', 0.25)
     bevel_box(p, M, (0, 0, z0 + 2.2), (w + 1.2, w + 1.2, 1.2), 'Castle_Stone_Light', 0.22)
@@ -194,11 +194,11 @@ def pillar(p, M, w, z0, h, rnd, band=0.55, cap='pyramid', panel=True):
             z += 1.8
             continue
         if k % 2 == 0:
-            bevel_box(p, M, (0, 0, z + ch / 2), (w - 0.12, w - 0.12, ch - 0.14), rnd.choice(STONES), 0.22)
+            bevel_box(p, M, (0, 0, z + ch / 2), (w - 0.12, w - 0.12, ch - 0.14), rnd.choice(mats), 0.22)
         else:                                               # two half blocks -> vertical seam
             for s in (-1, 1):
                 bevel_box(p, M, (s * w / 4, 0, z + ch / 2), (w / 2 - 0.14, w - 0.12, ch - 0.14),
-                          rnd.choice(STONES), 0.22)
+                          rnd.choice(mats), 0.22)
         z += ch; k += 1
     if panel:                                               # recessed vertical groove panel on the front
         for s in (-1, 1):

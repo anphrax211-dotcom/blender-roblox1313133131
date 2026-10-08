@@ -268,83 +268,88 @@ gold paws) facing the centre from pedestals with glowing paw panels, and a navy/
 python3 blender/tower_of_pets/build_leaderboards_pack.py
 ```
 
-## Tower of Pets Floor 1: The Verdant Kingdom, base terrain (`blender/TowerOfPets_Floor1.blend`)
-The base terrain pass, built on the layout traced from the Floor 1 map sheet (`blender/tower_of_pets/floor1.py`).
-It focuses on world shape, scale, height and traversal. There are no final buildings, trees, props or detailed arenas.
+## Tower of Pets Floor 1: The Verdant Kingdom (`blender/TowerOfPets_Floor1.blend`)
+Floor 1 with its global environment detail pass: every biome is at a 60–70% baseline, ready for per-biome passes.
+The terrain comes from `blender/tower_of_pets/floor1.py`, the environment dressing from `floor1_detail.py`, and the
+Roblox scatter and lighting scripts from `floor1_roblox.py`.
 
-- **Placement:** every area is still a polygon traced over the sheet, at 1.1 studs per pixel, north = +Y. Regions
-  stay where the sheet puts them (`previews/TowerOfPets_F1_Trace_Overlay.png` shows the trace).
-- **10× scale (`WORLD = 10`):** the whole layout is blown up 10×, horizontally and vertically, to about
-  17,400 × 11,600 studs (124M sq studs of land). These stay at player scale so the world is bigger to ride across, not
-  bigger to stand in:
-  - path widths;
+**Layout and scale**
+- **Placement:** every area is a polygon traced over the map sheet (`previews/TowerOfPets_F1_Trace_Overlay.png`),
+  scaled 10× (`WORLD = 10`) to about 17,400 × 11,600 studs. These stay at player scale:
+  - path widths (main 56, trails 40, hidden 20);
   - markers, and checkpoint and mini-boss pads;
-  - path climb limits.
-  The data tables are written in 1× sheet units and scaled once (`WORLD`).
-- **Mesh budget:** the terrain grid is 16 studs. The rock undersides (seen only from afar) are decimated to 20%
-  with their rims kept exact so they stay sealed to the cliffs. Tall cliff walls are cut into bands under
-  600 studs, and lakes are built on the terrain grid, so every face splits cleanly into Roblox-sized parts.
-- **Four landmasses:** inside a landmass the regions' outlines are grown into the gaps and merged. Between
-  landmasses a channel of open sky (roughly 300–620 studs wide) is kept, and paths cross it on natural rock bridges.
+  - climbs, at 25° or less.
+- **Heights:** region base heights are flattened by `LEVEL = 0.5`, so the islands sit closer in height. They run
+  from about −120 (Lotus Swamp) to 1,200 (Fortress Heights). Peaks, crags and spires keep 75% of their height
+  (`FEATURE_LEVEL`), with the Cloudridge summit at about 2,650. Inside a landmass, neighbours within 460 studs of
+  each other slope into each other and can be ridden; larger differences become cliffs.
+- **Four landmasses:** inside a landmass the regions are merged; between landmasses there's a channel of open sky,
+  roughly 300–620 studs wide. Change `LANDMASS` to join or split regions.
   - **Verdant mainland:** Floor Entrance, Sunlit Meadows, Verdant Village and Whispering Forest.
   - **Central highlands:** Ancient Ruins, Cloudridge Peaks, World Tree Grove, Emerald Lake, Riverfall Valley and
     Mossy Caverns.
-  - **Lotus Swamp:** on its own.
-  - **Jungle Fortress:** the jungle ring, the Fortress Heights and Beast Cave.
+  - **Lotus Swamp.**
+  - **Jungle Fortress:** the jungle ring, Fortress Heights and Beast Cave.
 
-  The Sky Temple, four secret isles (Mistfall, Lotus Grotto, Cloud Perch, Overlook) and two optional islets
-  (`Islet_Treasure`, `Islet_Rare_Pet`) float on their own. Change `LANDMASS` to join or split regions.
-- **Height:** every area has its own height and terrain style.
-  - Inside a landmass, neighbours within 460 studs of each other slope into each other and can be ridden; larger
-    differences become cliffs.
-  - Heights run from the Lotus Swamp at about −240 to the Cloudridge summit at about 3,930.
-- **The five regions:**
-  - **Verdant Forest:** rolling meadows with a big open riding field west of the spawn. The Whispering Forest hills
-    at about 620 are cut by a deep ravine with a two-step stream that falls off the mainland's edge.
-  - **Waterfall Valley:** Riverfall Valley is a deep valley floor at −100, walled by the ruin and cavern cliffs and
-    open to the sky on its south-west. The Emerald Lake spillway, the ruins cascade and the Mossy spring fall into it,
-    and its river pours off the edge into the clouds. Emerald Lake sits high at about 1,000, below the World Tree. The
-    Lotus Swamp is the low wetland island and drains off its south edge.
-  - **Ancient Ruins:** a plateau at about 1,180 made of massive raised stone foundation slabs (`F1_Ruins_Stone`).
-    It has a rift across it, a ring of colossal broken pillars round the plaza, three reserved ruin footprints, and a
-    hidden path from the valley to the `Cave_Ruins_Undercroft` mouth. Cloudridge Peaks are a ridged range with a
-    snow-capped summit.
-  - **Mystic Wilds:** the World Tree highland is at about 1,600. The tree is a greybox landmark reaching about 5,800,
-    split into trunk, limb and canopy parts. Nine root ridges spread across the highland. Mossy Caverns are cavern
-    hills with two cave mouths, and Beast Cave is dark crags with a 400-stud cave mouth.
-  - **Jungle Fortress:** the largest region and the final destination.
-    - A jungle ring at about 1,280 surrounds the cliff-walled Fortress Heights plateau at 2,400.
-    - The plateau has rim spires, the main boss arena (r 140) and a greybox stepped keep.
-    - Three ways up: the Grand Ramp from Beast Cave, the canyon from Mossy Caverns, and the long cliff trail from the
-      swamp.
-- **Paths:** 28 organic routes (12 main, 11 secondary, 5 hidden). Each segment bows sideways and corners are
-  rounded, so roads wind instead of running straight.
-  - Widths: main roads 56 studs, trails 40, hidden paths 20.
-  - Heights follow the ground and are grade-limited to about 25° (hidden paths up to about 29°). Where the ground is
-    in the way a path cuts a canyon; where it's too low it raises a causeway.
-  - Branches, loops and alternate routes into every region.
-- **Markers:**
-  - Visible on the map: the spawn ring, 6 checkpoints, 3 mini-boss rings and the main boss ring.
-  - Hidden from the top-down map (still in the scene and the JSON):
-    - the 6 world-egg pads;
-    - 8 cave mouths;
-    - the secret markers;
-    - `cave_routes` pairs reserved for future interior tunnels.
-- **Map labels:** the five regions with level ranges, plus the existing place names. Secrets aren't labelled.
-- **Cameras:** `CAM_F1_Map_TopDown` (orthographic), `_Overview`, `_Entrance_Player`, `_Valley_View`,
-  `_World_Tree_View`, `_Fortress_View` and `_Side_Elevation`.
-- **Roblox:** `exports/TowerOfPets/Floor1/` holds:
-  - one FBX per biome, plus bridges, water, blockouts and clouds;
-  - about 2,000 MeshParts and 1.32M triangles in total, each part at most 6,000 triangles and no wider than
-    1,900 studs (Roblox's MeshPart limit is 2,048; `export_fbx.py` `max_extent` enforces it);
-  - `Floor1_Materials.lua`, which sets exact collision on the terrain;
-  - `floor1_layout.json`, which has the landmasses' regions and every spawn, checkpoint, boss, egg, cave and path
-    waypoint in Roblox coordinates.
+  The Sky Temple, four secret isles and two optional islets (treasure, rare pet) float on their own.
+- **Paths:** 28 organic routes (12 main, 11 secondary, 5 hidden). They follow the ground with a grade limit, cutting
+  canyons or raising causeways where they must.
 
-  See `IMPORT.md` there.
+**Detail pass**
+- **Terrain:** subtle small-scale relief (hummocks, dips, shelves) on every area, and exposed rock on steeper
+  hillsides.
+  - Cliff walls are cut into roughly 60-stud strata bands. Each band juts out or steps back and alternates rock
+    tones, giving layered, irregular cliffs.
+  - Undersides are rougher and banded, and decimated to 20% with their rims kept exact.
+- **Vegetation:** about 4,500 trees from the hub's own foliage pack (`Tree_*_Low`), scaled 2–6×. Mystic Wilds uses a
+  darker re-colour of the same meshes (`*_Mystic`). There are also about 13,500 bushes, plants, ferns, flowers,
+  grass and mushrooms. Densities are set per area (`DRESS` in `floor1_detail.py`); noise makes groves and clearings.
+  - Kept clear: roads (with a wide margin for riders), pads, reserved footprints, water, steep ground and island rims.
+- **Water:** smoother rivers, river-bank rocks, reeds along shores and banks, and lily pads on the ponds (dense in
+  the swamp, which also has mud banks). Waterfalls that land on ground get mist, foam and rocks. About 16 small
+  cascades spill over island rims.
+- **Paths:** dirt colour variation, with stone sections in the ruins, fortress, entrance and village. There are
+  pebbles along the edges, lanterns along the main roads, signposts at junctions, benches at checkpoints, and
+  fences or rope barriers near the entrance and village.
+- **Bridges:** 11 built bridges where paths cross open sky (`Floor1_Bridges.fbx`), all in one style family:
+  - wood truss bridges with railings, stringers and keel braces;
+  - stone bridges with parapets and corbels;
+  - rope-railed plank bridges on the hidden paths.
+
+  All have stone abutments and lanterns at both ends. The Sky Stair, the Fortress Grand Ramp and the Cloud Perch
+  path stay natural rock spans.
+- **Landmark hints:**
+  - **World Tree:** a hub-style trunk and limbs, a canopy of about 40 giant hub leaf clusters, and giant roots.
+  - **Jungle Fortress:** a silhouette of curtain walls, corner towers with red roofs, and a stepped keep with glowing
+    windows.
+  - **Ruins:** broken columns and walls, ruin arches and fragments.
+  - **Cloudridge:** boulders, alpine trees and snow patches.
+  - **Sky Temple:** temple platforms, columns, floating rocks and clouds.
+  - **Swamp:** reeds and lily pads.
+  - **Mystic Wilds:** glowing mushrooms.
+- **Cliffs and background:**
+  - moss drapes, vines and roots on island rims and inner cliffs, with boulders set into the walls;
+  - floating debris below the islands;
+  - 34 distant islands with trees and waterfalls;
+  - mountain spires rising from the cloud sea;
+  - cloud banks.
+- **Lighting:** warm, soft sun with light haze in the previews. `Floor1_Lighting.lua` sets ShadowMap, Atmosphere,
+  Bloom, ColorCorrection and Terrain clouds in Roblox.
+- **Old or wrong assets:** none. Floor 1 is generated from scratch and contains no hub buildings or training props.
+  Its only placeholder geometry (the greybox fortress boxes and the ico-sphere tree canopy) was replaced.
+
+**Roblox delivery** (`exports/TowerOfPets/Floor1/`, see `IMPORT.md` there)
+- Terrain, water, bridges and landmarks are one FBX per group, about 2,900 MeshParts and 1.56M triangles. Each part
+  has at most 6,000 triangles and is no wider than 1,900 studs.
+- The scatter isn't baked into FBX. `Floor1_Assets.fbx` holds the 69 assets once each, as a single palette-textured
+  MeshPart (`Floor1_Palette.png`). `Floor1_Scatter.lua` clones them from the `Scatter/` data modules (about 25,000
+  placements) with per-category collision: tree trunk colliders, non-colliding foliage, Hull rocks, Box props, and
+  persistent landmarks and background.
+- Cameras: `CAM_F1_Map_TopDown`, `_Overview`, `_Entrance_Player`, `_Valley_View`, `_World_Tree_View`,
+  `_Fortress_View`, `_Side_Elevation`, `_Bridge_Stone` and `_Bridge_Wood`.
 
 ```
-python3 blender/tower_of_pets/build_floor1_pack.py      # terrain .blend + floor1_layout.json (prints path grades)
-python3 blender/tower_of_pets/build_floor1_export.py    # exports/TowerOfPets/Floor1/*.fbx
+python3 blender/tower_of_pets/build_floor1_pack.py      # .blend + floor1_layout.json + scatter / lighting scripts
+python3 blender/tower_of_pets/build_floor1_export.py    # exports/TowerOfPets/Floor1/*.fbx + asset library
 python3 blender/tower_of_pets/render.py blender/TowerOfPets_Floor1.blend previews 48 100   # previews
 ```

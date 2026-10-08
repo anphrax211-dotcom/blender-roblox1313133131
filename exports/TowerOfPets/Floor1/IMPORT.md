@@ -1,26 +1,31 @@
-# Floor 1: The Verdant Kingdom (greybox) in Roblox Studio
+# Floor 1: The Verdant Kingdom in Roblox Studio
 
-This is the base terrain pass: terrain, water, landmark markers and greybox landmark massing (World Tree, fortress
-keep, ruin pillars). There are no final buildings, trees or decorations yet. It's generated from
-`blender/TowerOfPets_Floor1.blend` by `blender/tower_of_pets/build_floor1_export.py`. 1 unit = 1 stud, Y up.
+Floor 1 after the global environment detail pass. It has:
+- terrain with strata cliffs;
+- water;
+- built bridges;
+- landmark silhouettes (World Tree, Jungle Fortress, ruins);
+- about 25,000 placed trees, plants, rocks, props, ruin pieces, water and cliff dressing and background pieces.
 
-The world is built at **10× scale**: about 17,400 × 11,600 studs. The regions sit where the map sheet puts them,
-grouped into four landmasses with open sky between them, linked by natural rock bridges:
+Every biome is at a 60–70% baseline and is meant to get its own detail pass later. Everything is generated from
+`blender/TowerOfPets_Floor1.blend` (`build_floor1_pack.py`, then `build_floor1_export.py`). 1 unit = 1 stud, Y up.
+
+**Scale and layout.** The world is about 17,400 × 11,600 studs (10× the map sheet). There are four landmasses
+with open sky between them, crossed by bridges:
 - **Verdant mainland:** Entrance, Meadows, Village and Whispering Forest.
 - **Central highlands:** Ruins, Cloudridge, World Tree, Emerald Lake, Riverfall Valley and Mossy Caverns.
 - **Lotus Swamp.**
 - **Jungle Fortress:** with Beast Cave.
 
-The Sky Temple, the four secret isles and two optional islets float on their own.
+The Sky Temple, four secret isles and two optional islets float on their own.
 
-Heights run from about −280 (Lotus Swamp) to about 3,930 (Cloudridge summit). The Fortress Heights are at 2,400,
-and the World Tree reaches about 5,800. Player-scale things are not scaled:
-- path widths (main roads 56, trails 40, hidden paths 20);
-- markers, and checkpoint and mini-boss pads;
-- path climbs, which stay at 25° or less.
+**Heights.** Region base heights run from about −120 (Lotus Swamp) to 1,200 (Fortress Heights, the boss plateau).
+The Cloudridge summit is about 2,650 and the World Tree canopy about 4,800. Height differences between regions
+are deliberately moderate, set by `LEVEL` in `floor1.py`.
 
-Floor 1 should be its **own place** (the hub's tower entrance teleports to it). Import it into an empty
-place, not the hub.
+**Player-scale sizes.** Main roads are 56 studs wide, trails 40 and hidden paths 20. Climbs stay at 25° or less.
+
+Floor 1 should be its **own place** (the hub's tower entrance teleports to it). Import it into an empty place.
 
 ## Files
 
@@ -30,45 +35,104 @@ place, not the hub.
 | `Floor1_Waterfall_Valley.fbx` | Riverfall Valley, Emerald Lake, Lotus Swamp, Lotus Grotto secret |
 | `Floor1_Ancient_Ruins.fbx` | Ancient Ruins, Cloudridge Peaks, Cloud Perch secret |
 | `Floor1_Mystic_Wilds.fbx` | World Tree Grove, Mossy Caverns, Beast Cave |
-| `Floor1_Jungle_Fortress.fbx` | Jungle Fortress jungle ring, Fortress Heights (boss plateau), Sky Temple island (Mini-Boss 3), Overlook secret, rare-pet islet |
-| `Floor1_Natural_Bridges.fbx` | the few rock bridges where paths still cross open sky |
-| `Floor1_Water.fbx` | rivers, lakes, ponds, waterfalls |
-| `Floor1_Landmark_Blockouts.fbx` | spawn ring, 6 checkpoints, 3 mini-boss rings, main boss ring, 6 world-egg pads, 8 cave mouths, secret markers, and the landmark massing (`Landmark_World_Tree`, `Landmark_Fortress_Keep`, `Landmark_Ruins_Pillars`) |
-| `Floor1_Clouds.fbx` | cloud sea far below the islands, in tiles (optional) |
-| `Floor1_Materials.lua` | ModuleScript: colours and materials, plus exact collision on the terrain (`apply(model)`) |
-| `floor1_layout.json` | positions in Roblox coordinates: spawn, regions, areas and level ranges, checkpoints, bosses, eggs, caves, cave pairs for future tunnels, secret areas, every path's waypoints (with its kind: main / secondary / hidden), waterfalls |
+| `Floor1_Jungle_Fortress.fbx` | jungle ring, Fortress Heights (boss plateau), Sky Temple island, Overlook secret, rare-pet islet |
+| `Floor1_Bridges.fbx` | 11 built bridges where paths cross open sky: wood truss, stone and rope (decks get exact collision) |
+| `Floor1_Natural_Bridges.fbx` | the rock spans of the Sky Stair, the Fortress Grand Ramp and the Cloud Perch path |
+| `Floor1_Water.fbx` | rivers, lakes, ponds, waterfalls (including small cliff cascades) |
+| `Floor1_Landmark_Blockouts.fbx` | the markers below, plus the landmark pieces (`Landmark_World_Tree_Trunk/Limbs`, `Landmark_Fortress_*`, `Landmark_Ruins_Pillars`) |
+| `Floor1_Clouds.fbx` | flat cloud sea far below the islands (optional; Studio's Terrain clouds can replace it) |
+| `Floor1_Materials.lua` | ModuleScript: colours and materials for the terrain FBX files, exact collision on the walkable surfaces (`apply(model)`) |
+| `Floor1_Assets.fbx` + `Floor1_Palette.png` | the environment asset library: 69 assets (hub trees, Mystic Wilds trees, bushes, plants, flowers, rocks, lanterns, props, ruin pieces, reeds, lily pads, clouds, background islands ...). Each asset is **one MeshPart** coloured by the small palette texture |
+| `Floor1_Scatter.lua` | ModuleScript that places every scattered piece by cloning `Floor1_Assets` |
+| `Scatter/Floor1_Scatter_*.lua` | placement data ModuleScripts (position, yaw and scale per piece), one or more per category |
+| `Floor1_Lighting.lua` | ModuleScript: bright fantasy daylight, soft shadows, haze, subtle bloom, terrain clouds |
+| `floor1_layout.json` | positions in Roblox coordinates: spawn, regions, areas and level ranges, checkpoints, bosses, eggs, caves, cave pairs, secret areas, path waypoints, waterfalls, bridges |
 
-Each area has `<Area>_Top` (walkable ground and paths), `<Area>_Cliffs` (cliff walls) and `<Area>_Underside`
-(the floating rock below). Large surfaces are split into chunks of 6,000 triangles or fewer, and no part is
-bigger than 1,900 studs on any side (Roblox MeshParts are limited to 2,048). There are about 2,000 parts and
-1.32M triangles in total; `manifest.json` lists each file's part count, triangle count and widest part. Parts are
-named `<Object>__<Material>`.
+The markers in `Floor1_Landmark_Blockouts.fbx` are:
+- the spawn ring, 6 checkpoints, 3 mini-boss rings and the main boss ring;
+- 6 world-egg pads;
+- 8 cave mouths;
+- the secret markers.
 
-## Import
+Each terrain area has `<Area>_Top` (walkable ground and paths), `<Area>_Cliffs` (layered cliff walls) and
+`<Area>_Underside` (the floating rock below, thinned out because it's only seen from afar). Parts are named
+`<Object>__<Material>`. Every part has at most 6,000 triangles and is no bigger than 1,900 studs on any side
+(Roblox's MeshPart limit is 2,048). The terrain, water, bridges and landmark files together come to about 2,900
+parts and 1.56M triangles.
+
+## 1. Terrain, water, bridges and landmarks
 
 1. Create a new place: File → New → Baseplate. Delete the **Baseplate**, then publish the place.
 2. Avatar tab → **Import 3D**, **one file at a time**. Click the top item in the importer's left list, then set:
    - **Insert Using Scene Position: ON**
    - **Scale Unit: Stud**
    - **Merge Meshes: OFF**
-3. Put everything in a Folder `workspace.Floor1`.
-4. Insert `Floor1_Materials.lua` as a ModuleScript in ServerStorage named `Floor1_Materials`, then run this
-   in the command bar:
+3. Import every `Floor1_*.fbx` **except `Floor1_Assets.fbx`**, and put them in a Folder `workspace.Floor1`.
+4. Add `Floor1_Materials.lua` as a ModuleScript in ServerStorage named `Floor1_Materials`, then run this in the
+   command bar:
    ```lua
    require(game.ServerStorage.Floor1_Materials).apply(workspace.Floor1)
    ```
-   This colours every part and anchors it. It also gives the terrain (`_Top`, `_Cliffs`, bridges) exact
-   **PreciseConvexDecomposition** collision, so players and pets walk on the real ground. Water, waterfalls and
-   clouds become non-colliding.
-5. Put a SpawnLocation at the spawn ring, about **(-5225, 120, 3850)**, facing the meadows and village (toward −Z).
-6. **Kill plane:** the kingdom floats above a void, with the cloud sea at about −3,800. Set
-   Workspace.FallenPartsDestroyHeight to about −4,000, or add a respawn zone just above the clouds.
-7. **Big world:** turn on Workspace.StreamingEnabled so players only load the nearby terrain.
-8. **Scale check:** the Floor Entrance platform is about 3,000 × 1,700 studs. Main roads are 56 studs wide.
+   It does three things:
+   - colours and anchors every part;
+   - gives the walkable surfaces exact collision (**PreciseConvexDecomposition**): terrain `_Top` and `_Cliffs`,
+     natural bridges, and bridge decks;
+   - makes water, waterfalls and clouds non-colliding.
+
+## 2. Environment scatter (trees, plants, rocks, props ...)
+
+1. Import `Floor1_Assets.fbx` with the same settings. Rename the imported model **`Floor1_Assets`** and move it
+   to **ServerStorage**. The 69 assets all sit at the origin; that's expected.
+2. In ServerStorage, create a Folder **`Floor1_ScatterData`**. Add every `Scatter/Floor1_Scatter_*.lua` to it as
+   a ModuleScript, keeping the file names.
+3. Add `Floor1_Scatter.lua` as a ModuleScript in ServerStorage named `Floor1_Scatter`, then run:
+   ```lua
+   require(game.ServerStorage.Floor1_Scatter).place({lights = true})
+   ```
+   This creates `workspace.Floor1_Environment` with one Model per category. It takes a little while (about
+   25,000 pieces).
+4. **Palette texture:** if the assets show up white or grey, the importer didn't bring the palette in.
+   1. Upload `Floor1_Palette.png` (Asset Manager → Images).
+   2. Run `require(game.ServerStorage.Floor1_Scatter).setTexture("rbxassetid://<id>")`.
+   3. Also set the same TextureID on the parts inside `ServerStorage.Floor1_Assets`.
+
+**Options for `place`:**
+- `categories = {"Trees", "Rocks"}` places only those categories.
+- `texture = "rbxassetid://<id>"` sets the palette on every placed piece.
+- `lights = true` adds warm PointLights to the lanterns.
+
+**How each category behaves** (set in `Floor1_Scatter.lua`):
+
+| Category | What | Collision |
+|---|---|---|
+| Trees | hub-style trees (Mystic Wilds re-coloured) | canopy non-colliding; an invisible cylinder trunk collider per tree, so riders can pass under canopies |
+| Foliage | bushes, ground plants, ferns, flowers, grass, mushrooms | none, no shadows |
+| Rocks | boulders, rock formations, river rocks, pebbles | Hull; small pebbles non-colliding |
+| Props | lanterns, signposts, benches, fences, rope barriers, barrels, crates, logs, stumps | Box |
+| Ruins | broken columns and walls, ruin arches, stone fragments, temple platforms | Hull |
+| Water | reeds, lily pads, waterfall mist and foam | none |
+| Cliffs | moss drapes, vines, roots, boulders set into cliff walls | none |
+| Landmarks | World Tree canopy (hub leaf clusters) and giant roots | none; **streams persistently** |
+| Background | distant islands with trees and falls, mountain spires, cloud banks, floating rocks | none; **streams persistently** |
+
+## 3. Lighting, spawn, streaming
+
+1. Add `Floor1_Lighting.lua` as a ModuleScript in ServerStorage, then run
+   `require(game.ServerStorage.Floor1_Lighting).apply()`. It sets:
+   - bright fantasy daylight with ShadowMap soft shadows;
+   - a soft blue Atmosphere haze;
+   - subtle Bloom;
+   - vibrant ColorCorrection;
+   - Terrain clouds.
+2. Put a SpawnLocation at the spawn ring, about **(-5225, 60, 3850)**, facing the meadows and village (toward −Z).
+3. **Kill plane:** the cloud sea is at about −3,800. Set Workspace.FallenPartsDestroyHeight to about −4,000, or
+   add a respawn zone just above the clouds.
+4. Turn on **Workspace.StreamingEnabled**. Nearby terrain and scatter stream in. The Landmarks and Background
+   models are Persistent, so the World Tree, distant islands and mountains stay visible.
+5. **Scale check:** the Floor Entrance platform is about 3,000 × 1,700 studs, and main roads are 56 studs wide.
 
 ## Key positions (Roblox coordinates)
 
-- Spawn (Floor Entrance): (-5225, 120, 3850)
-- Main boss (Fortress Heights arena): (5500, 2400, 990)
-- All other positions are in `floor1_layout.json`: checkpoints, mini-bosses, eggs, caves, secrets, path
-  waypoints.
+- Spawn (Floor Entrance): (-5225, 60, 3850)
+- Main boss (Fortress Heights arena): (5500, 1200, 990)
+- Everything else is in `floor1_layout.json`.

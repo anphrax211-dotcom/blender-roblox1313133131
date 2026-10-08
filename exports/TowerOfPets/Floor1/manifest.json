@@ -1,74 +1,74 @@
 {
   "files": {
     "Floor1_Verdant_Forest": {
-      "parts": 284,
-      "triangles": 352498,
-      "largest_part": 5994,
-      "largest_extent": 1888.0,
+      "parts": 492,
+      "triangles": 396268,
+      "largest_part": 5943,
+      "largest_extent": 1859.9,
       "root": "Floor1_Verdant_Forest",
       "root_position_roblox": [
         0.0,
         0.0,
         -0.0
       ],
-      "size_mb": 9.63
+      "size_mb": 12.67
     },
     "Floor1_Waterfall_Valley": {
-      "parts": 226,
-      "triangles": 248626,
+      "parts": 425,
+      "triangles": 280316,
       "largest_part": 6000,
-      "largest_extent": 1898.7,
+      "largest_extent": 1838.2,
       "root": "Floor1_Waterfall_Valley",
       "root_position_roblox": [
         0.0,
         0.0,
         -0.0
       ],
-      "size_mb": 7.09
+      "size_mb": 9.31
     },
     "Floor1_Ancient_Ruins": {
-      "parts": 176,
-      "triangles": 158158,
-      "largest_part": 5513,
-      "largest_extent": 1891.8,
+      "parts": 336,
+      "triangles": 183794,
+      "largest_part": 5776,
+      "largest_extent": 1898.3,
       "root": "Floor1_Ancient_Ruins",
       "root_position_roblox": [
         0.0,
         0.0,
         -0.0
       ],
-      "size_mb": 4.44
+      "size_mb": 6.7
     },
     "Floor1_Mystic_Wilds": {
-      "parts": 243,
-      "triangles": 235914,
-      "largest_part": 6000,
-      "largest_extent": 1855.4,
+      "parts": 380,
+      "triangles": 267508,
+      "largest_part": 5628,
+      "largest_extent": 1867.1,
       "root": "Floor1_Mystic_Wilds",
       "root_position_roblox": [
         0.0,
         0.0,
         -0.0
       ],
-      "size_mb": 6.89
+      "size_mb": 9.1
     },
     "Floor1_Jungle_Fortress": {
-      "parts": 170,
-      "triangles": 179946,
+      "parts": 223,
+      "triangles": 221212,
       "largest_part": 6000,
-      "largest_extent": 1885.9,
+      "largest_extent": 1888.0,
       "root": "Floor1_Jungle_Fortress",
       "root_position_roblox": [
         0.0,
         0.0,
         -0.0
       ],
-      "size_mb": 5.02
+      "size_mb": 7.17
     },
     "Floor1_Natural_Bridges": {
-      "parts": 111,
-      "triangles": 12932,
-      "largest_part": 944,
+      "parts": 145,
+      "triangles": 16546,
+      "largest_part": 2710,
       "largest_extent": 1738.1,
       "root": "Floor1_Natural_Bridges",
       "root_position_roblox": [
@@ -76,11 +76,24 @@
         0.0,
         -0.0
       ],
-      "size_mb": 0.66
+      "size_mb": 1.05
+    },
+    "Floor1_Bridges": {
+      "parts": 65,
+      "triangles": 83078,
+      "largest_part": 5562,
+      "largest_extent": 885.9,
+      "root": "Floor1_Bridges",
+      "root_position_roblox": [
+        0.0,
+        0.0,
+        -0.0
+      ],
+      "size_mb": 2.35
     },
     "Floor1_Water": {
-      "parts": 100,
-      "triangles": 93024,
+      "parts": 157,
+      "triangles": 97084,
       "largest_part": 5672,
       "largest_extent": 1776.0,
       "root": "Floor1_Water",
@@ -89,25 +102,25 @@
         0.0,
         -0.0
       ],
-      "size_mb": 1.09
+      "size_mb": 1.34
     },
     "Floor1_Landmark_Blockouts": {
-      "parts": 75,
-      "triangles": 7584,
+      "parts": 82,
+      "triangles": 8678,
       "largest_part": 556,
-      "largest_extent": 1797.8,
+      "largest_extent": 1662.9,
       "root": "Floor1_Landmark_Blockouts",
       "root_position_roblox": [
         0.0,
         0.0,
         -0.0
       ],
-      "size_mb": 0.32
+      "size_mb": 0.34
     },
     "Floor1_Clouds": {
-      "parts": 624,
-      "triangles": 34776,
-      "largest_part": 436,
+      "parts": 595,
+      "triangles": 9192,
+      "largest_part": 359,
       "largest_extent": 1898.0,
       "root": "Floor1_Clouds",
       "root_position_roblox": [
@@ -115,14 +128,14 @@
         0.0,
         -0.0
       ],
-      "size_mb": 2.18
+      "size_mb": 1.44
     }
   },
-  "materials": 36,
+  "materials": 107,
   "lights": 0,
   "spawn_roblox": [
     -5225.0,
-    120.0,
+    60.0,
     3850.0
   ]
 }

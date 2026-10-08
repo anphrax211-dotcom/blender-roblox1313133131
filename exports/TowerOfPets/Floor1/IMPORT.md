@@ -27,6 +27,10 @@ are deliberately moderate, set by `LEVEL` in `floor1.py`.
 
 Floor 1 should be its **own place** (the hub's tower entrance teleports to it). Import it into an empty place.
 
+**Quickest route:** follow `AI_PROMPT.md`. You import the FBX files and insert `Floor1_Scripts.rbxmx`, which holds
+every ModuleScript below (`Floor1_Materials`, `Floor1_Scatter`, `Floor1_Lighting` and the `Floor1_ScatterData`
+folder). In Studio: right-click ServerStorage → Insert from File. Then paste the prompt into your Studio AI.
+
 ## Files
 
 | File | Contents |
@@ -46,6 +50,8 @@ Floor 1 should be its **own place** (the hub's tower entrance teleports to it). 
 | `Floor1_Scatter.lua` | ModuleScript that places every scattered piece by cloning `Floor1_Assets` |
 | `Scatter/Floor1_Scatter_*.lua` | placement data ModuleScripts (position, yaw and scale per piece), one or more per category |
 | `Floor1_Lighting.lua` | ModuleScript: bright fantasy daylight, soft shadows, haze, subtle bloom, terrain clouds |
+| `Floor1_Scripts.rbxmx` | all of the ModuleScripts above plus the `Floor1_ScatterData` folder, ready for Insert from File |
+| `AI_PROMPT.md` | the manual Studio steps and a ready-to-paste prompt for a Studio AI |
 | `floor1_layout.json` | positions in Roblox coordinates: spawn, regions, areas and level ranges, checkpoints, bosses, eggs, caves, cave pairs, secret areas, path waypoints, waterfalls, bridges |
 
 The markers in `Floor1_Landmark_Blockouts.fbx` are:

@@ -34,3 +34,4 @@ if __name__ == '__main__':
                     spawn=(sx, sy, 12.0 * floor1.ZL), precise=('_Top__', '_Cliffs__', 'Natural_Bridges', '_Deck__'))
     out = os.path.join(ROOT_DIR, 'exports', 'TowerOfPets', 'Floor1')
     floor1_roblox.export_assets(os.path.join(os.path.dirname(HERE), 'TowerOfPets_Floor1.blend'), out)
+    floor1_roblox.write_rbxmx(out)                  # every Floor 1 ModuleScript in one Studio file

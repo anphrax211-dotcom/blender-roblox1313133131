@@ -82,6 +82,7 @@ def write_placer(out_dir, offsets):
          '-- put every Floor1_Scatter_* ModuleScript in a Folder ServerStorage.Floor1_ScatterData; then run in the',
          '-- command bar:  require(game.ServerStorage.Floor1_Scatter).place()',
          '-- Options: place({texture = "rbxassetid://<palette id>", lights = true, categories = {"Trees", ...}})',
+         '-- Categories: Trees, Foliage, Rocks, Props, Ruins, Water, Cliffs, Landmarks, Background',
          'local M = {}', '',
          '-- collision / shadows / streaming per category',
          'M.Rules = {']
@@ -111,9 +112,14 @@ def write_placer(out_dir, offsets):
           '\tassert(data, "put the Floor1_Scatter_* modules in ServerStorage.Floor1_ScatterData")',
           '\tlocal only = nil',
           '\tif opts.categories then only = {}; for _, c in ipairs(opts.categories) do only[c] = true end end',
+          '\t-- no categories: rebuild everything; with categories: replace only those (run one category at a time',
+          '\t-- if a single big call is too slow)',
           '\tlocal root = (opts.parent or workspace):FindFirstChild("Floor1_Environment")',
-          '\tif root then root:Destroy() end',
-          '\troot = Instance.new("Folder"); root.Name = "Floor1_Environment"; root.Parent = opts.parent or workspace',
+          '\tif root and not only then root:Destroy(); root = nil end',
+          '\tif not root then',
+          '\t\troot = Instance.new("Folder"); root.Name = "Floor1_Environment"; root.Parent = opts.parent or workspace',
+          '\tend',
+          '\tif only then for c in pairs(only) do local old = root:FindFirstChild(c); if old then old:Destroy() end end end',
           '\tlocal groups, count, missing = {}, 0, {}',
           '\tfor _, mod in ipairs(data:GetChildren()) do',
           '\t\tif not mod:IsA("ModuleScript") then continue end',
@@ -307,3 +313,39 @@ def export_assets(blend, out_dir):
     print(f'Floor1_Assets: {len(objs)} assets, {tris:,} tris, palette {N}x{N} ({len(mats)} colours), '
           f'{os.path.getsize(path) / 1e6:.2f} MB')
     return offsets, dict(assets=len(objs), triangles=tris, palette_colours=len(mats))
+
+
+# ---------------------------------------------------------------- one-click script bundle for Studio
+def write_rbxmx(out_dir):
+    """Floor1_Scripts.rbxmx: Floor1_Materials, Floor1_Scatter, Floor1_Lighting and the Floor1_ScatterData folder as
+    ModuleScripts - in Studio: right-click ServerStorage > Insert from File... > this file"""
+    from xml.sax.saxutils import escape
+    ref = [0]
+
+    def item(cls, name, source=None, children=()):
+        ref[0] += 1
+        props = f'<string name="Name">{escape(name)}</string>'
+        if source is not None:
+            assert ']]>' not in source
+            props += f'<ProtectedString name="Source"><![CDATA[{source}]]></ProtectedString>'
+        return (f'<Item class="{cls}" referent="RBX{ref[0]}"><Properties>{props}</Properties>'
+                + ''.join(children) + '</Item>')
+
+    def read(p):
+        with open(p) as f:
+            return f.read()
+    items = [item('ModuleScript', n, read(os.path.join(out_dir, n + '.lua')))
+             for n in ('Floor1_Materials', 'Floor1_Scatter', 'Floor1_Lighting')]
+    sdir = os.path.join(out_dir, 'Scatter')
+    mods = [item('ModuleScript', f[:-4], read(os.path.join(sdir, f))) for f in sorted(os.listdir(sdir)) if f.endswith('.lua')]
+    items.append(item('Folder', 'Floor1_ScatterData', children=mods))
+    xml = ('<roblox xmlns:xmime="http://www.w3.org/2005/05/xmlmime" '
+           'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+           'xsi:noNamespaceSchemaLocation="http://www.roblox.com/roblox.xsd" version="4">'
+           + ''.join(items) + '</roblox>')
+    path = os.path.join(out_dir, 'Floor1_Scripts.rbxmx')
+    with open(path, 'w') as f:
+        f.write(xml)
+    print(f'Floor1_Scripts.rbxmx: {len(items) - 1} modules + {len(mods)} scatter data modules, '
+          f'{os.path.getsize(path) / 1e6:.2f} MB')
+    return path

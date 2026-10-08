@@ -6,6 +6,7 @@
 -- put every Floor1_Scatter_* ModuleScript in a Folder ServerStorage.Floor1_ScatterData; then run in the
 -- command bar:  require(game.ServerStorage.Floor1_Scatter).place()
 -- Options: place({texture = "rbxassetid://<palette id>", lights = true, categories = {"Trees", ...}})
+-- Categories: Trees, Foliage, Rocks, Props, Ruins, Water, Cliffs, Landmarks, Background
 local M = {}
 
 -- collision / shadows / streaming per category
@@ -123,9 +124,14 @@ function M.place(opts)
 	assert(data, "put the Floor1_Scatter_* modules in ServerStorage.Floor1_ScatterData")
 	local only = nil
 	if opts.categories then only = {}; for _, c in ipairs(opts.categories) do only[c] = true end end
+	-- no categories: rebuild everything; with categories: replace only those (run one category at a time
+	-- if a single big call is too slow)
 	local root = (opts.parent or workspace):FindFirstChild("Floor1_Environment")
-	if root then root:Destroy() end
-	root = Instance.new("Folder"); root.Name = "Floor1_Environment"; root.Parent = opts.parent or workspace
+	if root and not only then root:Destroy(); root = nil end
+	if not root then
+		root = Instance.new("Folder"); root.Name = "Floor1_Environment"; root.Parent = opts.parent or workspace
+	end
+	if only then for c in pairs(only) do local old = root:FindFirstChild(c); if old then old:Destroy() end end end
 	local groups, count, missing = {}, 0, {}
 	for _, mod in ipairs(data:GetChildren()) do
 		if not mod:IsA("ModuleScript") then continue end

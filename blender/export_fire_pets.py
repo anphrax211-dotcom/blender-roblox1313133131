@@ -3,8 +3,9 @@
 Roblox MeshParts show one texture per part and ignore vertex colours and Blender's shader setups, so each
 pet's look (fire gradients, flame markings, eyes, lava, crystals) is baked into one colour texture:
 
-    exports/FirePets/<Pet>.fbx            two MeshParts: <Pet>_Body (fur, face, ears, legs, paws)
-                                          and <Pet>_Fire (tail, flames, markings, lava, crystals)
+    exports/FirePets/<Pet>.fbx            three MeshParts: <Pet>_Body (body, legs, paws), <Pet>_Head (head,
+                                          eyes, ears, face) and <Pet>_Fire (tail, flames, markings, lava,
+                                          crystals); each under Roblox's 20k triangle limit
     exports/FirePets/<Pet>_Texture.png    the shared 1024x1024 colour texture (also embedded in the FBX)
 
 Each pet is exported on its own at the origin: pivot between the feet on the ground, facing Roblox -Z
@@ -20,6 +21,7 @@ OUT = os.path.join(HERE, '..', 'exports', 'FirePets')
 PETS = ('Ashrat', 'Cinderkit', 'Flarecat', 'Smoulderat')
 PET_STUDS = 3.0          # studs per Blender metre
 TEX = 1024               # Roblox's maximum texture size
+HEAD_PARTS = ('Head', 'Eye', 'Ear', 'Nose', 'Mouth', 'Teeth', 'Whiskers')   # each part < 20k tris
 FIRE_PARTS = ('Tail', 'FlameMarkings', 'CheekSwirls', 'FlameTuft', 'FaceFlames', 'FlameMane', 'ChestRuff',
               'LavaFissures', 'BackCrystals', 'HeadCrystals', 'BrowMarks')
 
@@ -58,9 +60,12 @@ def merged(pet, parts, name, coll):
 
 def export_pet(pet, coll):
     objs = [o for o in bpy.data.collections[pet].objects if o.type == 'MESH']
-    fire = [o for o in objs if o.name.split('_', 1)[1] in FIRE_PARTS]
-    body = [o for o in objs if o not in fire]
-    parts = [merged(pet, body, f'{pet}_Body_x', coll), merged(pet, fire, f'{pet}_Fire_x', coll)]
+    kind = lambda o: o.name.split('_', 1)[1]
+    fire = [o for o in objs if kind(o) in FIRE_PARTS]
+    head = [o for o in objs if o not in fire and kind(o).startswith(HEAD_PARTS)]
+    body = [o for o in objs if o not in fire and o not in head]
+    parts = [merged(pet, body, f'{pet}_Body_x', coll), merged(pet, head, f'{pet}_Head_x', coll),
+             merged(pet, fire, f'{pet}_Fire_x', coll)]
     for o in objs:                    # the source parts are no longer needed; free their names
         bpy.data.objects.remove(o)
     for ob in parts:

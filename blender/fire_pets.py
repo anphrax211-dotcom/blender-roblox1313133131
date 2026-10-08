@@ -36,8 +36,6 @@ PET_X = {'Ashrat': -3.9, 'Cinderkit': -1.3, 'Flarecat': 1.3, 'Smoulderat': 3.9}
 CAM_H = 0.6           # aim height of the turnaround cameras
 CAM_SCALE = 2.3       # ortho scale, identical for every pet so sizes compare 1:1
 CAM_TILT = math.radians(5)
-# triangle budgets for the remeshed shells (game-ready: ~11-13k tris per pet in total)
-HEAD_TRIS, BODY_TRIS, PAW_TRIS = 3000, 2000, 360
 
 
 # ------------------------------------------------------------------ colours & materials
@@ -231,7 +229,7 @@ def tube(pts, radii, seg=12, hint=Z, ex=2.0, colors=None):
     return bm
 
 
-def revolve(profile, c, M, seg=24, sy=1.0):
+def revolve(profile, c, M, seg=40, sy=1.0):
     """surface of revolution around local +Z of M; profile = [(radius, height)], radius 0 = pole"""
     bm = bmesh.new()
     rings = []
@@ -266,7 +264,7 @@ def body_bm(y_rear, y_front, z_rear, z_front, a, b, taper=0.1, q=2.4, ex=2.3, n=
     return tube(pts, radii, seg, hint=Z, ex=ex)
 
 
-def tongue(base, direction, length, width, flat=0.5, bend=Vector(), hint=Y, seg=8, n=3, stops=FIRE, swell=0.3):
+def tongue(base, direction, length, width, flat=0.5, bend=Vector(), hint=Y, seg=10, n=4, stops=FIRE, swell=0.3):
     """one flame tongue: swells from the base then tapers to a sharp tip, curving by `bend`.
     stops = colour gradient base -> tip (None = no colour attribute)"""
     d = direction.normalized()
@@ -387,7 +385,7 @@ def outline(pts, n=2):
     return catmull(list(pts) + [pts[0]], n)[:-1]
 
 
-def decal(bvh, c, d, shape, size, angle=0.0, offset=0.005, up=Z, step=0.026, flip=False):
+def decal(bvh, c, d, shape, size, angle=0.0, offset=0.005, up=Z, step=0.016, flip=False):
     """2D outline wrapped onto a surface around the hit point of direction d (spherical projection from c)"""
     hit, n = cast(bvh, c, d)
     M = frame(n, up)
@@ -584,7 +582,7 @@ def legs_and_paws(pet, fur, paw, front, back, paw_size, toes=3):
     pw, pl, ph = paw_size
     for tag, (x, y, top, r) in (('F', front), ('B', back)):
         pts = [Vector((x, y + 0.01, top)), Vector((x, y, (top + ph) / 2)), Vector((x, y - 0.005, ph * 0.8))]
-        pet.pair(f'Leg_{tag}', [(tube(pts, [(r, r * 1.05), (r * 0.95, r), (r * 0.98, r)], 12), fur)], sep='')
+        pet.pair(f'Leg_{tag}', [(tube(pts, [(r, r * 1.05), (r * 0.95, r), (r * 0.98, r)], 20), fur)], sep='')
         pc = Vector((x, y - pl * 0.22, 0))
         parts = [ellipsoid(pc + Vector((0, 0.0, ph * 0.5)), (pw, pl * 0.82, ph * 0.52), ex=2.2),
                  ellipsoid(pc + Vector((0, pl * 0.3, ph * 0.62)), (pw * 0.86, pl * 0.5, ph * 0.6))]
@@ -592,7 +590,7 @@ def legs_and_paws(pet, fur, paw, front, back, paw_size, toes=3):
             dx = (i - (toes - 1) / 2) * (2 * pw / toes) * 0.95
             parts.append(ellipsoid(pc + Vector((dx, -pl * 0.62, ph * 0.42)),
                                    (pw / toes * 1.08, pl * 0.36, ph * 0.43)))
-        pet.pair(f'Paw_{tag}', [(blob(parts, PAW_TRIS, voxel=0.006, smooth=3), paw)], sep='')
+        pet.pair(f'Paw_{tag}', [(blob(parts, 1100, voxel=0.006, smooth=3), paw)], sep='')
 
 
 def eyes(pet, x, z, s, head='Head', face_fwd=0.15):
@@ -605,17 +603,15 @@ def eyes(pet, x, z, s, head='Head', face_fwd=0.15):
     def at(dr, du, dn):
         return hit + r * (dr * s) + u * (du * s) + n * (dn * s)
     iris_c = at(0, 0, -0.04)
-    iris = ellipsoid(iris_c, (s * 0.98, s * 1.1, s * 0.42), M, seg=30, rings=16)
+    iris = ellipsoid(iris_c, (s * 0.98, s * 1.1, s * 0.42), M, seg=32, rings=18)
     paint(iris, lambda co: grad(IRIS, ((co - iris_c).dot(u) / (s * 1.1) + 1) / 2))
     pieces = [
-        (ellipsoid(at(0, 0, -0.1), (s * 1.06, s * 1.17, s * 0.42), M, seg=30, rings=16), 'Eye_Outline'),
+        (ellipsoid(at(0, 0, -0.1), (s * 1.06, s * 1.17, s * 0.42), M, seg=32, rings=18), 'Eye_Outline'),
         (iris, 'Eye_Iris'),
-        (ellipsoid(at(0, 0.1, 0.1), (s * 0.5, s * 0.56, s * 0.3), M, seg=20, rings=10), 'Eye_Pupil'),
-        (ellipsoid(at(-0.27, 0.38, 0.4), (s * 0.25, s * 0.25, s * 0.12), M, seg=16, rings=6), 'Eye_Highlight'),
-        (ellipsoid(at(0.32, -0.4, 0.33), (s * 0.1, s * 0.1, s * 0.06), M, seg=10, rings=4), 'Eye_Highlight'),
+        (ellipsoid(at(0, 0.1, 0.1), (s * 0.5, s * 0.56, s * 0.3), M, seg=24, rings=12), 'Eye_Pupil'),
+        (ellipsoid(at(-0.27, 0.38, 0.4), (s * 0.25, s * 0.25, s * 0.12), M, seg=16, rings=8), 'Eye_Highlight'),
+        (ellipsoid(at(0.32, -0.4, 0.33), (s * 0.1, s * 0.1, s * 0.06), M, seg=12, rings=6), 'Eye_Highlight'),
     ]
-    for bm, _ in pieces[:3]:      # back halves of the eye shells sit inside the head: drop them
-        bmesh.ops.delete(bm, geom=[v for v in bm.verts if (v.co - hit).dot(n) < -0.22 * s], context='VERTS')
     pet.pair('Eye', pieces)
     return hit, n, M
 
@@ -653,12 +649,12 @@ def cat_ears(pet, base, tip, width, n, fur, inner_stops, flame=None):
     k = 9
     pts = [base + (tip - base) * (i / k) for i in range(k + 1)]
     rad = [(width * (1 - i / k) ** 0.7, width * 0.36 * (1 - i / k) ** 0.7) for i in range(k + 1)]
-    pieces = [(tube(pts, rad, 12, hint=n), fur)]
+    pieces = [(tube(pts, rad, 20, hint=n), fur)]
     ib, it = base + n * (width * 0.24) + Z * 0.02, tip + (base - tip) * 0.14 + n * (width * 0.07)
     pts = [ib + (it - ib) * (i / k) for i in range(k + 1)]
     rad = [(width * 0.72 * (1 - i / k) ** 0.7, width * 0.14 * (1 - i / k) ** 0.7) for i in range(k + 1)]
     cols = [grad(inner_stops, i / k) for i in range(k + 1)]
-    pieces.append((tube(pts, rad, 10, hint=n, colors=cols), 'Fire_Gradient' if flame else 'Ear_Gradient'))
+    pieces.append((tube(pts, rad, 16, hint=n, colors=cols), 'Fire_Gradient' if flame else 'Ear_Gradient'))
     if flame:
         fb = ib + n * (width * 0.08)
         d = (it - ib).normalized()
@@ -748,7 +744,7 @@ def fill2d(poly, step):
     return [Vector(v) for v in verts], faces, bnd
 
 
-def inflated(poly, T, place, n, color, step=0.023):
+def inflated(poly, T, place, n, color, step=0.015):
     """puffy closed shell from a 2D outline: thickness T * circular profile of the distance to the edge.
     place(u, v) -> world point on the mid-plane, n = plane normal, color(u, v, k) -> rgb (k = 0 rim .. 1 middle)"""
     verts, faces, bnd = fill2d(outline(poly, 3), step)
@@ -810,9 +806,9 @@ def whiskers(pet, roots, mat, length=0.24):
     for a, out in roots:
         b = a + out.normalized() * length
         mid = (a + b) / 2 + Vector((0, 0, -0.012))
-        pts = catmull([a, mid, b], 2)
+        pts = catmull([a, mid, b], 4)
         rad = [(0.0035 * (1 - 0.7 * i / (len(pts) - 1)),) * 2 for i in range(len(pts))]
-        pieces.append((tube(pts, rad, 4), mat))
+        pieces.append((tube(pts, rad, 6), mat))
     pieces += [(mirror(p[0]), p[1]) for p in pieces]
     pet.obj('Whiskers', pieces)
 
@@ -830,7 +826,7 @@ def rat_face(pet, hc, snout, whisker='Whisker_Light'):
     bvh = pet.bvh['Head']
     tip, tn = cast(bvh, snout, Vector((0, -1, 0.35)))
     M = frame(tn)
-    pet.obj('Nose', [(soft_triangle(ellipsoid(tip + tn * 0.008, (0.042, 0.03, 0.028), M, seg=12, rings=8, ex=2.4), M, tip, 0.03),
+    pet.obj('Nose', [(soft_triangle(ellipsoid(tip + tn * 0.008, (0.042, 0.03, 0.028), M, ex=2.4), M, tip, 0.03),
                       'Nose_Orange')])
     mz = tip.z - 0.07
     pts = [cast_front(bvh, x, mz + 0.012 * math.cos(x / 0.045 * math.pi))[0] for x in
@@ -840,7 +836,7 @@ def rat_face(pet, hc, snout, whisker='Whisker_Light'):
     for x in (-0.019, 0.019):
         th, _ = cast_front(bvh, x, mz - 0.03)
         teeth.append((ellipsoid(th + Vector((0, -0.008, 0)), (0.017, 0.03, 0.009), frame(Vector((0, -1, -0.25))),
-                                seg=8, rings=6, ex=3.2), 'Tooth_White'))
+                                seg=16, rings=10, ex=3.2), 'Tooth_White'))
     pet.obj('Teeth', teeth)
     roots = []
     for dz, ang in ((0.0, 0.1), (-0.02, -0.12), (-0.04, -0.3)):
@@ -854,13 +850,13 @@ def cat_face(pet, hc, muzzle, nose_mat, whisker):
     bvh = pet.bvh['Head']
     tip, tn = cast(bvh, muzzle, Vector((0, -1, 0.75)))
     M = frame(tn)
-    pet.obj('Nose', [(soft_triangle(ellipsoid(tip + tn * 0.004, (0.034, 0.024, 0.022), M, seg=12, rings=8, ex=2.4), M, tip, 0.024, 0.5),
+    pet.obj('Nose', [(soft_triangle(ellipsoid(tip + tn * 0.004, (0.034, 0.024, 0.022), M, ex=2.4), M, tip, 0.024, 0.5),
                       nose_mat)])
     mz = tip.z - 0.06
     mh, mn = cast_front(bvh, 0, mz)
     Mm = frame(mn)
-    mouth = [(ellipsoid(mh - mn * 0.01, (0.05, 0.035, 0.02), Mm, seg=12, rings=8), 'Mouth_Dark'),
-             (ellipsoid(mh + mn * 0.004 - Z * 0.022, (0.032, 0.03, 0.016), Mm, seg=10, rings=6), 'Tongue_Pink')]
+    mouth = [(ellipsoid(mh - mn * 0.01, (0.05, 0.035, 0.02), Mm, seg=20, rings=10), 'Mouth_Dark'),
+             (ellipsoid(mh + mn * 0.004 - Z * 0.022, (0.032, 0.03, 0.016), Mm, seg=18, rings=10), 'Tongue_Pink')]
     pts = [cast_front(bvh, x, tip.z - 0.03 + 0.01 * math.cos(x / 0.04 * math.pi))[0] for x in
            [-0.07 + 0.14 * i / 12 for i in range(13)]]
     mouth.append((ribbon_pts(bvh, hc, pts, 0.009, 0.003), 'Mouth_Line'))
@@ -908,13 +904,13 @@ def build_ashrat(pc):
                           ellipsoid((0.17, 0.28, 0.26), (0.13, 0.17, 0.16)),
                           ellipsoid((-0.17, 0.28, 0.26), (0.13, 0.17, 0.16)),
                           ellipsoid((0.15, -0.17, 0.27), (0.12, 0.14, 0.15)),
-                          ellipsoid((-0.15, -0.17, 0.27), (0.12, 0.14, 0.15))], BODY_TRIS), fur)])
+                          ellipsoid((-0.15, -0.17, 0.27), (0.12, 0.14, 0.15))], 4500), fur)])
     hc = Vector((0, -0.31, 0.53))
     snout = Vector((0, -0.57, 0.45))
     p.obj('Head', [(blob([ellipsoid(hc, (0.36, 0.28, 0.28), seg=40, rings=24, ex=2.15),
                           ellipsoid((0.17, -0.45, 0.43), (0.16, 0.14, 0.13)),
                           ellipsoid((-0.17, -0.45, 0.43), (0.16, 0.14, 0.13)),
-                          ellipsoid(snout, (0.12, 0.14, 0.1))], HEAD_TRIS), fur)])
+                          ellipsoid(snout, (0.12, 0.14, 0.1))], 5000), fur)])
     rat_ears(p, Vector((0.33, -0.27, 0.79)), 0.215, Vector((0.5, -0.85, 0.12)), fur)
     legs_and_paws(p, fur, 'Paw_Orange', (0.19, -0.22, 0.24, 0.088), (0.19, 0.3, 0.2, 0.088), (0.105, 0.14, 0.11))
     hit, n, M = eyes(p, 0.155, 0.555, 0.1)
@@ -946,7 +942,7 @@ def build_cinderkit(pc):
     p.obj('Body', [(blob([body_bm(0.47, -0.27, 0.34, 0.36, 0.23, 0.17),
                           ellipsoid((0.14, 0.3, 0.28), (0.11, 0.16, 0.15)),
                           ellipsoid((-0.14, 0.3, 0.28), (0.11, 0.16, 0.15)),
-                          ellipsoid((0, -0.2, 0.35), (0.19, 0.16, 0.17))], BODY_TRIS), fur)])
+                          ellipsoid((0, -0.2, 0.35), (0.19, 0.16, 0.17))], 4000), fur)])
     hc = Vector((0, -0.34, 0.64))
     muzzle = Vector((0, -0.57, 0.56))
     tufts = []
@@ -957,7 +953,7 @@ def build_cinderkit(pc):
     p.obj('Head', [(blob([ellipsoid(hc, (0.36, 0.29, 0.27), seg=40, rings=24, ex=2.15),
                           *[ellipsoid((s * 0.22, -0.43, 0.55), (0.17, 0.15, 0.13)) for s in (1, -1)],
                           ellipsoid(muzzle, (0.1, 0.08, 0.075)), ellipsoid((0, -0.5, 0.5), (0.08, 0.07, 0.06)),
-                          *tufts], HEAD_TRIS, voxel=0.009, smooth=6), fur)])
+                          *tufts], 6000, voxel=0.009, smooth=6), fur)])
     ear_n = Vector((0.3, -1, 0.05)).normalized()
     cat_ears(p, Vector((0.21, -0.28, 0.8)), Vector((0.33, -0.25, 1.13)), 0.175, ear_n, fur,
              [(0, '#d8301a'), (1, '#ff6a14')], flame=FIRE_YELLOW)
@@ -999,13 +995,13 @@ def build_flarecat(pc):
     p.obj('Body', [(blob([body_bm(0.48, -0.27, 0.35, 0.37, 0.24, 0.175),
                           ellipsoid((0.145, 0.31, 0.29), (0.115, 0.165, 0.155)),
                           ellipsoid((-0.145, 0.31, 0.29), (0.115, 0.165, 0.155)),
-                          ellipsoid((0, -0.2, 0.36), (0.2, 0.17, 0.17))], BODY_TRIS), fur)])
+                          ellipsoid((0, -0.2, 0.36), (0.2, 0.17, 0.17))], 4000), fur)])
     hc = Vector((0, -0.35, 0.66))
     muzzle = Vector((0, -0.56, 0.58))
     p.obj('Head', [(blob([ellipsoid(hc, (0.35, 0.29, 0.27), seg=40, rings=24, ex=2.15),
                           *[ellipsoid((s * 0.21, -0.44, 0.57), (0.16, 0.15, 0.13)) for s in (1, -1)],
                           ellipsoid(muzzle, (0.1, 0.08, 0.075)), ellipsoid((0, -0.51, 0.52), (0.08, 0.07, 0.06))],
-                         HEAD_TRIS), fur)])
+                         5000), fur)])
     ear_n = Vector((0.3, -1, 0.05)).normalized()
     cat_ears(p, Vector((0.21, -0.29, 0.82)), Vector((0.33, -0.26, 1.14)), 0.175, ear_n, fur,
              [(0, '#f2867e'), (0.6, '#f59a92'), (1, '#f8b4a8')])
@@ -1061,13 +1057,13 @@ def build_smoulderat(pc):
                           ellipsoid((0.3, 0.32, 0.3), (0.18, 0.22, 0.21)),
                           ellipsoid((-0.3, 0.32, 0.3), (0.18, 0.22, 0.21)),
                           ellipsoid((0.27, -0.27, 0.3), (0.16, 0.18, 0.19)),
-                          ellipsoid((-0.27, -0.27, 0.3), (0.16, 0.18, 0.19))], BODY_TRIS), fur)])
+                          ellipsoid((-0.27, -0.27, 0.3), (0.16, 0.18, 0.19))], 5500), fur)])
     hc = Vector((0, -0.48, 0.51))
     snout = Vector((0, -0.75, 0.42))
     p.obj('Head', [(blob([ellipsoid(hc, (0.38, 0.28, 0.28), seg=40, rings=24, ex=2.15),
                           ellipsoid((0.19, -0.62, 0.41), (0.17, 0.14, 0.13)),
                           ellipsoid((-0.19, -0.62, 0.41), (0.17, 0.14, 0.13)),
-                          ellipsoid(snout, (0.12, 0.13, 0.1))], HEAD_TRIS), fur)])
+                          ellipsoid(snout, (0.12, 0.13, 0.1))], 5000), fur)])
     rat_ears(p, Vector((0.41, -0.43, 0.73)), 0.21, Vector((0.55, -0.82, 0.12)), fur)
     legs_and_paws(p, fur, 'Paw_Red', (0.3, -0.3, 0.24, 0.1), (0.3, 0.34, 0.22, 0.1), (0.13, 0.155, 0.12))
     eyes(p, 0.165, 0.5, 0.1)

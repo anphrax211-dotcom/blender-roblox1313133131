@@ -20,7 +20,7 @@ and do one step at a time.
   shared by ALL 3 MeshParts of that pet. The parts are meant to show this texture, not a flat Color. The texture
   holds everything: fire gradients (red → orange → yellow), flame markings, eyes, nose, lava cracks.
 - Each pet faces −Z (its LookVector), with the pivot at the feet. Each is about 3–3.7 studs tall.
-- Every MeshPart is under 20k triangles (each pet is about 32–41k in total).
+- Every MeshPart is under 20k triangles (each pet is about 22–38k in total).
 
 ## What I need you to do
 1. **Find the models.** Find the 4 pet Models in Workspace (they may be named after the file or be inside a

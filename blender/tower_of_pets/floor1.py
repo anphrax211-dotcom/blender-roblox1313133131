@@ -1291,7 +1291,8 @@ def build_floor1_cameras(coll_name='CAMERAS'):
         o.rotation_euler = (Vector(tgt) - Vector(loc)).to_track_quat('-Z', 'Y').to_euler()
         coll(coll_name).objects.link(o)
         out[name] = o
-    out['CAM_F1_Map_TopDown']['hide_collections'] = 'CLOUDS,CLOUDS_FAR,World_Eggs,Secret_Areas'   # hidden things stay hidden
+    out['CAM_F1_Map_TopDown']['hide_collections'] = 'CLOUDS,CLOUDS_FAR,World_Eggs,Secret_Areas'
+    out['CAM_F1_Map_TopDown']['no_haze'] = True   # hidden things stay hidden
     for k, o in out.items():
         if k != 'CAM_F1_Map_TopDown':
             o['hide_collections'] = 'Map_Labels'

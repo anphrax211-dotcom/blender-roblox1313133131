@@ -25,11 +25,11 @@ def haze(sc):
     try:
         sc.view_layers[0].use_pass_mist = True
         ms = sc.world.mist_settings
-        ms.start, ms.depth, ms.falloff = 1500.0, 26000.0, 'QUADRATIC'
+        ms.start, ms.depth, ms.falloff = 3000.0, 30000.0, 'QUADRATIC'
         ng = bpy.data.node_groups.new('F1_Haze', 'CompositorNodeTree')
         ng.interface.new_socket('Image', in_out='OUTPUT', socket_type='NodeSocketColor')
         rl = ng.nodes.new('CompositorNodeRLayers')
-        mul = ng.nodes.new('ShaderNodeMath'); mul.operation = 'MULTIPLY'; mul.inputs[1].default_value = 0.5
+        mul = ng.nodes.new('ShaderNodeMath'); mul.operation = 'MULTIPLY'; mul.inputs[1].default_value = 0.38
         mix = ng.nodes.new('ShaderNodeMix'); mix.data_type = 'RGBA'
         out = ng.nodes.new('NodeGroupOutput')
         A = next(i for i in mix.inputs if i.name == 'A' and i.type == 'RGBA')

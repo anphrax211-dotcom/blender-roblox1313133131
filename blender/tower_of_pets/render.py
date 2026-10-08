@@ -21,7 +21,12 @@ for cam in sorted((o for o in bpy.data.objects if o.type == 'CAMERA'), key=lambd
     for c in hidden:
         bpy.data.collections[c].hide_render = True
     sc.render.filepath = os.path.join(out, f'TowerOfPets_{cam.name}.png')
+    comp = getattr(sc, 'compositing_node_group', None)
+    if cam.get('no_haze') and comp is not None:          # e.g. the high top-down map camera
+        sc.compositing_node_group = None
     bpy.ops.render.render(write_still=True)
+    if cam.get('no_haze') and comp is not None:
+        sc.compositing_node_group = comp
     for c in hidden:
         bpy.data.collections[c].hide_render = False
     print('rendered', sc.render.filepath, flush=True)

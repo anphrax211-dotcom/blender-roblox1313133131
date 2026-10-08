@@ -40,13 +40,14 @@ folder). In Studio: right-click ServerStorage → Insert from File. Then paste t
 | `Floor1_Ancient_Ruins.fbx` | Ancient Ruins, Cloudridge Peaks, Cloud Perch secret |
 | `Floor1_Mystic_Wilds.fbx` | World Tree Grove, Mossy Caverns, Beast Cave |
 | `Floor1_Jungle_Fortress.fbx` | jungle ring, Fortress Heights (boss plateau), Sky Temple island, Overlook secret, rare-pet islet |
+| `Floor1_Entrance.fbx` | the Floor 1 entrance:<br>• the portal: masonry arch, pillars, Verdant banners, vines and the swirling portal<br>• `Floor1_Portal_TeleportTrigger`, an invisible touch box inside the portal for the return-to-hub teleport<br>• the dais and wide staircase<br>• the emblem plaza (the spawn)<br>• the paved start of the forest road<br><br>Walkable parts (`Entrance_Walk_*`) get exact collision. |
 | `Floor1_Bridges.fbx` | 11 built bridges where paths cross open sky: wood truss, stone and rope (decks get exact collision) |
 | `Floor1_Natural_Bridges.fbx` | the rock spans of the Sky Stair, the Fortress Grand Ramp and the Cloud Perch path |
 | `Floor1_Water.fbx` | rivers, lakes, ponds, waterfalls (including small cliff cascades) |
 | `Floor1_Landmark_Blockouts.fbx` | the markers below, plus the landmark pieces (`Landmark_World_Tree_Trunk/Limbs`, `Landmark_Fortress_*`, `Landmark_Ruins_Pillars`) |
 | `Floor1_Clouds.fbx` | flat cloud sea far below the islands (optional; Studio's Terrain clouds can replace it) |
 | `Floor1_Materials.lua` | ModuleScript: colours and materials for the terrain FBX files, exact collision on the walkable surfaces (`apply(model)`) |
-| `Floor1_Assets.fbx` + `Floor1_Palette.png` | the environment asset library: 69 assets (hub trees, Mystic Wilds trees, bushes, plants, flowers, rocks, lanterns, props, ruin pieces, reeds, lily pads, clouds, background islands ...). Each asset is **one MeshPart** coloured by the small palette texture |
+| `Floor1_Assets.fbx` + `Floor1_Palette.png` | the environment asset library: 76 assets (hub trees, hub stone lanterns and lantern posts, Verdant banner poles, Mystic Wilds trees, bushes, plants, flowers, rocks, lanterns, props, ruin pieces, reeds, lily pads, clouds, background islands ...). Each asset is **one MeshPart** coloured by the small palette texture |
 | `Floor1_Scatter.lua` | ModuleScript that places every scattered piece by cloning `Floor1_Assets` |
 | `Scatter/Floor1_Scatter_*.lua` | placement data ModuleScripts (position, yaw and scale per piece), one or more per category |
 | `Floor1_Lighting.lua` | ModuleScript: bright fantasy daylight, soft shadows, haze, subtle bloom, terrain clouds |
@@ -55,7 +56,7 @@ folder). In Studio: right-click ServerStorage → Insert from File. Then paste t
 | `floor1_layout.json` | positions in Roblox coordinates: spawn, regions, areas and level ranges, checkpoints, bosses, eggs, caves, cave pairs, secret areas, path waypoints, waterfalls, bridges |
 
 The markers in `Floor1_Landmark_Blockouts.fbx` are:
-- the spawn ring, 6 checkpoints, 3 mini-boss rings and the main boss ring;
+- 6 checkpoints, 3 mini-boss rings and the main boss ring;
 - 6 world-egg pads;
 - 8 cave mouths;
 - the secret markers.
@@ -73,7 +74,7 @@ parts and 1.56M triangles.
    - **Insert Using Scene Position: ON**
    - **Scale Unit: Stud**
    - **Merge Meshes: OFF**
-3. Import every `Floor1_*.fbx` **except `Floor1_Assets.fbx`**, and put them in a Folder `workspace.Floor1`.
+3. Import every `Floor1_*.fbx` (including `Floor1_Entrance.fbx`) **except `Floor1_Assets.fbx`**, and put them in a Folder `workspace.Floor1`.
 4. Add `Floor1_Materials.lua` as a ModuleScript in ServerStorage named `Floor1_Materials`, then run this in the
    command bar:
    ```lua
@@ -130,7 +131,8 @@ parts and 1.56M triangles.
    - subtle Bloom;
    - vibrant ColorCorrection;
    - Terrain clouds.
-2. Put a SpawnLocation at the spawn ring, about **(-5225, 60, 3850)**, facing the meadows and village (toward −Z).
+2. Put a SpawnLocation on the entrance plaza emblem, about **(-5225, 61, 3850)**, facing away from the portal
+   toward the forest road (toward +X / −Z).
 3. **Kill plane:** the cloud sea is at about −3,800. Set Workspace.FallenPartsDestroyHeight to about −4,000, or
    add a respawn zone just above the clouds.
 4. Turn on **Workspace.StreamingEnabled**. Nearby terrain and scatter stream in. The Landmarks and Background

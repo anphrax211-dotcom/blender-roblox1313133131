@@ -338,6 +338,38 @@ Roblox scatter and lighting scripts from `floor1_roblox.py`.
 - **Old or wrong assets:** none. Floor 1 is generated from scratch and contains no hub buildings or training props.
   Its only placeholder geometry (the greybox fortress boxes and the ico-sphere tree canopy) was replaced.
 
+**Floor 1 entrance** (`floor1_entrance.py`, `Floor1_Entrance.fbx`)
+
+The entrance is built into the south-west of the Verdant mainland, where the map puts it: same landmass, no gap.
+
+- **Terrain** (shaped in `floor1.py`):
+  - a flat plaza pad at the spawn and a portal pad cut into a new rocky, tree-topped ridge;
+  - small knolls;
+  - a spring pool with a shallow meandering brook that drops off the west cliff as a small waterfall.
+- **Portal:** hub masonry (`castle.py` helpers): chamfered block courses, a voussoir arch with a gold inner ring
+  and glowing runes, banded pillars with gold trim, a stone pediment with the gold-framed Verdant leaf medallion,
+  and wing walls.
+  - Green Verdant leaf banners, vines and moss.
+  - A swirling cyan portal: dark blue rim, cyan layers, spiral arms, a bright core and sparkles.
+  - `Floor1_Portal_TeleportTrigger`, an invisible touch box inside the portal for the return-to-hub teleport.
+  - It stands on a dais with a 56-stud-wide staircase (10 shallow steps, stepped cheek walls, newels).
+- **Plaza:** about 100 studs across, centred on the spawn. Flagstone rings with gold inlays surround the Verdant
+  emblem. A low stone border is open toward the stairs, the forest road and the hidden brook path.
+- **Road:** paved stone pavers with curb stones leave the plaza and thin out into the dirt forest trail over about
+  600 studs.
+- **Dressing, all existing hub assets:**
+  - hub trees framing the portal and lining the road (high-detail versions near the entrance);
+  - hub `Castle_Lantern`s on the stairs and around the plaza, hub `Lantern_Post`s and `Lantern_Wood`s down the road;
+  - Verdant banner poles at the road mouth and the first junction, and wooden fences on the road's outer curve;
+  - stone planters, bushes, flowers, ferns, and boulders and moss on the ridge;
+  - the hub rope bridge over the brook.
+- **Placeholders for later:**
+  - `Cave_Entrance_Hollow` in the ridge;
+  - a hidden brook path behind the bushes, crossing the rope bridge to a waterfall overlook;
+  - `Secret_Cliff_Path`, a cliffside shortcut.
+- **Not added:** no shops, gyms, houses or other buildings.
+- **Cameras:** `CAM_F1_Entrance_Front`, `_Aerial`, `_Player` and `_Brook`.
+
 **Roblox delivery** (`exports/TowerOfPets/Floor1/`, see `IMPORT.md` there)
 - Terrain, water, bridges and landmarks are one FBX per group, about 2,900 MeshParts and 1.56M triangles. Each part
   has at most 6,000 triangles and is no wider than 1,900 studs.

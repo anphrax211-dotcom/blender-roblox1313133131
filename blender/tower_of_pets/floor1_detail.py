@@ -295,12 +295,15 @@ def build_detail_assets():
     _lib('Temple_Platform', temple_platform, R(23))
     _lib('Mist_Puff', mist_puff, R(24))
     _lib('Foam_Ring', foam_ring, R(25))
+    import castle, floor1_entrance
+    castle.build_castle_kit(None)                                  # hub stone lanterns, banners, blocks ...
+    floor1_entrance.build_entrance_assets()
     mystic = {'Leaves_Light': 'Leaves_Mystic_Light', 'Leaves_Mid': 'Leaves_Mystic_Mid',
               'Leaves_Dark': 'Leaves_Mystic_Dark', 'Leaves_Highlight': 'Leaves_Mystic_Highlight'}
     for t in ('Tree_Large_Low', 'Tree_Medium_Low', 'Tree_Small_Low', 'Tree_Tall_Thin_Low', 'Bush_01', 'Bush_03'):
         recolour(t, t.replace('_Low', '') + '_Mystic' if 'Tree' in t else t + '_Mystic', mystic)
     # the library is only the source of the linked duplicates: keep it out of renders and exports
-    for name in (LIB, common.ASSET_COLL, foliage.FOLIAGE_ROOT, islands.ROOT):
+    for name in (LIB, common.ASSET_COLL, foliage.FOLIAGE_ROOT, islands.ROOT, castle.KIT):
         c = bpy.data.collections.get(name)
         if c is None:
             continue
@@ -553,7 +556,7 @@ def dress_routes(T):
             ends.setdefault(key, []).append((p, pts, name))
     # lanterns along main roads (both sides, staggered), skipping bridges and open sky
     for name, kind, w, pts in T.paths:
-        if kind != 'main':
+        if kind != 'main' or name == 'Entrance_Road':          # (the entrance road has its own lanterns)
             continue
         acc, side = 0.0, 1
         for a, b in zip(pts, pts[1:]):
@@ -597,7 +600,7 @@ def dress_routes(T):
         counts['pebbles'] += 1
     # wooden fences / rope barriers along the roads near the entrance and the village, and at sheer path edges
     for name, kind, w, pts in T.paths:
-        if name not in ('Entrance_Road', 'Village_Road', 'Meadow_Road', 'Village_Swamp_Road'):
+        if name not in ('Village_Road', 'Meadow_Road', 'Village_Swamp_Road'):
             continue
         for k in range(4, len(pts) - 4, 9):
             a, b = pts[k], pts[k + 1]
@@ -615,7 +618,7 @@ def dress_routes(T):
                 counts['fences'] += 1
     # a few barrels and crates by the village and the entrance (future stalls / camps)
     rng = random.Random(41)
-    for (cx, cy), n in (((520, 690), 6), ((300, 830), 4), ((1150, 745), 4)):
+    for (cx, cy), n in (((520, 690), 6), ((1150, 745), 4)):
         wx, wy = F.px(cx, cy)
         for k in range(n):
             x, y = wx + rng.uniform(-60, 60), wy + rng.uniform(-40, 40)
@@ -873,7 +876,7 @@ def build_bridges(T):
         o = bpy.data.objects.new(cam.name, cam)
         o.location = loc
         o.rotation_euler = (mid - loc).to_track_quat('-Z', 'Y').to_euler()
-        o['hide_collections'] = 'Map_Labels'
+        o['hide_collections'] = 'GUIDES'
         coll('CAMERAS').objects.link(o)
     return out
 

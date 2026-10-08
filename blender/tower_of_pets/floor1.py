@@ -51,6 +51,18 @@ def px(x, y):
     return (x - MAP_CX) * MAP_SCALE * WORLD, (MAP_CY - y) * MAP_SCALE * WORLD
 
 
+# the Floor 1 entrance: plaza (= spawn) and the portal axis (portal behind the plaza, the road in front)
+ENTRANCE_SPAWN_PX, ENTRANCE_TOWARD_PX = (215, 860), (290, 815)
+
+
+def entrance_px(dist, side=0.0):
+    """sheet pixel `dist` studs behind the plaza centre (toward the portal), `side` studs to the right"""
+    dx, dy = ENTRANCE_TOWARD_PX[0] - ENTRANCE_SPAWN_PX[0], ENTRANCE_TOWARD_PX[1] - ENTRANCE_SPAWN_PX[1]
+    n = math.hypot(dx, dy)
+    k = 1.0 / (MAP_SCALE * WORLD) / n
+    return (ENTRANCE_SPAWN_PX[0] - dx * k * dist - dy * k * side, ENTRANCE_SPAWN_PX[1] - dy * k * dist + dx * k * side)
+
+
 # ------------------------------------------ layout (map-sheet pixels; heights / sizes in 1x studs, x WORLD below) ---
 # z: base height of the area's ground. style: (kind, amplitude, wavelength) - see style_height().
 # irr: edge irregularity. grow: studs the outline is grown into the gaps inside its landmass. kind: 'land' areas
@@ -159,6 +171,9 @@ FEATURES = (
     (1425, 690, 45, 40, 1.0), (1075, 735, 40, 35, 1.0), (1330, 445, 40, 30, 1.0),   # jungle knolls
     (520, 645, 40, 26, 0.25), (655, 545, 34, 36, 0.25),                         # valley ledges
     (690, 70, 40, 30, 1.0), (925, 70, 36, 26, 1.0),                             # World Tree highland knolls
+    (*entrance_px(290), 24, 17, 1.1), (*entrance_px(240, -160), 15, 11, 1.2),   # rocky ridge behind the portal
+    (*entrance_px(260, 180), 16, 12, 1.2), (*entrance_px(400, 60), 15, 10, 1.3),
+    (150, 828, 9, 8, 1.0), (276, 896, 10, 10, 1.0),                             # knolls round the entrance plaza
 )
 WORLD_TREE = (800, 150)                    # px; trunk centre on the World Tree pad
 ROOTS = ((-160, 230), (-115, 190), (-60, 240), (-20, 160), (25, 220), (70, 180), (120, 230), (165, 170), (205, 200))
@@ -172,6 +187,7 @@ LAKES = (
     ('Emerald_Lake_Water', [(842, 282), (900, 256), (980, 256), (1040, 285), (1058, 340), (1042, 410),
                             (1000, 450), (930, 462), (868, 446), (842, 400), (858, 350), (832, 312)], 97.0, 18.0),
     ('Ruins_Pond', [(705, 288), (745, 282), (770, 300), (752, 322), (712, 322)], 117.0, 4.0),
+    ('Entrance_Spring_Pool', [(162, 862), (168, 859), (175, 862), (176, 868), (169, 872), (162, 870)], 10.0, 2.0),
     ('Riverfall_Pond_West', [(455, 568), (510, 560), (535, 580), (512, 600), (462, 598)], -11.0, 5.0),
     ('Riverfall_Pond_East', [(618, 628), (668, 624), (695, 642), (668, 662), (622, 658)], -11.0, 5.0),
     ('Lotus_Pond_North', [(780, 812), (860, 795), (935, 805), (950, 845), (880, 868), (800, 860)], -25.0, 3.0),
@@ -184,6 +200,7 @@ RIVERS = (
     ('Whispering_Stream_Upper', [(220, 330), (290, 410)], 37.0, 14),
     ('Whispering_Stream', [(296, 416), (380, 490), (447, 552)], 17.0, 16),
     ('Meadow_Brook', [(300, 612), (250, 652), (150, 702), (40, 752)], 13.0, 12),
+    ('Entrance_Brook', [(163, 866), (145, 862), (128, 865), (110, 861), (90, 864), (70, 860), (48, 861)], 10.0, 4),
     ('Emerald_Spillway', [(850, 452), (790, 500), (732, 528)], 96.0, 18),
     ('Ruins_Cascade', [(612, 455), (602, 498)], 115.0, 12),
     ('Mossy_Spring', [(800, 600), (752, 592)], 68.0, 12),
@@ -205,7 +222,7 @@ SPRINGS = (
 # flattened pads: name, px, py, radius (1x studs), z (1x, None = keep the ground at the centre), radius scale
 # (WORLD for region-sized pads, 2 for the boss arena, 1 for player-scale pads)
 PADS = (
-    ('Spawn', 215, 860, 60, 12, 1), ('Village_Square', 520, 765, 70, 26, WORLD), ('Ruins_Plaza', 650, 380, 60, 118, WORLD),
+    ('Spawn', 215, 860, 64, 12, 1), ('Entrance_Portal', *entrance_px(84), 52, 12, 1), ('Village_Square', 520, 765, 70, 26, WORLD), ('Ruins_Plaza', 650, 380, 60, 118, WORLD),
     ('World_Tree_Pad', 800, 150, 80, 172, WORLD), ('Sky_Temple_Pad', 1240, 130, 56, 310, WORLD),
     ('Fortress_Arena', 1190, 600, 70, 240, 2), ('Fortress_Keep', 1300, 520, 58, 240, WORLD),
     ('Meadow_Riding_Field', 130, 690, 95, None, WORLD), ('Jungle_Clearing', 1380, 690, 48, None, WORLD),
@@ -261,7 +278,14 @@ PATHS = (
     ('Secret_Cloud_Perch_Path', 'hidden', [(950, 90, None), (1000, 75, None), (1068, 70, 190)]),
     ('Secret_Grotto_Path', 'hidden', [(540, 850, None), (550, 900, None), (555, 970, -10)]),
     ('Ruins_Undercroft_Path', 'hidden', [(560, 600, None), (600, 545, None), (615, 512, None)]),
+    # entrance placeholders: a hidden brook path behind the bushes (rope bridge across), a cliffside shortcut
+    ('Secret_Brook_Path', 'hidden', [(210, 859, None), (190, 852, None), (160, 850, None), (128, 857.5, None)]),
+    ('Secret_Falls_Path', 'hidden', [(128, 871.5, None), (105, 878, None), (80, 876, None)]),
+    ('Secret_Cliff_Path', 'hidden', [(228, 880, None), (280, 914, None), (322, 885, None), (348, 805, None)]),
 )
+GENTLE_RIVERS = {'Entrance_Brook'}
+
+
 def bridge_type(name, kind):
     """how a path crosses open sky: 'rock' (natural terrain bridge) or a built wood / stone / rope bridge"""
     if name in ('Sky_Stair', 'Fortress_Grand_Ramp', 'Secret_Cloud_Perch_Path'):
@@ -287,7 +311,8 @@ EGGS = (('World_Egg_1_Beast_Crags', 1250, 405), ('World_Egg_2_Lake_Islet', 960, 
 CAVES = (('Cave_Beast_Main', (1190, 330), 205, 200), ('Cave_Mossy_South', (905, 600), -80, 80),
          ('Cave_Mossy_West', (905, 600), 190, 80), ('Cave_Whispering_Hollow', (250, 330), -55, 70),
          ('Cave_Cloudridge_Ice', (500, 65), -90, 80), ('Cave_Fortress_Undergate', (1190, 600), 200, 100),
-         ('Cave_World_Tree_Roots', (800, 150), -100, 90), ('Cave_Ruins_Undercroft', (615, 440), -90, 70))
+         ('Cave_World_Tree_Roots', (800, 150), -100, 90), ('Cave_Ruins_Undercroft', (615, 440), -90, 70),
+         ('Cave_Entrance_Hollow', entrance_px(260), 235, 40))
 # cave pairs to be joined by interior tunnels later (the heightfield has no overhangs)
 CAVE_ROUTES = (('Cave_Mossy_South', 'Cave_Mossy_West'), ('Cave_Ruins_Undercroft', 'Cave_World_Tree_Roots'),
                ('Cave_Beast_Main', 'Cave_Fortress_Undergate'))
@@ -354,7 +379,7 @@ def build_floor1_materials():
     N('F1_Rock_Dark_Strata', (0.30, 0.26, 0.30), (0.36, 0.31, 0.35), 0.85, 0.03, 0.1, 1.0)
     P('F1_Path_Light', (0.86, 0.70, 0.46), 0.9)
     P('F1_Path_Dark', (0.62, 0.45, 0.26), 0.9)
-    N('F1_Path_Stone', (0.66, 0.64, 0.60), (0.74, 0.72, 0.68), 0.85, 0.08, 0.15, 0.4)
+    N('F1_Path_Stone', (0.46, 0.43, 0.39), (0.54, 0.50, 0.45), 0.85, 0.08, 0.15, 0.4)
     P('F1_Mud', (0.36, 0.28, 0.18), 0.95)
     N('F1_Rock_Under_Dark', (0.17, 0.15, 0.22), (0.22, 0.19, 0.22), 0.9, 0.02, 0.1, 1.0)
     N('F1_Ruins_Stone', (0.70, 0.66, 0.56), (0.76, 0.72, 0.62), 0.85, 0.03, 0.1, 1.0)
@@ -590,6 +615,8 @@ class Terrain:
                 self.river_d = np.minimum(self.river_d, d - w / 2)
                 b = 7 * WORLD
                 tgt = zw - 2.5 * WORLD + smooth(w / 2, w / 2 + b, d) * 60 * WORLD
+                if name in GENTLE_RIVERS:                      # shallow brook with low grassy banks
+                    tgt = zw - 0.8 * WORLD + smooth(w / 2, w / 2 + b, d) * 3.5 * WORLD
                 H = np.where((d < w / 2 + b) & land0, np.minimum(H, tgt), H)
         # --- flat pads
         self.H, self.land = H, land0
@@ -606,7 +633,7 @@ class Terrain:
         self.H = H; self.land = L > 0
         # --- paths: profiles follow the ground (grade-limited), then cut / fill the corridor
         best = np.full((n, n), 1e9)
-        pz = np.zeros((n, n)); bank = np.full((n, n), 16.0)
+        pz = np.zeros((n, n)); bank = np.full((n, n), 16.0); pw = np.zeros((n, n))
         self.paths, self.path_grades, self.bridge_spans = [], {}, []
         island0 = L > 0
         for k, (name, kind, pts) in enumerate(PATHS):
@@ -648,12 +675,14 @@ class Terrain:
                 best[sl] = np.where(m, e, best[sl])
                 pz[sl] = np.where(m, az + (bz - az) * t, pz[sl])
                 bank[sl] = np.where(m, bw, bank[sl])
+                pw[sl] = np.where(m, w, pw[sl])
         island = L > 0
         t = smooth(0, 1, best / bank)
         Hp = np.where(island, pz * (1 - t) + H * t, pz)
         H = np.where(best < bank, Hp, H)
         L = np.maximum(L, 2.0 - best)
         self.path_e = best
+        self.path_w = pw
         self.H, self.L = H, L
         self.land = L > 0
         own = np.where(self.land & ~island, K, own)            # path-only cells = natural bridges
@@ -661,6 +690,8 @@ class Terrain:
         gx, gy = np.gradient(H, S)
         self.slope = np.where(self.land, np.hypot(gx, gy), 9.0)
         self.var = field_noise(X, Y, 555, 30 * WORLD, 3)      # material variation (path dirt / stone, strata)
+        ex, ey = px(*ENTRANCE_SPAWN_PX)
+        self.entr_d = np.hypot(X - ex, Y - ey)                 # distance from the entrance plaza
         self._underside()
         self._snap_edges()
 
@@ -770,8 +801,12 @@ class Terrain:
             if dark:
                 return 'F1_Rock_Dark_Strata' if band == 1 else 'F1_Rock_Dark'
             return 'F1_Rock_Strata' if band == 1 else 'F1_Rock_Light' if band == 2 and v > 0.2 else 'F1_Rock'
-        if self.path_e[i, j] < -1.5 and self.path_e[i + 1, j + 1] < -1.5:
-            stony = a is not None and (a.biome in (AR, JF) or a.name in ('Floor_Entrance', 'Verdant_Village'))
+        if self.path_e[i, j] < -1.5 and self.path_e[i + 1, j + 1] < -1.5 and self.path_w[i, j] > 30:   # (hidden
+            # paths stay grass: they are meant to be found, not seen)
+            p_stone = min(1.0, max(0.0, 1 - (self.entr_d[i, j] - 250) / 650)) if self.path_w[i, j] >= 50 else 0.0
+            if (v + 1) / 2 < p_stone:
+                return 'F1_Path_Stone'
+            stony = a is not None and (a.biome in (AR, JF) or a.name == 'Verdant_Village')
             if stony and v > (0.05 if a.biome in (AR, JF) else 0.35):
                 return 'F1_Path_Stone'
             return 'F1_Path_Light' if v > 0.4 else 'F1_Path_Dark' if v < -0.45 else 'F1_Path'
@@ -1113,15 +1148,8 @@ def build_landmarks(T):
 def build_blockouts(T):
     coll('LANDMARK_BLOCKOUTS', ROOT)
     out = dict(checkpoints=[], miniboss=[], boss=None, eggs=[], caves=[], secrets=[])
-    sp = Part('Floor_Entrance_Spawn', coll('Floor_Entrance_Spawn', 'LANDMARK_BLOCKOUTS').name)
-    wx, wy = px(*SPAWN)
+    wx, wy = px(*SPAWN)                                         # (no marker: the entrance plaza emblem is the spawn)
     z = ground(T, *SPAWN)
-    sp.cyl((wx, wy, z + 0.2), 12.0, 0.4, 'F1_Marker_Spawn', 32)
-    sp.torus((wx, wy, z + 0.5), 44.0, 0.7, 'F1_Marker_Spawn', 48, 4)
-    for k in range(4):
-        a = TAU * k / 4 + TAU / 8
-        sp.box((wx + math.cos(a) * 44, wy + math.sin(a) * 44, z + 6), (3, 3, 12), 'F1_Marker_Spawn')
-    sp.finish()
     out['spawn'] = (wx, wy, z)
     cp = coll('Checkpoints', 'LANDMARK_BLOCKOUTS').name
     for name, x, y in CHECKPOINTS:
@@ -1274,7 +1302,12 @@ def build_floor1_cameras(coll_name='CAMERAS'):
     P3 = lambda x, y, z: (*px(x, y), z * ZL)
     specs = (('CAM_F1_Map_TopDown', (70 * W_, -10 * W_, 4000 * W_), (70 * W_, -10 * W_, 0), 'ORTHO', 1950 * W_),
              ('CAM_F1_Overview', (-1150 * W_, -1450 * W_, 1000 * W_), (80 * W_, 20 * W_, -20 * W_), 'PERSP', 28),
-             ('CAM_F1_Entrance_Player', (*px(205, 905), 12 * ZL + 30), P3(340, 640, 40), 'PERSP', 24),
+             ('CAM_F1_Entrance_Player', (*px(*entrance_px(30)), 12 * ZL + 7), P3(330, 700, 70), 'PERSP', 22),
+             ('CAM_F1_Entrance_Front', (*px(*entrance_px(-130)), 12 * ZL + 20),
+              (*px(*entrance_px(100)), 12 * ZL + 34), 'PERSP', 24),
+             ('CAM_F1_Entrance_Aerial', (*px(*entrance_px(-330)), 12 * ZL + 230),
+              (*px(*entrance_px(30)), 12 * ZL), 'PERSP', 24),
+             ('CAM_F1_Entrance_Brook', (*px(152, 846), 12 * ZL + 45), (*px(112, 872), 12 * ZL - 8), 'PERSP', 26),
              ('CAM_F1_Valley_View', P3(470, 660, 14), P3(700, 470, 60), 'PERSP', 22),
              ('CAM_F1_World_Tree_View', P3(1010, 470, 135), P3(800, 150, 250), 'PERSP', 24),
              ('CAM_F1_Fortress_View', P3(880, 720, 120), P3(1240, 560, 250), 'PERSP', 24),
@@ -1295,7 +1328,7 @@ def build_floor1_cameras(coll_name='CAMERAS'):
     out['CAM_F1_Map_TopDown']['no_haze'] = True   # hidden things stay hidden
     for k, o in out.items():
         if k != 'CAM_F1_Map_TopDown':
-            o['hide_collections'] = 'Map_Labels'
+            o['hide_collections'] = 'GUIDES'                      # labels, reserved outlines, scale figures
     return out
 
 
@@ -1314,8 +1347,9 @@ def build_floor1():
     build_clouds()
     build_guides(T, falls, marks)
     build_scale_refs(T)
-    import floor1_detail
+    import floor1_detail, floor1_entrance
     detail = floor1_detail.build_detail(T, falls)
+    entrance = floor1_entrance.build_entrance(T)
     # layout data for Roblox scripting (Roblox coordinates: X, Y up, Z = -Blender Y)
     areas = []
     for a in AREAS:
@@ -1339,7 +1373,9 @@ def build_floor1():
         secret_areas=[dict(name=n, position=to_roblox(x, y, z)) for n, x, y, z in marks['secrets']],
         paths=[dict(name=n, kind=k, width=w, waypoints=[to_roblox(*p) for p in step(pts)])
                for n, k, w, pts in T.paths],
-        waterfalls=falls, bridges=detail['bridges'])
+        waterfalls=falls, bridges=detail['bridges'],
+        entrance=dict(plaza=to_roblox(*entrance['plaza']), portal=to_roblox(*entrance['portal']),
+                      stairs_bottom=to_roblox(*entrance['stairs_bottom'])))
     land = T.land
     stats = dict(land_area_sq_studs=int(land.sum() * S * S), extent_x=[float(T.X[land].min()), float(T.X[land].max())],
                  extent_y=[float(T.Y[land].min()), float(T.Y[land].max())],

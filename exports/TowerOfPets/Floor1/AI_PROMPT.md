@@ -16,11 +16,12 @@
    3. `Floor1_Ancient_Ruins.fbx`
    4. `Floor1_Mystic_Wilds.fbx`
    5. `Floor1_Jungle_Fortress.fbx`
-   6. `Floor1_Bridges.fbx`
-   7. `Floor1_Natural_Bridges.fbx`
-   8. `Floor1_Water.fbx`
-   9. `Floor1_Landmark_Blockouts.fbx`
-   10. `Floor1_Clouds.fbx` (optional, last)
+   6. `Floor1_Entrance.fbx`
+   7. `Floor1_Bridges.fbx`
+   8. `Floor1_Natural_Bridges.fbx`
+   9. `Floor1_Water.fbx`
+   10. `Floor1_Landmark_Blockouts.fbx`
+   11. `Floor1_Clouds.fbx` (optional, last)
 3. **Import `Floor1_Assets.fbx`** the same way. It's the library of trees, rocks and props, and lands as a pile at
    the centre of the map; that's expected.
 4. **Insert the scripts in one go:** in Explorer, right-click **ServerStorage** → **Insert from File…** → pick
@@ -57,14 +58,17 @@ time, and tell me what you found before moving on.
 - The world is about 17,400 × 11,600 studs, made of floating islands over a void. A cloud sea sits at about
   Y = −3,800.
 - Imported terrain models: `Floor1_Verdant_Forest`, `Floor1_Waterfall_Valley`, `Floor1_Ancient_Ruins`,
-  `Floor1_Mystic_Wilds`, `Floor1_Jungle_Fortress`, `Floor1_Bridges`, `Floor1_Natural_Bridges`, `Floor1_Water`,
+  `Floor1_Mystic_Wilds`, `Floor1_Jungle_Fortress`, `Floor1_Entrance`, `Floor1_Bridges`,
+  `Floor1_Natural_Bridges`, `Floor1_Water`,
   `Floor1_Landmark_Blockouts` and maybe `Floor1_Clouds`.
-  - There are about 2,900 MeshParts in total, each named `<Object>__<Material>`.
-- `Floor1_Assets` is the asset library: 69 MeshParts such as `Tree_Large_Low`, `Rock_Large` and `Lantern_Wood`.
+  - There are about 2,950 MeshParts in total, each named `<Object>__<Material>`.
+- `Floor1_Entrance` is the Floor 1 entrance: a big portal with stairs and a round plaza with a leaf emblem.
+  Players spawn on the plaza.
+- `Floor1_Assets` is the asset library: 76 MeshParts such as `Tree_Large_Low`, `Rock_Large` and `Lantern_Wood`.
 - ServerStorage holds the ModuleScripts `Floor1_Materials`, `Floor1_Scatter`, `Floor1_Lighting` and a folder
   `Floor1_ScatterData` with 11 data modules.
 - **Check positions:**
-  - Spawn ring (Floor Entrance): about (-5225, 60, 3850).
+  - Entrance plaza / spawn: about (-5225, 60, 3850).
   - Main boss arena on the fortress plateau: about (5500, 1200, 990).
   - A 5-stud character should look tiny next to the 56-stud-wide main road at the spawn.
 
@@ -99,17 +103,22 @@ Then do the same for "Foliage", "Rocks", "Props", "Ruins", "Water", "Cliffs", "L
 **Step 4: lighting, spawn, safety**
 1. Run `require(game.ServerStorage.Floor1_Lighting).apply()`. It sets bright fantasy daylight, haze, bloom and
    terrain clouds.
-2. Add a SpawnLocation (Anchored, Transparency 1, CanCollide off, Neutral) at (-5225, 61, 3850), facing −Z
-   toward the meadows and village.
-3. Set `Workspace.FallenPartsDestroyHeight = -4000`.
-4. Turn on `Workspace.StreamingEnabled`. The Landmarks and Background models are already set to Persistent so the
+2. Add a SpawnLocation (Anchored, Transparency 1, CanCollide off, Neutral) on the plaza emblem at
+   (-5225, 61, 3850), facing away from the portal toward the forest road.
+3. Touching `Floor1_Portal_TeleportTrigger` (inside the entrance portal) should take the player back to the hub.
+   Make it invisible and non-colliding, then add a server script that teleports to my hub place with
+   TeleportService. Ask me for the hub PlaceId and use a placeholder until I give it. Add a debounce and a short
+   "Returning to the hub..." fade.
+4. Set `Workspace.FallenPartsDestroyHeight = -4000`.
+5. Turn on `Workspace.StreamingEnabled`. The Landmarks and Background models are already set to Persistent so the
    World Tree and distant islands stay visible.
 
 **Step 5: test**
 
 Start a Play test (F5). Check that:
-- I spawn on the ring;
-- I can walk on the ground, up the paths and across the wooden and stone bridges without falling through;
+- I spawn on the plaza in front of the portal;
+- I can walk up the portal stairs, along the paved road, and across the wooden and stone bridges without falling
+  through;
 - trees only block at their trunks;
 - nothing important is missing.
 

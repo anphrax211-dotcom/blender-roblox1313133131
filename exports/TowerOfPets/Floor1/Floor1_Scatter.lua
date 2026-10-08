@@ -26,6 +26,7 @@ M.Rules = {
 M.Offsets = {
 	Barrel = Vector3.new(0.000, 1.200, -0.000),
 	Bench = Vector3.new(0.000, 1.175, -0.050),
+	Bridge_Long = Vector3.new(0.000, -0.029, -35.000),
 	Broken_Column_A = Vector3.new(1.055, 4.082, -0.228),
 	Broken_Column_B = Vector3.new(1.055, 6.649, -0.228),
 	Broken_Wall = Vector3.new(0.558, 2.862, -1.360),
@@ -34,6 +35,7 @@ M.Offsets = {
 	Bush_02 = Vector3.new(-0.008, 1.342, -0.127),
 	Bush_03 = Vector3.new(0.254, 1.711, -0.009),
 	Bush_03_Mystic = Vector3.new(0.254, 1.711, -0.009),
+	Castle_Lantern = Vector3.new(0.000, 5.500, -0.000),
 	Cloud_A = Vector3.new(0.052, 0.316, 0.091),
 	Cloud_B = Vector3.new(0.375, 0.307, -0.027),
 	Cloud_C = Vector3.new(0.006, 0.322, 0.141),
@@ -50,6 +52,7 @@ M.Offsets = {
 	Grass_Tuft = Vector3.new(0.322, 0.778, -0.255),
 	Ground_Plant_01 = Vector3.new(-0.051, 0.988, 0.026),
 	Ground_Plant_02 = Vector3.new(0.028, 0.512, 0.036),
+	Lantern_Post = Vector3.new(0.000, 5.925, -0.000),
 	Lantern_Wood = Vector3.new(0.000, 4.800, -0.000),
 	Large_Island = Vector3.new(-0.518, -55.170, 0.174),
 	Leaf_Cluster_A = Vector3.new(0.089, -0.162, -0.005),
@@ -79,16 +82,20 @@ M.Offsets = {
 	Signpost = Vector3.new(1.321, 3.200, -0.683),
 	Small_Island = Vector3.new(0.249, -19.635, 0.177),
 	Stone_Fragments = Vector3.new(1.252, 0.400, -0.167),
+	Stone_Planter = Vector3.new(0.000, 1.691, -0.000),
 	Stump = Vector3.new(-0.012, 0.566, 0.029),
 	Tall_Island = Vector3.new(-0.043, -31.650, 0.523),
 	Temple_Platform = Vector3.new(0.000, -0.655, -0.000),
+	Tree_Large_High = Vector3.new(1.337, 10.939, 1.689),
 	Tree_Large_Low = Vector3.new(1.853, 11.198, 1.823),
 	Tree_Large_Mystic = Vector3.new(1.853, 11.198, 1.823),
+	Tree_Medium_High = Vector3.new(-0.239, 9.432, -0.733),
 	Tree_Medium_Low = Vector3.new(-0.092, 9.398, -1.203),
 	Tree_Medium_Mystic = Vector3.new(-0.092, 9.398, -1.203),
 	Tree_Small_Low = Vector3.new(-0.033, 6.211, 0.582),
 	Tree_Tall_Thin_Low = Vector3.new(-0.519, 10.788, -0.848),
 	Tree_Tall_Thin_Mystic = Vector3.new(-0.519, 10.788, -0.848),
+	Verdant_Banner_Pole = Vector3.new(0.000, 9.700, -0.000),
 	Vine_Long = Vector3.new(-0.088, -3.674, 0.036),
 	Waterfall_Large = Vector3.new(-0.775, -61.346, 0.919),
 	Waterfall_Medium = Vector3.new(-0.222, -30.627, -0.460),
@@ -105,10 +112,13 @@ M.Trunks = {
 	Tree_Medium_Mystic = {1.4, 8},
 	Tree_Small_Mystic = {1.2, 6},
 	Tree_Tall_Thin_Mystic = {1.0, 10},
+	Tree_Large_High = {2.3, 9},
+	Tree_Medium_High = {1.4, 8},
+	Tree_Small = {1.2, 6},
 }
 
 M.Transparency = {Mist_Puff = 0.45}
-M.Lights = {Lantern_Wood = {7.4, 22, 1.4}}
+M.Lights = {Lantern_Wood = {7.4, 22, 1.4}, Castle_Lantern = {7.6, 24, 1.5}, Lantern_Post = {9.5, 26, 1.5}}
 
 local function findAsset(assets, name)
 	local a = assets:FindFirstChild(name, true)

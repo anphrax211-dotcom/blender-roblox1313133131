@@ -402,6 +402,9 @@ A Halloween event market stall for Roblox Studio, built from the stall reference
   `ShopInteractZone` in front of it.
 - **Previews:** `previews/SpookyHarvest_ThreeQuarter.png`, `_Front.png`, `_Player.png` and `_Pumpkins.png` (close-ups) are rendered from the
   same part list.
+- **FBX:** `SpookyHarvestStall.fbx` has 111 named MeshParts. `SpookyHarvest_Setup.lua` restores the materials,
+  colours, sign and lights after import, and `AI_PROMPT.md` is a ready-to-send prompt
+  (`python3 blender/export_spooky_stall.py`).
 - **Setup:** see `exports/SpookyHarvestStall/README.md` for steps and the model layout.
 
 ```

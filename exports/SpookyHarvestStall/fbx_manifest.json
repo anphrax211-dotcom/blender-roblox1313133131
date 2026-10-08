@@ -1,0 +1,451 @@
+{
+ "meshparts": 111,
+ "triangles": 45304,
+ "lights": 5,
+ "parts": {
+  "Canopy__Fabric__522470__NC": {
+   "parts": 12,
+   "triangles": 192
+  },
+  "Canopy__Fabric__703496": {
+   "parts": 4,
+   "triangles": 48
+  },
+  "Canopy__Fabric__703496__NC": {
+   "parts": 9,
+   "triangles": 108
+  },
+  "Canopy__Fabric__C4621A__NC": {
+   "parts": 4,
+   "triangles": 48
+  },
+  "Canopy__Fabric__EC8428": {
+   "parts": 4,
+   "triangles": 48
+  },
+  "Canopy__Fabric__EC8428__NC": {
+   "parts": 9,
+   "triangles": 108
+  },
+  "Canopy__Metal__2E2B29__NC": {
+   "parts": 5,
+   "triangles": 140
+  },
+  "Canopy__SmoothPlastic__341E16__NC": {
+   "parts": 8,
+   "triangles": 96
+  },
+  "CounterProps__Fabric__703496__NC": {
+   "parts": 3,
+   "triangles": 36
+  },
+  "CounterProps__Fabric__EC8428__NC": {
+   "parts": 6,
+   "triangles": 72
+  },
+  "CounterProps__Glass__D6E8EC__T35__NC": {
+   "parts": 2,
+   "triangles": 392
+  },
+  "CounterProps__Glass__D6E8EC__T40__NC": {
+   "parts": 4,
+   "triangles": 240
+  },
+  "CounterProps__Glass__D6E8EC__T55__NC": {
+   "parts": 2,
+   "triangles": 120
+  },
+  "CounterProps__Metal__E8AA3A__NC": {
+   "parts": 10,
+   "triangles": 672
+  },
+  "CounterProps__Neon__E87C22__NC": {
+   "parts": 39,
+   "triangles": 372
+  },
+  "CounterProps__SmoothPlastic__3A682C__NC": {
+   "parts": 42,
+   "triangles": 1176
+  },
+  "CounterProps__SmoothPlastic__642C8C__NC": {
+   "parts": 6,
+   "triangles": 72
+  },
+  "CounterProps__SmoothPlastic__783C18__NC": {
+   "parts": 5,
+   "triangles": 60
+  },
+  "CounterProps__SmoothPlastic__823CAA__NC": {
+   "parts": 6,
+   "triangles": 72
+  },
+  "CounterProps__SmoothPlastic__963E10__NC": {
+   "parts": 39,
+   "triangles": 372
+  },
+  "CounterProps__SmoothPlastic__C43A1A__NC": {
+   "parts": 6,
+   "triangles": 72
+  },
+  "CounterProps__SmoothPlastic__D05E16__NC": {
+   "parts": 14,
+   "triangles": 4032
+  },
+  "CounterProps__SmoothPlastic__D05E16__NC__L5": {
+   "parts": 1,
+   "triangles": 288
+  },
+  "CounterProps__SmoothPlastic__DE541A__NC": {
+   "parts": 6,
+   "triangles": 72
+  },
+  "CounterProps__SmoothPlastic__E26C1A__NC": {
+   "parts": 18,
+   "triangles": 3528
+  },
+  "CounterProps__SmoothPlastic__E8681C__NC": {
+   "parts": 6,
+   "triangles": 72
+  },
+  "CounterProps__SmoothPlastic__EC781E__NC": {
+   "parts": 6,
+   "triangles": 72
+  },
+  "CounterProps__SmoothPlastic__EC801E__NC": {
+   "parts": 6,
+   "triangles": 72
+  },
+  "CounterProps__SmoothPlastic__F4801E__NC": {
+   "parts": 11,
+   "triangles": 2156
+  },
+  "CounterProps__SmoothPlastic__F6AA2C__NC": {
+   "parts": 6,
+   "triangles": 72
+  },
+  "CounterProps__SmoothPlastic__FAA032__NC": {
+   "parts": 6,
+   "triangles": 72
+  },
+  "CounterProps__SmoothPlastic__FAAA3C__NC": {
+   "parts": 10,
+   "triangles": 1960
+  },
+  "CounterProps__Wood__56682A__NC": {
+   "parts": 9,
+   "triangles": 316
+  },
+  "CounterProps__Wood__965C30__NC": {
+   "parts": 1,
+   "triangles": 60
+  },
+  "Counter__Metal__2E2B29__NC": {
+   "parts": 12,
+   "triangles": 1616
+  },
+  "Counter__Neon__E87C22__NC": {
+   "parts": 13,
+   "triangles": 124
+  },
+  "Counter__SmoothPlastic__3A682C__NC": {
+   "parts": 48,
+   "triangles": 1344
+  },
+  "Counter__SmoothPlastic__783C18__NC": {
+   "parts": 6,
+   "triangles": 72
+  },
+  "Counter__SmoothPlastic__963E10__NC": {
+   "parts": 13,
+   "triangles": 124
+  },
+  "Counter__SmoothPlastic__C43A1A__NC": {
+   "parts": 6,
+   "triangles": 72
+  },
+  "Counter__SmoothPlastic__D05E16__NC": {
+   "parts": 5,
+   "triangles": 1440
+  },
+  "Counter__SmoothPlastic__DE541A__NC": {
+   "parts": 12,
+   "triangles": 144
+  },
+  "Counter__SmoothPlastic__E26C1A__NC": {
+   "parts": 6,
+   "triangles": 1176
+  },
+  "Counter__SmoothPlastic__E8681C__NC": {
+   "parts": 6,
+   "triangles": 72
+  },
+  "Counter__SmoothPlastic__EC801E__NC": {
+   "parts": 6,
+   "triangles": 72
+  },
+  "Counter__SmoothPlastic__F6AA2C__NC": {
+   "parts": 6,
+   "triangles": 72
+  },
+  "Counter__WoodPlanks__563722": {
+   "parts": 1,
+   "triangles": 12
+  },
+  "Counter__WoodPlanks__62452D": {
+   "parts": 1,
+   "triangles": 12
+  },
+  "Counter__WoodPlanks__734F2D": {
+   "parts": 1,
+   "triangles": 12
+  },
+  "Counter__Wood__4A2F1E": {
+   "parts": 4,
+   "triangles": 48
+  },
+  "Counter__Wood__965C30__NC": {
+   "parts": 15,
+   "triangles": 228
+  },
+  "Decor__SmoothPlastic__3A682C__NC": {
+   "parts": 54,
+   "triangles": 1512
+  },
+  "Decor__SmoothPlastic__783C18__NC": {
+   "parts": 14,
+   "triangles": 168
+  },
+  "Decor__SmoothPlastic__C43A1A__NC": {
+   "parts": 18,
+   "triangles": 216
+  },
+  "Decor__SmoothPlastic__DE541A__NC": {
+   "parts": 18,
+   "triangles": 216
+  },
+  "Decor__SmoothPlastic__E8681C__NC": {
+   "parts": 12,
+   "triangles": 144
+  },
+  "Decor__SmoothPlastic__E8E6DE__T25__NC": {
+   "parts": 12,
+   "triangles": 336
+  },
+  "Decor__SmoothPlastic__E8E6DE__T30__NC": {
+   "parts": 60,
+   "triangles": 1680
+  },
+  "Decor__SmoothPlastic__EC801E__NC": {
+   "parts": 18,
+   "triangles": 216
+  },
+  "Decor__SmoothPlastic__F6AA2C__NC": {
+   "parts": 18,
+   "triangles": 216
+  },
+  "Lanterns__Metal__2E2B29__NC": {
+   "parts": 62,
+   "triangles": 2536
+  },
+  "Lanterns__Neon__E87C22__NC": {
+   "parts": 26,
+   "triangles": 248
+  },
+  "Lanterns__Neon__EC8028__T15__NC__L1": {
+   "parts": 1,
+   "triangles": 12
+  },
+  "Lanterns__Neon__EC8028__T15__NC__L2": {
+   "parts": 1,
+   "triangles": 12
+  },
+  "Lanterns__SmoothPlastic__963E10__NC": {
+   "parts": 26,
+   "triangles": 248
+  },
+  "Lanterns__SmoothPlastic__D05E16__NC": {
+   "parts": 8,
+   "triangles": 2304
+  },
+  "Lanterns__SmoothPlastic__D05E16__NC__L3": {
+   "parts": 1,
+   "triangles": 288
+  },
+  "Lanterns__SmoothPlastic__D05E16__NC__L4": {
+   "parts": 1,
+   "triangles": 288
+  },
+  "Lanterns__SmoothPlastic__E26C1A__NC": {
+   "parts": 12,
+   "triangles": 2352
+  },
+  "Sign__Metal__2E2B29__NC": {
+   "parts": 8,
+   "triangles": 1568
+  },
+  "Sign__Neon__E87C22__NC": {
+   "parts": 13,
+   "triangles": 124
+  },
+  "Sign__SignBoard__WoodPlanks__422A1B": {
+   "parts": 1,
+   "triangles": 12
+  },
+  "Sign__SmoothPlastic__3A682C__NC": {
+   "parts": 62,
+   "triangles": 1736
+  },
+  "Sign__SmoothPlastic__703496__NC": {
+   "parts": 20,
+   "triangles": 1344
+  },
+  "Sign__SmoothPlastic__963E10__NC": {
+   "parts": 13,
+   "triangles": 124
+  },
+  "Sign__SmoothPlastic__D05E16__NC": {
+   "parts": 5,
+   "triangles": 1440
+  },
+  "Sign__SmoothPlastic__E26C1A__NC": {
+   "parts": 6,
+   "triangles": 1176
+  },
+  "Sign__Wood__4A2F1E": {
+   "parts": 5,
+   "triangles": 60
+  },
+  "Sign__Wood__56682A__NC": {
+   "parts": 3,
+   "triangles": 116
+  },
+  "Sign__Wood__965C30__NC": {
+   "parts": 4,
+   "triangles": 48
+  },
+  "Structure__Metal__2E2B29__NC": {
+   "parts": 14,
+   "triangles": 168
+  },
+  "Structure__Metal__E8AA3A__NC": {
+   "parts": 2,
+   "triangles": 24
+  },
+  "Structure__WoodPlanks__4A2F1E": {
+   "parts": 1,
+   "triangles": 12
+  },
+  "Structure__WoodPlanks__563D26": {
+   "parts": 1,
+   "triangles": 12
+  },
+  "Structure__WoodPlanks__573529": {
+   "parts": 1,
+   "triangles": 12
+  },
+  "Structure__WoodPlanks__573B1F": {
+   "parts": 1,
+   "triangles": 12
+  },
+  "Structure__WoodPlanks__583623": {
+   "parts": 1,
+   "triangles": 12
+  },
+  "Structure__WoodPlanks__583A25": {
+   "parts": 1,
+   "triangles": 12
+  },
+  "Structure__WoodPlanks__5A3924": {
+   "parts": 1,
+   "triangles": 12
+  },
+  "Structure__WoodPlanks__5A3F22": {
+   "parts": 1,
+   "triangles": 12
+  },
+  "Structure__WoodPlanks__5B3729": {
+   "parts": 1,
+   "triangles": 12
+  },
+  "Structure__WoodPlanks__5B3828": {
+   "parts": 1,
+   "triangles": 12
+  },
+  "Structure__WoodPlanks__5B3A22": {
+   "parts": 1,
+   "triangles": 12
+  },
+  "Structure__WoodPlanks__5C3523": {
+   "parts": 1,
+   "triangles": 12
+  },
+  "Structure__WoodPlanks__5E3B26": {
+   "parts": 1,
+   "triangles": 12
+  },
+  "Structure__WoodPlanks__5E3F27": {
+   "parts": 1,
+   "triangles": 12
+  },
+  "Structure__WoodPlanks__5F3822": {
+   "parts": 1,
+   "triangles": 12
+  },
+  "Structure__WoodPlanks__5F3F24": {
+   "parts": 1,
+   "triangles": 12
+  },
+  "Structure__WoodPlanks__603D26": {
+   "parts": 1,
+   "triangles": 12
+  },
+  "Structure__WoodPlanks__604425": {
+   "parts": 1,
+   "triangles": 12
+  },
+  "Structure__WoodPlanks__654627": {
+   "parts": 1,
+   "triangles": 12
+  },
+  "Structure__WoodPlanks__664227": {
+   "parts": 1,
+   "triangles": 12
+  },
+  "Structure__WoodPlanks__684026": {
+   "parts": 1,
+   "triangles": 12
+  },
+  "Structure__WoodPlanks__68442C": {
+   "parts": 1,
+   "triangles": 12
+  },
+  "Structure__WoodPlanks__6B472A": {
+   "parts": 1,
+   "triangles": 12
+  },
+  "Structure__WoodPlanks__6B472C": {
+   "parts": 1,
+   "triangles": 12
+  },
+  "Structure__WoodPlanks__6C4629": {
+   "parts": 1,
+   "triangles": 12
+  },
+  "Structure__WoodPlanks__6E482F": {
+   "parts": 1,
+   "triangles": 12
+  },
+  "Structure__WoodPlanks__70472C": {
+   "parts": 1,
+   "triangles": 12
+  },
+  "Structure__Wood__4A2F1E": {
+   "parts": 8,
+   "triangles": 96
+  },
+  "Structure__Wood__4A2F1E__NC": {
+   "parts": 2,
+   "triangles": 24
+  }
+ }
+}

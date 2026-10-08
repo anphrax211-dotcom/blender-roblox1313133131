@@ -381,9 +381,15 @@ The entrance is built into the south-west of the Verdant mainland, where the map
 **Verdant Village** (`floor1_village.py`, `Floor1_Village.fbx`)
 
 Placeholder houses round the entrance for quest NPCs later. The portal, plaza, road, Shop and Hatchery stay where
-they were.
+they were. The village is compact: the houses line both sides of the road right after the plaza, about 50 studs
+apart with their porches about 6 studs from the road edge. The Elder's house stands beside the portal stairs and
+the lake directly behind the Hatchery.
+- **Greenery (hub trees, bushes and flowers):** front gardens either side of every porch, plants round the walls,
+  small trees between neighbouring houses, a dense tree-and-bush backdrop behind both rows, flowers and grass along
+  the road edges, and flower meadows on the open grass. All of it is non-colliding foliage (trees only at their
+  trunks), so pets can still ride across.
 
-- **Seven houses, every one different.** Each has:
+- **Eight houses, every one different.** Each has:
   - a stone masonry foundation, plaster walls and a dark timber frame (posts, rails, X / chevron / diagonal braces);
   - glowing windows with open shutters and flower boxes;
   - an arched plank door in a stone frame, a hanging sign, a door lamp and a timber porch with stone steps;
@@ -399,9 +405,10 @@ they were.
   | Weaver | tall, jettied | balcony and a firewood lean-to |
   | Gardener | | vine pergola |
   | Scholar | | round stone tower with a spire |
+  | Herbalist | small, steep orange gable | herb planter beds |
   | Fisher | thatched cottage by the lake | net rack |
 - **NPC spots:** each house has an NPC spot on its porch, facing the road, and each market stall has one behind its
-  counter. They are in `floor1_layout.json` (`village`) and in the ModuleScript `Floor1_Village.lua`;
+  counter (10 spots in all). They are in `floor1_layout.json` (`village`) and in the ModuleScript `Floor1_Village.lua`;
   `buildSpots(folder)` makes invisible marker parts with `Role` / `House` attributes.
 - **Market:** two stalls with striped awnings and produce beside the road.
 - **Props:** barrels, crates, firewood, flower pots, a cart, baskets, hay bales, clotheslines, garden patches,

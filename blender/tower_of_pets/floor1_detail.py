@@ -362,6 +362,8 @@ def keepout_mask(T):
     for name, cx, cy, r, z in F.PADS:
         if name in ('Meadow_Riding_Field', 'Jungle_Clearing', 'Lake_Islet', 'World_Tree_Pad'):
             r = r * 0.8 if name != 'World_Tree_Pad' else r * 1.05
+        if name.startswith(('House_', 'Stall_')):                # village: no big wild trees over the roofs
+            r = r * 2.0
         wx, wy = F.px(cx, cy)
         m |= np.hypot(X - wx, Y - wy) < r + 12
     for name, cx, cy, kind, a, b in F.RESERVED:

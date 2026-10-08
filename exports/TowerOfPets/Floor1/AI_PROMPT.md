@@ -72,8 +72,8 @@ time, and tell me what you found before moving on.
 - `Floor1_Entrance` is the Floor 1 entrance: a big portal with stairs and a round plaza with a leaf emblem.
   Players spawn on the plaza. Beside the plaza stand the hub's Shop and Hatchery (Eggs) buildings, the same
   models as in my hub (`Shop_Root` and `Hatchery_Root`).
-- `Floor1_Village` is a small village round the plaza: seven placeholder houses for quest NPCs
-  (`Village_House_Elder`, `_Baker`, `_Smith`, `_Weaver`, `_Gardener`, `_Scholar`, `_Fisher`) and two market stalls
+- `Floor1_Village` is a small village round the plaza: eight placeholder houses for quest NPCs
+  (`Village_House_Elder`, `_Baker`, `_Smith`, `_Weaver`, `_Gardener`, `_Scholar`, `_Herbalist`, `_Fisher`) and two market stalls
   (`Village_Market_Stalls`). A lake with two waterfalls lies to the right of the village.
 - `Floor1_Assets` is the asset library: 87 MeshParts such as `Tree_Large_Low`, `Rock_Large` and `Lantern_Wood`.
 - ServerStorage holds the ModuleScripts `Floor1_Materials`, `Floor1_Scatter`, `Floor1_Lighting`, `Floor1_Lights`,
@@ -149,9 +149,9 @@ Hatchery. I'll hook my real shop and egg-hatching systems into these later.
 1. Create a Folder `workspace.Floor1.NPCSpots` and run
    `require(game.ServerStorage.Floor1_Village).buildSpots(workspace.Floor1.NPCSpots)`. It makes one invisible
    marker part per house porch and market stall, facing the road, with `Role` and `House` attributes. It should
-   report 9.
+   report 10.
 2. At each marker, put a simple placeholder NPC: a standard R15 rig, anchored, named after its role (Elder, Baker,
-   Smith, Weaver, Gardener, Scholar, Fisher, Merchant), standing on the marker's position and facing the same way.
+   Smith, Weaver, Gardener, Scholar, Herbalist, Fisher, Merchant), standing on the marker's position and facing the same way.
    Give each one a BillboardGui name tag and a ProximityPrompt "Talk".
 3. Talking opens one shared placeholder dialog with the NPC's name, a line such as "I might have a quest for you
    soon!", and a close button.

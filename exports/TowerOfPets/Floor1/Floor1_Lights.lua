@@ -19,13 +19,14 @@ M.Lights = {
 	{Name = "Shop_Light_3", Position = Vector3.new(-5178.901, 69.75, 3926.831), Color = Color3.fromRGB(255, 218, 166), Brightness = 2.8, Range = 49.3},
 	{Name = "Shop_Light_4", Position = Vector3.new(-5168.011, 73.75, 3913.883), Color = Color3.fromRGB(255, 218, 166), Brightness = 2.0, Range = 38.2},
 	{Name = "Shop_Light_5", Position = Vector3.new(-5195.451, 73.75, 3930.347), Color = Color3.fromRGB(255, 218, 166), Brightness = 2.0, Range = 38.2},
-	{Name = "Village_Light_House_Baker", Position = Vector3.new(-5026.044, 74.283, 3981.396), Color = Color3.fromRGB(255, 215, 158), Brightness = 2.27, Range = 42.2},
-	{Name = "Village_Light_House_Elder", Position = Vector3.new(-5141.979, 81.825, 4033.424), Color = Color3.fromRGB(255, 215, 158), Brightness = 2.27, Range = 42.2},
-	{Name = "Village_Light_House_Fisher", Position = Vector3.new(-5388.365, 75.801, 3651.451), Color = Color3.fromRGB(255, 215, 158), Brightness = 2.27, Range = 42.2},
-	{Name = "Village_Light_House_Gardener", Position = Vector3.new(-5181.744, 77.453, 3616.796), Color = Color3.fromRGB(255, 215, 158), Brightness = 2.27, Range = 42.2},
-	{Name = "Village_Light_House_Scholar", Position = Vector3.new(-5299.259, 76.293, 3632.821), Color = Color3.fromRGB(255, 215, 158), Brightness = 2.27, Range = 42.2},
-	{Name = "Village_Light_House_Smith", Position = Vector3.new(-4946.236, 65.806, 3878.601), Color = Color3.fromRGB(255, 215, 158), Brightness = 2.27, Range = 42.2},
-	{Name = "Village_Light_House_Weaver", Position = Vector3.new(-4848.635, 68.815, 3802.651), Color = Color3.fromRGB(255, 215, 158), Brightness = 2.27, Range = 42.2},
+	{Name = "Village_Light_House_Baker", Position = Vector3.new(-5130.688, 73.218, 3857.074), Color = Color3.fromRGB(255, 215, 158), Brightness = 2.27, Range = 42.2},
+	{Name = "Village_Light_House_Elder", Position = Vector3.new(-5220.015, 78.46, 3978.591), Color = Color3.fromRGB(255, 215, 158), Brightness = 2.27, Range = 42.2},
+	{Name = "Village_Light_House_Fisher", Position = Vector3.new(-5339.798, 71.45, 3746.243), Color = Color3.fromRGB(255, 215, 158), Brightness = 2.27, Range = 42.2},
+	{Name = "Village_Light_House_Gardener", Position = Vector3.new(-5183.684, 71.352, 3788.808), Color = Color3.fromRGB(255, 215, 158), Brightness = 2.27, Range = 42.2},
+	{Name = "Village_Light_House_Herbalist", Position = Vector3.new(-5088.598, 70.492, 3756.035), Color = Color3.fromRGB(255, 215, 158), Brightness = 2.27, Range = 42.2},
+	{Name = "Village_Light_House_Scholar", Position = Vector3.new(-5133.945, 71.722, 3772.961), Color = Color3.fromRGB(255, 215, 158), Brightness = 2.27, Range = 42.2},
+	{Name = "Village_Light_House_Smith", Position = Vector3.new(-5009.821, 71.478, 3821.155), Color = Color3.fromRGB(255, 215, 158), Brightness = 2.27, Range = 42.2},
+	{Name = "Village_Light_House_Weaver", Position = Vector3.new(-4951.998, 70.587, 3808.884), Color = Color3.fromRGB(255, 215, 158), Brightness = 2.27, Range = 42.2},
 }
 
 -- creates an invisible anchored holder part per light inside `parent` (e.g. a "Lights" Folder)

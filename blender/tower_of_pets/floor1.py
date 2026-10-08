@@ -77,14 +77,14 @@ def village_ang(df, dr):
 
 # the Verdant Village round the entrance: placeholder NPC / quest houses (name, forward, right, style) - the houses
 # themselves are built in floor1_village.py; the terrain gives each a flat pad. Market stalls likewise.
-VILLAGE_HOUSES = (
-    ('House_Elder', -30, -215, 0), ('House_Baker', 95, -228, 1), ('House_Smith', 215, -180, 2),
-    ('House_Weaver', 335, -165, 3), ('House_Gardener', 165, 190, 4), ('House_Scholar', 55, 238, 6),
-    ('House_Fisher', -35, 268, 5),
+VILLAGE_HOUSES = (                                            # snug along both sides of the road (it bends left)
+    ('House_Elder', -74, -124, 0), ('House_Baker', 70, -68, 1), ('House_Smith', 190, -98, 2),
+    ('House_Weaver', 243, -117, 3), ('House_Gardener', 74, 44, 4), ('House_Scholar', 126, 32, 6),
+    ('House_Herbalist', 178, 20, 7), ('House_Fisher', -44, 162, 5),
 )
-VILLAGE_STALLS = (('Stall_Fruit', 105, -112), ('Stall_Flowers', 150, -82))
-VILLAGE_LAKE_C, VILLAGE_LAKE_R = (-125, 425), 105.0          # the lake on the right of the village
-VILLAGE_MESA = (-300, 505)                                    # the mossy cliff whose falls feed it
+VILLAGE_STALLS = (('Stall_Fruit', 112, -62), ('Stall_Flowers', 146, -72))
+VILLAGE_LAKE_C, VILLAGE_LAKE_R = (-60, 300), 90.0            # the lake right behind the Hatchery side
+VILLAGE_MESA = (-185, 400)                                    # the mossy cliff whose falls feed it
 
 
 # ------------------------------------------ layout (map-sheet pixels; heights / sizes in 1x studs, x WORLD below) ---
@@ -198,7 +198,7 @@ FEATURES = (
     (*entrance_px(290), 24, 17, 1.1), (*entrance_px(240, -160), 15, 11, 1.2),   # rocky ridge behind the portal
     (*entrance_px(260, 180), 16, 12, 1.2), (*entrance_px(400, 60), 15, 10, 1.3),
     (150, 828, 9, 8, 1.0), (276, 896, 10, 10, 1.0),                             # knolls round the entrance plaza
-    (*village_px(*VILLAGE_MESA), 15, 10, 0.32), (*village_px(VILLAGE_MESA[0] - 70, VILLAGE_MESA[1] + 110), 11, 8, 0.4),
+    (*village_px(*VILLAGE_MESA), 13, 10, 0.32), (*village_px(VILLAGE_MESA[0] - 75, VILLAGE_MESA[1] + 100), 10, 8, 0.4),
 )
 WORLD_TREE = (800, 150)                    # px; trunk centre on the World Tree pad
 ROOTS = ((-160, 230), (-115, 190), (-60, 240), (-20, 160), (25, 220), (70, 180), (120, 230), (165, 170), (205, 200))
@@ -246,8 +246,8 @@ SPRINGS = (
     ('Beast_East_Falls', (1300, 330), 0, None, 10),
     ('Whispering_West_Falls', (170, 560), 200, None, 12),
     ('Fortress_East_Falls', (1420, 600), 0, None, 14),
-    ('Village_Lake_Falls_A', village_px(VILLAGE_MESA[0] + 45, VILLAGE_MESA[1] - 50), village_ang(1, -0.75), None, 4),
-    ('Village_Lake_Falls_B', village_px(VILLAGE_MESA[0] + 62, VILLAGE_MESA[1] + 2), village_ang(1, -0.2), None, 2.6),
+    ('Village_Lake_Falls_A', village_px(VILLAGE_MESA[0] + 40, VILLAGE_MESA[1] - 48), village_ang(1, -0.8), None, 4),
+    ('Village_Lake_Falls_B', village_px(VILLAGE_MESA[0] + 58, VILLAGE_MESA[1] - 8), village_ang(1, -0.45), None, 2.6),
 )
 # flattened pads: name, px, py, radius (1x studs), z (1x, None = keep the ground at the centre), radius scale
 # (WORLD for region-sized pads, 2 for the boss arena, 1 for player-scale pads)
@@ -260,7 +260,7 @@ PADS = (
     ('MiniBoss_1', 440, 430, 36, None, 2), ('MiniBoss_2', 970, 690, 36, None, 2), ('MiniBoss_3', 1170, 140, 28, 310, 2),
     ('Lake_Islet', 960, 330, 22, 101, WORLD),
     ('CP_1', 400, 676, 16, None, 1), ('CP_2', 560, 600, 16, None, 1), ('CP_3', 815, 455, 16, None, 1),
-    *((n, *village_px(f, r), 36, None, 1) for n, f, r, _ in VILLAGE_HOUSES),
+    *((n, *village_px(f, r), 27, None, 1) for n, f, r, _ in VILLAGE_HOUSES),
     *((n, *village_px(f, r), 15, None, 1) for n, f, r in VILLAGE_STALLS),
     ('CP_4', 1108, 292, 16, None, 1), ('CP_5', 1305, 160, 16, 310, 1), ('CP_6', 880, 700, 16, None, 1),
 )
@@ -1359,11 +1359,11 @@ def build_floor1_cameras(coll_name='CAMERAS'):
              ('CAM_F1_Entrance_Brook', (*px(152, 846), 12 * ZL + 45), (*px(112, 872), 12 * ZL - 8), 'PERSP', 26),
              ('CAM_F1_Village_Aerial', (*px(*village_px(560, -40)), 12 * ZL + 290), (*px(*village_px(20, 90)), 12 * ZL),
               'PERSP', 20),
-             ('CAM_F1_Village_Lake', (*px(*village_px(40, 360)), 12 * ZL + 28), (*px(*village_px(-240, 450)), 12 * ZL + 34),
+             ('CAM_F1_Village_Lake', (*px(*village_px(70, 215)), 12 * ZL + 70), (*px(*village_px(-140, 330)), 12 * ZL + 20),
               'PERSP', 22),
-             ('CAM_F1_Village_Street', (*px(*village_px(235, -70)), 12 * ZL + 12), (*px(*village_px(20, -225)), 12 * ZL + 14),
+             ('CAM_F1_Village_Street', (*px(*village_px(290, -62)), 12 * ZL + 9), (*px(*village_px(40, -20)), 12 * ZL + 12),
               'PERSP', 22),
-             ('CAM_F1_Village_Lakeside', (*px(*village_px(250, 110)), 12 * ZL + 16), (*px(*village_px(10, 270)), 12 * ZL + 12),
+             ('CAM_F1_Village_Lakeside', (*px(*village_px(300, 60)), 12 * ZL + 22), (*px(*village_px(-40, 170)), 12 * ZL + 12),
               'PERSP', 22),
              ('CAM_F1_Valley_View', P3(470, 660, 14), P3(700, 470, 60), 'PERSP', 22),
              ('CAM_F1_World_Tree_View', P3(1010, 470, 135), P3(800, 150, 250), 'PERSP', 24),

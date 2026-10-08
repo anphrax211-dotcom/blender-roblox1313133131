@@ -1,7 +1,7 @@
 {
   "files": {
     "Floor1_Verdant_Forest": {
-      "parts": 507,
+      "parts": 504,
       "triangles": 396268,
       "largest_part": 5943,
       "largest_extent": 1859.9,
@@ -131,21 +131,21 @@
       "size_mb": 1.65
     },
     "Floor1_Village": {
-      "parts": 207,
-      "triangles": 103668,
-      "largest_part": 5984,
-      "largest_extent": 392.8,
+      "parts": 231,
+      "triangles": 93544,
+      "largest_part": 4852,
+      "largest_extent": 369.7,
       "root": "Floor1_Village",
       "root_position_roblox": [
         0.0,
         0.0,
         -0.0
       ],
-      "size_mb": 2.65
+      "size_mb": 2.43
     },
     "Floor1_Water": {
-      "parts": 165,
-      "triangles": 98132,
+      "parts": 164,
+      "triangles": 98052,
       "largest_part": 5672,
       "largest_extent": 1776.0,
       "root": "Floor1_Water",
@@ -183,8 +183,8 @@
       "size_mb": 1.44
     }
   },
-  "materials": 208,
-  "lights": 23,
+  "materials": 210,
+  "lights": 24,
   "spawn_roblox": [
     -5225.0,
     60.0,

@@ -405,7 +405,7 @@ def dress(T, M, z0, H, c, d, gaps):
             if (k + (sgn > 0)) % 2:
                 continue
             q = c + d * dist + side * sgn * rnd.uniform(70, 95)
-            if any((Vector(F.px(*F.village_px(f, r))) - q.xy).length < 48 for n, f, r, *_ in
+            if any((Vector(F.px(*F.village_px(f, r))) - q.xy).length < 75 for n, f, r, *_ in
                    F.VILLAGE_HOUSES + F.VILLAGE_STALLS):
                 continue                                        # (village houses and stalls stand there)
             place('Trees', rnd.choice(('Tree_Medium_High', 'Tree_Large_High', 'Tree_Small')), q.x, q.y, gz(q) - 1,

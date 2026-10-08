@@ -274,6 +274,9 @@ STYLES = (
     dict(name='Scholar', w=22, dep=18, h1=9.5, h2=8.5, jetty=1.0, roof='gable', ridge='x', rise=11, rmat='Roof_Purple',
          plaster='Plaster_Cream', shutter='Wood_Shutter_Blue', brace='diag', chimney=(1, 0.0), balcony=False,
          sign='Verdant_Emblem', extra='tower'),
+    dict(name='Herbalist', w=18, dep=16, h1=9.0, h2=0, jetty=0, roof='gable', ridge='y', rise=12, rmat='Roof_Orange',
+         plaster='Plaster_Sage', shutter='Wood_Shutter_Green', brace='x', chimney=(-1, 0.3), balcony=False,
+         sign='Flower_Purple', extra='herbs'),
 )
 
 
@@ -392,6 +395,13 @@ def build_house(name, st, M, rnd):
             body.ico(Ms @ Vector((rnd.uniform(-5.5, 5.5), rnd.uniform(-9.5, -1.0), 10.0 + rnd.uniform(-0.2, 0.4))),
                      rnd.uniform(0.9, 1.4), rnd.choice(('Leaves_Mid', 'Leaves_Light', 'Flower_Pink')), 1,
                      (1.4, 1.4, 0.6), smooth=False)
+    elif extra == 'herbs':                                       # herb drying rack + raised planter beds
+        R = Ms.to_3x3().normalized()
+        for k, y in enumerate((-2.5, -7.0)):
+            bevel_box(body, Ms, (0, y, 0.8), (9.0, 3.2, 1.6), 'Wood_Plank', 0.1)
+            for i in range(7):
+                body.ico(Ms @ Vector((-3.8 + i * 1.27, y, 2.0)), 0.6,
+                         ('Flower_Purple', 'Leaves_Mid', 'Flower_White', 'Leaves_Light')[(i + k) % 4], 1, smooth=False)
     elif extra == 'nets':                                        # drying rack with nets
         R = Ms.to_3x3().normalized()
         for x in (-4.0, 4.0):
@@ -595,6 +605,7 @@ def build_village(T):
     gz = lambda q: float(ground_z(T, q.x, q.y))
     W = lambda f, r: c + d * f + side * r
     houses = []
+    walk_lines = []
     walks = Part('Village_Walk_Paths', C)
     for (name, f, r, si) in F.VILLAGE_HOUSES:
         st = STYLES[si]
@@ -615,6 +626,7 @@ def build_village(T):
         # walk from the porch steps to the road edge
         end = road + (pos - road).xy.normalized().to_3d() * 27.0
         stepping_stones(T, walks, wstart, end, rnd)
+        walk_lines.append((wstart.copy(), end.copy()))
         L = bpy.data.lights.new(f'Village_Light_{name}', 'POINT')
         L.color = (1.0, 0.68, 0.34); L.energy = 2200; L.shadow_soft_size = 1.0
         lo = bpy.data.objects.new(L.name, L)
@@ -640,6 +652,7 @@ def build_village(T):
             place('Props', kind, q.x, q.y, gz(q), rnd.uniform(0, TAU), s)
     sp.finish()
     dress_houses(T, houses, place, gz, rnd)
+    dress_greenery(T, houses, walk_lines, place, gz, rnd, c, d, side)
     dress_lake(T, place, gz, rnd, c, d, side)
     dress_plaza(T, place, gz, rnd, c, d, side)
     dress_hillside(T, place, gz, rnd, c, d, side)
@@ -663,7 +676,11 @@ def dress_houses(T, houses, place, gz, rnd):
         'Gardener': (('Garden_Patch', 3), ('Hay_Bale', 2), ('Basket', 2), ('Flower_Pot', 3), ('Cart', 1)),
         'Fisher': (('Barrel', 3), ('Crate', 2), ('Basket', 2), ('Clothesline', 1)),
         'Scholar': (('Bench', 1), ('Flower_Pot', 3), ('Crate', 1), ('Garden_Patch', 1)),
+        'Herbalist': (('Flower_Pot', 4), ('Basket', 3), ('Garden_Patch', 1), ('Barrel', 1)),
     }
+    def crowded(q, me):                                         # keep props out of the neighbours' footprints
+        return any((Vector(o['pos'][:2]) - q.xy).length < 24 for o in houses if o is not me) or \
+            any((Vector(F.px(*F.village_px(f, r))) - q.xy).length < 14 for n, f, r in F.VILLAGE_STALLS)
     for h in houses:
         M = h['M']
         R = Matrix.Rotation(math.atan2(h['facing'][0], -h['facing'][1]), 3, 'Z')
@@ -680,7 +697,7 @@ def dress_houses(T, houses, place, gz, rnd):
                 if not slots:
                     break
                 q = M @ slots.pop()
-                if not clear_of_routes(T, q, 6):
+                if not clear_of_routes(T, q, 6) or crowded(q, h):
                     continue
                 rot = yaw + (math.pi / 2 if kind in ('Bench', 'Clothesline', 'Garden_Patch', 'Cart') else rnd.uniform(0, TAU))
                 place('Props', kind, q.x, q.y, gz(q), rot, rnd.uniform(1.0, 1.2))
@@ -693,13 +710,14 @@ def dress_houses(T, houses, place, gz, rnd):
                   rnd.uniform(1.2, 1.8))
         for k in range(4):
             q = M @ Vector((-h['w'] / 2 - 4 + k * (h['w'] + 8) / 3, h['dep'] / 2 + 16, 0))
-            if clear_of_routes(T, q, 4):
+            if clear_of_routes(T, q, 4) and not crowded(q, h):
                 place('Props', 'Wood_Fence', q.x, q.y, gz(q), yaw + math.pi / 2, 1.3)
         for k in range(2):                                      # a hub tree or two behind each house
-            q = M @ Vector((rnd.uniform(-1, 1) * h['w'] * 0.6, h['dep'] / 2 + rnd.uniform(22, 34), 0))
-            if clear_of_routes(T, q, 12):
+            q = M @ Vector((rnd.uniform(-1, 1) * h['w'] * 0.6, h['dep'] / 2 + rnd.uniform(42, 54), 0))
+            if clear_of_routes(T, q, 12) and not any((Vector(o['pos'][:2]) - q.xy).length < 58 for o in houses
+                                                     if o is not h):
                 place('Trees', rnd.choice(('Tree_Medium_High', 'Tree_Large_High', 'Tree_Small')), q.x, q.y, gz(q) - 1,
-                      rnd.uniform(0, TAU), rnd.uniform(1.8, 2.4))
+                      rnd.uniform(0, TAU), rnd.uniform(1.5, 2.0))
         place('Props', 'Lantern_Wood', *(M @ Vector((h['w'] / 2 + 3.0, -h['dep'] / 2 - 6.0, 0))).xy,
               gz(M @ Vector((h['w'] / 2 + 3.0, -h['dep'] / 2 - 6.0, 0))), yaw, 1.2)
 
@@ -736,7 +754,8 @@ def dress_lake(T, place, gz, rnd, c, d, side):
                       q.x, q.y, zq, rnd.uniform(0, TAU), rnd.uniform(*sc))
         if k % 9 == 4:                                          # small trees round the lake
             q = edge + u * rnd.uniform(24, 34)
-            if clear_of_routes(T, q, 10):
+            if clear_of_routes(T, q, 10) and not any((Vector(F.px(*F.village_px(f, r))) - q.xy).length < 45
+                                                     for n, f, r, *_ in F.VILLAGE_HOUSES):
                 place('Trees', rnd.choice(('Tree_Small', 'Tree_Medium_High')), q.x, q.y, gz(q) - 1, rnd.uniform(0, TAU),
                       rnd.uniform(1.6, 2.2))
     for k in range(26):                                         # lily pads
@@ -775,7 +794,7 @@ def dress_plaza(T, place, gz, rnd, c, d, side):
         q = c + Vector((math.cos(a), math.sin(a), 0)) * (PLAZA_R + 5.5)
         place('Props', 'Flower_Pot', q.x, q.y, gz(q), 0.0, 1.4)
     # village well on the green between the shop side houses and the road
-    q = c + d * 95 + side * 125
+    q = c + d * 150 + side * -112
     if clear_of_routes(T, q, 8):
         place('Props', 'Village_Well', q.x, q.y, gz(q), road, 1.2)
     # road: occasional banner poles, grass tufts and flowers along the edges, a signpost at the village
@@ -814,8 +833,9 @@ def dress_hillside(T, place, gz, rnd, c, d, side):
             i, j = grid_index(T, q.x, q.y)
             if not T.land[i, j] or T.path_e[i, j] < 10 or T.lake_f[i, j] < 1.2:
                 continue
-            if (q - c).xy.length < 120:                          # keep the plaza / stairs / buildings clear
-                continue
+            if (q - c).xy.length < 120 or any((Vector(F.px(*F.village_px(f, r))) - q.xy).length < 40
+                                              for n, f, r, *_ in F.VILLAGE_HOUSES + F.VILLAGE_STALLS):
+                continue                                         # (plaza, stairs, buildings and houses stay clear)
             zq = gz(q)
             sl = T.slope[i, j]
             if zq < zp + 6:
@@ -838,3 +858,107 @@ def dress_hillside(T, place, gz, rnd, c, d, side):
                 place('Foliage', rnd.choice(('Flower_Cluster_Pink', 'Flower_Cluster_Purple', 'Flower_Cluster_White',
                                              'Flower_Cluster_Yellow')), q.x, q.y, zq, rnd.uniform(0, TAU),
                       rnd.uniform(1.6, 2.4))
+
+
+TREES_HUB = ('Tree_Large_High', 'Tree_Medium_High', 'Tree_Small')
+FLOWERS_HUB = ('Flower_Cluster_Pink', 'Flower_Cluster_Yellow', 'Flower_Cluster_White', 'Flower_Cluster_Purple')
+GREENS_HUB = ('Bush_01', 'Bush_02', 'Bush_03', 'Fern', 'Ground_Plant_01', 'Ground_Plant_02', 'Grass_Patch')
+
+
+def dress_greenery(T, houses, walk_lines, place, gz, rnd, c, d, side):
+    """lush village greenery with the hub's trees, bushes and flowers: front gardens, trees between and behind the
+    houses, flowers along the road edges and flower meadows on the open grass - all non-colliding foliage (trees
+    only collide at their trunks), so riders can still cross the grass"""
+    from floor1_detail import grid_index
+    from floor1_entrance import PLAZA_R
+    stalls = [Vector(F.px(*F.village_px(f, r))) for n, f, r in F.VILLAGE_STALLS]
+    bld = [Vector(F.px(*F.village_px(0, s_ * 105))) for s_ in (-1, 1)]          # shop, hatchery
+
+    def seg_d(q, a, b):
+        ab = (b - a).xy
+        t = max(0.0, min(1.0, (q.xy - a.xy).dot(ab) / max(ab.length_squared, 1e-6)))
+        return (q.xy - (a.xy + ab * t)).length
+
+    def free(q, house_r=24.0, walk_r=4.5, path_m=3.0):
+        i, j = grid_index(T, q.x, q.y)
+        if not (T.land[i, j] and T.path_e[i, j] > path_m and T.lake_f[i, j] > 1.08 and T.river_d[i, j] > 6):
+            return False
+        if (q - c).xy.length < PLAZA_R + 6:
+            return False
+        if any((Vector(h['pos'][:2]) - q.xy).length < house_r for h in houses):
+            return False
+        if any((s_ - q.xy).length < 13 for s_ in stalls) or any((b - q.xy).length < 42 for b in bld):
+            return False
+        return not any(seg_d(q, a, b) < walk_r for a, b in walk_lines)
+
+    n = 0
+    # 1. front gardens: flower beds and bushes either side of each porch, flowers hugging the walls
+    for h in houses:
+        M = h['M']
+        for s_ in (-1, 1):
+            for k in range(9):
+                q = M @ Vector((s_ * rnd.uniform(9.5, h['w'] / 2 + 4), -h['dep'] / 2 - rnd.uniform(1.5, 9.0), 0))
+                if free(q, house_r=0.0):
+                    kind = rnd.choice(FLOWERS_HUB + ('Bush_01', 'Bush_03', 'Fern'))
+                    place('Foliage', kind, q.x, q.y, gz(q), rnd.uniform(0, TAU), rnd.uniform(1.2, 1.9)); n += 1
+        for k in range(8):                                       # along the back and sides
+            a = rnd.uniform(0, TAU)
+            q = M @ Vector((math.cos(a) * (h['w'] / 2 + 2.5), abs(math.sin(a)) * (h['dep'] / 2 + 2.5), 0))
+            if free(q, house_r=0.0):
+                place('Foliage', rnd.choice(GREENS_HUB[:4] + FLOWERS_HUB), q.x, q.y, gz(q), rnd.uniform(0, TAU),
+                      rnd.uniform(1.4, 2.2)); n += 1
+    # 2. trees between neighbouring houses (set back from the road) and a dense tree belt behind both rows
+    for sgn in (-1, 1):
+        row = sorted((h for h in houses if (Vector(h['pos'][:2]) - c.xy).dot(side.xy) * sgn > 0),
+                     key=lambda h: (Vector(h['pos'][:2]) - c.xy).dot(d.xy))
+        for a, b in zip(row, row[1:]):
+            m = (Vector(a['pos'][:2]) + Vector(b['pos'][:2])) / 2
+            road = nearest_road(T, m.to_3d())
+            back = (m - road.xy).normalized()
+            for off, kind, sc in ((16, 'Tree_Small', (1.2, 1.5)), (40, 'Tree_Medium_High', (1.4, 1.7))):
+                q = (m + back * off).to_3d()
+                if free(q, house_r=22.0):
+                    place('Trees', kind, q.x, q.y, gz(q) - 1, rnd.uniform(0, TAU), rnd.uniform(*sc)); n += 1
+    for k in range(260):                                         # the green backdrop behind the village rows
+        f = rnd.uniform(-60, 360)
+        sgn = rnd.choice((-1, 1))
+        road = nearest_road(T, (c + d * f).to_3d())
+        q = road + side * sgn * rnd.uniform(112, 190)
+        q.z = 0
+        if not free(q, house_r=58.0, walk_r=8.0, path_m=10.0) or any((b - q.xy).length < 70 for b in bld):
+            continue
+        r_ = rnd.random()
+        if r_ < 0.3:
+            place('Trees', rnd.choice(TREES_HUB), q.x, q.y, gz(q) - 1, rnd.uniform(0, TAU), rnd.uniform(1.4, 2.0))
+        elif r_ < 0.75:
+            place('Foliage', rnd.choice(GREENS_HUB[:3]), q.x, q.y, gz(q), rnd.uniform(0, TAU), rnd.uniform(2.0, 3.2))
+        else:
+            place('Foliage', rnd.choice(FLOWERS_HUB), q.x, q.y, gz(q), rnd.uniform(0, TAU), rnd.uniform(1.6, 2.4))
+        n += 1
+    # 3. flowers, grass and planters lining both road edges through the village
+    pts = next(pts for nm, kk, w, pts in T.paths if nm == 'Entrance_Road')
+    for a, b in zip(pts, pts[1:]):
+        A, B = Vector(a), Vector(b)
+        dist = (B.xy - c.xy).length
+        if dist < PLAZA_R + 12 or dist > 400:
+            continue
+        t = (B - A).xy.normalized()
+        nrm = Vector((-t.y, t.x))
+        for s_ in (-1, 1):
+            for k in range(3):
+                q = (B.xy + t * rnd.uniform(-6, 6) + nrm * s_ * rnd.uniform(30.5, 36)).to_3d()
+                if free(q, house_r=20.0, path_m=-1.0):
+                    kind = rnd.choice(FLOWERS_HUB + FLOWERS_HUB + ('Grass_Tuft', 'Bush_02', 'Fern'))
+                    place('Foliage', kind, q.x, q.y, gz(q), rnd.uniform(0, TAU), rnd.uniform(1.2, 1.8)); n += 1
+    # 4. flower meadows: small mixed clusters on the open grass between the houses, the plaza and the lake
+    for k in range(90):
+        f = rnd.uniform(-120, 330); r = rnd.uniform(-220, 230)
+        o = c + d * f + side * r
+        if not free(o, house_r=30.0, path_m=6.0):
+            continue
+        for j in range(rnd.randint(4, 8)):
+            q = o + Vector((rnd.uniform(-7, 7), rnd.uniform(-7, 7), 0))
+            if free(q, house_r=26.0, path_m=4.0):
+                kind = rnd.choice(FLOWERS_HUB) if j % 3 else rnd.choice(('Grass_Tuft', 'Fern', 'Bush_02'))
+                place('Foliage', kind, q.x, q.y, gz(q), rnd.uniform(0, TAU), rnd.uniform(1.1, 1.7)); n += 1
+    return n

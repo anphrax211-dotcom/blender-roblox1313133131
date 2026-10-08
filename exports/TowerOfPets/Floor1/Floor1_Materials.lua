@@ -174,6 +174,8 @@ M.Materials = {
 	["Roof_Brown_Dark"] = {Color = Color3.fromRGB(155, 121, 87), Material = Enum.Material.SmoothPlastic, Transparency = 0.0},
 	["Roof_Green"] = {Color = Color3.fromRGB(118, 181, 124), Material = Enum.Material.SmoothPlastic, Transparency = 0.0},
 	["Roof_Green_Dark"] = {Color = Color3.fromRGB(98, 152, 103), Material = Enum.Material.SmoothPlastic, Transparency = 0.0},
+	["Roof_Orange"] = {Color = Color3.fromRGB(236, 173, 105), Material = Enum.Material.SmoothPlastic, Transparency = 0.0},
+	["Roof_Orange_Dark"] = {Color = Color3.fromRGB(199, 146, 87), Material = Enum.Material.SmoothPlastic, Transparency = 0.0},
 	["Roof_Purple"] = {Color = Color3.fromRGB(170, 129, 200), Material = Enum.Material.SmoothPlastic, Transparency = 0.0},
 	["Roof_Purple_Dark"] = {Color = Color3.fromRGB(142, 108, 169), Material = Enum.Material.SmoothPlastic, Transparency = 0.0},
 	["Roof_Red.001"] = {Color = Color3.fromRGB(221, 124, 97), Material = Enum.Material.SmoothPlastic, Transparency = 0.0},

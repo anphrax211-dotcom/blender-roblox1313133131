@@ -327,7 +327,7 @@ the four keep the sheet's relative sizes. The tail silhouettes are traced from t
 |---|---|---|
 | Ashrat | charcoal rat, big cupped orange-lined ears, orange paws and nose, buck teeth | `_Tail` (curled flame), `_CheekSwirls` (glowing swirls at the eyes), `_FlameMarkings` |
 | Cinderkit | soot-black kitten, cheek fluff, amber paws, open smile | `_FlameTuft` (forehead crest), `_FaceFlames`, `_ChestRuff`, `_Tail` (layered flame), `_FlameMarkings` incl. flame "socks" |
-| Flarecat | pale-gold cat, pink inner ears, orange paws | `_FlameMane` (crest, cheek flares, lotus of flames over the back of the head), `_ChestRuff`, `_Tail`, pale `_FlameMarkings` |
+| Flarecat | peach-gold cat, pink inner ears, orange paws, flush eyes | `_FlameMane` (broad leaf flames: crest, cheek flares, neck mane, lotus over the back of the head), `_ChestRuff` (two layers of leaves), `_Tail`, pale `_FlameMarkings` |
 | Smoulderat | stout dome-backed charcoal rat, red paws | `_HeadCrystals` + `_BackCrystals`, `_LavaFissures` (cracked-rock network), `_Tail` (curled flame) |
 
 - **Coordinates:** 1 unit = 1 m, Z up. Each pet faces −Y and stands on z = 0. Left to right: Ashrat x=−3.9,
@@ -342,7 +342,9 @@ the four keep the sheet's relative sizes. The tail silhouettes are traced from t
 - **`PETS/<Pet>`:** one collection per pet. Every part is a separate editable mesh (`<Pet>_Body`, `_Head`,
   `_Ear_L/R`, `_Leg_FL/FR/BL/BR`, `_Paw_*`, `_Tail`, `_Eye_L/R`, `_Nose`, `_Mouth`, `_Teeth`, `_Whiskers`, plus
   the fire objects above), all parented to `<Pet>_Root`. Move the empty to move the pet. L/R are the pet's own
-  sides (left = +X). Each pet is about 32–41k triangles.
+  sides (left = +X). Ashrat, Cinderkit and Smoulderat are about 32–38k triangles. Flarecat is built in a light
+  game-budget format (`LOW` in `fire_pets.py`), about 22k triangles. Its eyes are thin shells wrapped onto the head,
+  so they sit flush with the face (`eyes(..., flush=True)`).
 - **`STUDIO`:** five soft area lights and a neutral grey world. The ground plane is a shadow catcher, so renders
   show an even grey backdrop with soft contact shadows.
 - **`CAMERAS`:** orthographic `CAM_<Pet>_Front`, `_Side` and `_Back` cameras, all at the same scale and tilted

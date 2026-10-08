@@ -36,6 +36,12 @@ PET_X = {'Ashrat': -3.9, 'Cinderkit': -1.3, 'Flarecat': 1.3, 'Smoulderat': 3.9}
 CAM_H = 0.6           # aim height of the turnaround cameras
 CAM_SCALE = 2.3       # ortho scale, identical for every pet so sizes compare 1:1
 CAM_TILT = math.radians(5)
+LOW = False           # True while a pet is built in the light game-budget format (Flarecat)
+
+
+def lod(high, low):
+    """pick the detailed or the light value depending on the format of the pet being built"""
+    return low if LOW else high
 
 
 # ------------------------------------------------------------------ colours & materials
@@ -94,7 +100,7 @@ def material(name, hexcol, rough=0.55, emit=0.0, coat=0.0, vcol=False, sheen=0.0
 def build_materials():
     material('Fur_Charcoal', '#3d363b', 0.7, sheen=0.3)           # Ashrat
     material('Fur_Soot', '#2b262a', 0.7, sheen=0.3)               # Cinderkit
-    material('Fur_PaleGold', '#f4d9b3', 0.65, sheen=0.2)          # Flarecat
+    material('Fur_PaleGold', '#f4cc9e', 0.65, sheen=0.2)          # Flarecat
     material('Fur_DarkCharcoal', '#38323a', 0.75, sheen=0.3)      # Smoulderat
     material('Fur_EmberBelly', '#b8682f', 0.7)                    # Ashrat chest
     material('Fur_BrownBelly', '#7c4029', 0.7)                    # Smoulderat chest
@@ -105,7 +111,7 @@ def build_materials():
     material('Fire_Gradient', '#ff8a1e', 0.45, emit=0.4, vcol=True)
     material('Flame_Orange', '#ff6a14', 0.45, emit=0.9)
     material('Flame_Yellow', '#ffc22e', 0.45, emit=0.9)
-    material('Flame_Pale', '#f2a058', 0.6, emit=0.1)
+    material('Flame_Pale', '#f39448', 0.6, emit=0.15)
     material('Flame_PaleCore', '#f7bf7c', 0.6, emit=0.1)
     material('Lava_Glow', '#ff4612', 0.4, emit=2.2)
     material('Lava_Core', '#ffd248', 0.4, emit=5.0)
@@ -264,9 +270,10 @@ def body_bm(y_rear, y_front, z_rear, z_front, a, b, taper=0.1, q=2.4, ex=2.3, n=
     return tube(pts, radii, seg, hint=Z, ex=ex)
 
 
-def tongue(base, direction, length, width, flat=0.5, bend=Vector(), hint=Y, seg=10, n=4, stops=FIRE, swell=0.3):
+def tongue(base, direction, length, width, flat=0.5, bend=Vector(), hint=Y, seg=None, n=None, stops=FIRE, swell=0.3):
     """one flame tongue: swells from the base then tapers to a sharp tip, curving by `bend`.
     stops = colour gradient base -> tip (None = no colour attribute)"""
+    seg, n = seg or lod(10, 8), n or lod(4, 3)
     d = direction.normalized()
     ctrl = [base, base + d * length * 0.35 + bend * 0.12, base + d * length * 0.7 + bend * 0.5,
             base + d * length + bend]
@@ -385,12 +392,13 @@ def outline(pts, n=2):
     return catmull(list(pts) + [pts[0]], n)[:-1]
 
 
-def decal(bvh, c, d, shape, size, angle=0.0, offset=0.005, up=Z, step=0.016, flip=False):
+def decal(bvh, c, d, shape, size, angle=0.0, offset=0.005, up=Z, step=None, flip=False):
     """2D outline wrapped onto a surface around the hit point of direction d (spherical projection from c)"""
     hit, n = cast(bvh, c, d)
     M = frame(n, up)
     r, u = M.col[0], M.col[1]
     ca, sa = math.cos(angle), math.sin(angle)
+    step = step or lod(0.016, 0.026)
     pts2 = [((-x if flip else x) * size, y * size) for x, y in shape]
     pts2 = [(x * ca - y * sa, x * sa + y * ca) for x, y in pts2]
     verts, faces, _ = fill2d(pts2, step)
@@ -582,7 +590,7 @@ def legs_and_paws(pet, fur, paw, front, back, paw_size, toes=3):
     pw, pl, ph = paw_size
     for tag, (x, y, top, r) in (('F', front), ('B', back)):
         pts = [Vector((x, y + 0.01, top)), Vector((x, y, (top + ph) / 2)), Vector((x, y - 0.005, ph * 0.8))]
-        pet.pair(f'Leg_{tag}', [(tube(pts, [(r, r * 1.05), (r * 0.95, r), (r * 0.98, r)], 20), fur)], sep='')
+        pet.pair(f'Leg_{tag}', [(tube(pts, [(r, r * 1.05), (r * 0.95, r), (r * 0.98, r)], lod(20, 12)), fur)], sep='')
         pc = Vector((x, y - pl * 0.22, 0))
         parts = [ellipsoid(pc + Vector((0, 0.0, ph * 0.5)), (pw, pl * 0.82, ph * 0.52), ex=2.2),
                  ellipsoid(pc + Vector((0, pl * 0.3, ph * 0.62)), (pw * 0.86, pl * 0.5, ph * 0.6))]
@@ -590,28 +598,48 @@ def legs_and_paws(pet, fur, paw, front, back, paw_size, toes=3):
             dx = (i - (toes - 1) / 2) * (2 * pw / toes) * 0.95
             parts.append(ellipsoid(pc + Vector((dx, -pl * 0.62, ph * 0.42)),
                                    (pw / toes * 1.08, pl * 0.36, ph * 0.43)))
-        pet.pair(f'Paw_{tag}', [(blob(parts, 1100, voxel=0.006, smooth=3), paw)], sep='')
+        pet.pair(f'Paw_{tag}', [(blob(parts, lod(1100, 360), voxel=0.006, smooth=3), paw)], sep='')
 
 
-def eyes(pet, x, z, s, head='Head', face_fwd=0.15):
-    """big glossy eyes: dark outline, red -> orange -> yellow iris, round pupil, two inner-upper highlights"""
-    hit, nrm = cast_front(pet.bvh[head], x, z)
-    n = (nrm + Vector((0, -face_fwd, 0))).normalized()
+def eyes(pet, x, z, s, head='Head', face_fwd=0.15, flush=False):
+    """big glossy eyes: dark outline, red -> orange -> yellow iris, round pupil, two inner-upper highlights.
+    flush=True: every layer is a thin shell wrapped onto the head surface (lifted 0-0.13 eye radii), so the
+    eyes sit flush with the face instead of bulging out of it"""
+    bvh = pet.bvh[head]
+    hit, nrm = cast_front(bvh, x, z)
+    n = (nrm + Vector((0, -(0.0 if flush else face_fwd), 0))).normalized()
     M = frame(n)
     r, u = M.col[0], M.col[1]
-
-    def at(dr, du, dn):
-        return hit + r * (dr * s) + u * (du * s) + n * (dn * s)
-    iris_c = at(0, 0, -0.04)
-    iris = ellipsoid(iris_c, (s * 0.98, s * 1.1, s * 0.42), M, seg=32, rings=18)
-    paint(iris, lambda co: grad(IRIS, ((co - iris_c).dot(u) / (s * 1.1) + 1) / 2))
-    pieces = [
-        (ellipsoid(at(0, 0, -0.1), (s * 1.06, s * 1.17, s * 0.42), M, seg=32, rings=18), 'Eye_Outline'),
-        (iris, 'Eye_Iris'),
-        (ellipsoid(at(0, 0.1, 0.1), (s * 0.5, s * 0.56, s * 0.3), M, seg=24, rings=12), 'Eye_Pupil'),
-        (ellipsoid(at(-0.27, 0.38, 0.4), (s * 0.25, s * 0.25, s * 0.12), M, seg=16, rings=8), 'Eye_Highlight'),
-        (ellipsoid(at(0.32, -0.4, 0.33), (s * 0.1, s * 0.1, s * 0.06), M, seg=12, rings=6), 'Eye_Highlight'),
-    ]
+    es, er = lod(32, 30), lod(18, 16)
+    #       material         dr     du    dn (bulged / flush)  rx    ry    rz (bulged / flush)  seg, rings
+    spec = (('Eye_Outline', 0.0, 0.0, -0.1, 0.0, 1.06, 1.17, 0.42, 0.06, es, er),
+            ('Eye_Iris', 0.0, 0.0, -0.04, 0.025, 0.98, 1.1, 0.42, 0.065, es, er),
+            ('Eye_Pupil', 0.0, 0.1, 0.1, 0.06, 0.5, 0.56, 0.3, 0.05, lod(24, 20), lod(12, 10)),
+            ('Eye_Highlight', -0.27, 0.38, 0.4, 0.1, 0.25, 0.25, 0.12, 0.035, 16, 8),
+            ('Eye_Highlight', 0.32, -0.4, 0.33, 0.09, 0.1, 0.1, 0.06, 0.03, 12, 6))
+    pieces = []
+    for mat, dr, du, dn_b, dn_f, rx, ry, rz_b, rz_f, sg, rg in spec:
+        dn, rz = (dn_f, rz_f) if flush else (dn_b, rz_b)
+        c = hit + r * (dr * s) + u * (du * s) + n * (dn * s)
+        bm = ellipsoid(c, (s * rx, s * ry, s * rz), M, seg=sg, rings=rg)
+        if mat == 'Eye_Iris':
+            paint(bm, lambda co, c=c: grad(IRIS, ((co - c).dot(u) / (s * 1.1) + 1) / 2))
+        pieces.append((bm, mat))
+    if flush:
+        Mt = M.transposed()
+        for bm, _ in pieces:
+            bmesh.ops.delete(bm, geom=[v for v in bm.verts if (Mt @ (v.co - hit)).z < -0.01 * s], context='VERTS')
+            for v in bm.verts:            # wrap onto the head: same height above the surface everywhere
+                l = Mt @ (v.co - hit)
+                loc, nor, _, _ = bvh.ray_cast(hit + r * l.x + u * l.y + n * 0.5, -n)
+                if loc is None:
+                    loc, nor = hit + r * l.x + u * l.y, n
+                if nor.dot(n) < 0:
+                    nor = -nor
+                v.co = loc + nor * max(l.z, 0.003)
+    elif LOW:                     # back halves of the eye shells sit inside the head: drop them
+        for bm, _ in pieces[:3]:
+            bmesh.ops.delete(bm, geom=[v for v in bm.verts if (v.co - hit).dot(n) < -0.22 * s], context='VERTS')
     pet.pair('Eye', pieces)
     return hit, n, M
 
@@ -649,12 +677,12 @@ def cat_ears(pet, base, tip, width, n, fur, inner_stops, flame=None):
     k = 9
     pts = [base + (tip - base) * (i / k) for i in range(k + 1)]
     rad = [(width * (1 - i / k) ** 0.7, width * 0.36 * (1 - i / k) ** 0.7) for i in range(k + 1)]
-    pieces = [(tube(pts, rad, 20, hint=n), fur)]
+    pieces = [(tube(pts, rad, lod(20, 12), hint=n), fur)]
     ib, it = base + n * (width * 0.24) + Z * 0.02, tip + (base - tip) * 0.14 + n * (width * 0.07)
     pts = [ib + (it - ib) * (i / k) for i in range(k + 1)]
     rad = [(width * 0.72 * (1 - i / k) ** 0.7, width * 0.14 * (1 - i / k) ** 0.7) for i in range(k + 1)]
     cols = [grad(inner_stops, i / k) for i in range(k + 1)]
-    pieces.append((tube(pts, rad, 16, hint=n, colors=cols), 'Fire_Gradient' if flame else 'Ear_Gradient'))
+    pieces.append((tube(pts, rad, lod(16, 10), hint=n, colors=cols), 'Fire_Gradient' if flame else 'Ear_Gradient'))
     if flame:
         fb = ib + n * (width * 0.08)
         d = (it - ib).normalized()
@@ -744,10 +772,10 @@ def fill2d(poly, step):
     return [Vector(v) for v in verts], faces, bnd
 
 
-def inflated(poly, T, place, n, color, step=0.015):
+def inflated(poly, T, place, n, color, step=None):
     """puffy closed shell from a 2D outline: thickness T * circular profile of the distance to the edge.
     place(u, v) -> world point on the mid-plane, n = plane normal, color(u, v, k) -> rgb (k = 0 rim .. 1 middle)"""
-    verts, faces, bnd = fill2d(outline(poly, 3), step)
+    verts, faces, bnd = fill2d(outline(poly, 3), step or lod(0.015, 0.023))
     nb = len(bnd)
     dist = [min(_seg_dist(v, bnd[i], bnd[i - 1]) for i in range(nb)) for v in verts]
     dmax = max(dist)
@@ -800,15 +828,38 @@ def flame_shell_tail(pet, shapes, crop, base_uv, x_base, slant, scale=1.0, thick
     pet.obj('Tail', pieces)
 
 
+LEAF = [(0.0, -0.55), (0.12, -0.85), (0.32, -1.0), (0.52, -0.88), (0.72, -0.55), (0.88, -0.18), (1.0, 0.16),
+        (0.84, 0.22), (0.66, 0.52), (0.44, 0.86), (0.24, 0.92), (0.07, 0.72), (0.0, 0.5)]
+LEAF_ORANGE = [(0, '#d8461a'), (0.35, '#f86a16'), (0.7, '#ff9420'), (1, '#ffb62c')]
+LEAF_YELLOW = [(0, '#ff8a1c'), (0.4, '#ffb024'), (0.75, '#ffcc34'), (1, '#ffe05a')]
+LEAF_GLOW = [(0, '#e8521a'), (0.4, '#ff8a1e'), (0.75, '#ffb428'), (1, '#ffd84a')]
+
+
+def leaf(base, direction, normal, length, width, stops=LEAF_GLOW, bend=0.0, thick=0.3, flip=False):
+    """broad leaf-shaped flame: a puffy 2D flame leaf (S-curved tip) lying in the plane of `direction`
+    with its broad face toward `normal`, curling toward the normal by `bend` (fraction of the length).
+    Colour: darker at the base and rim, bright in the middle and toward the tip."""
+    d = direction.normalized()
+    n0 = (normal - normal.dot(d) * d).normalized()
+    side = n0.cross(d)
+    poly = [(u * length, (-v if flip else v) * width) for u, v in LEAF]
+
+    def place(u, v):
+        t = u / length
+        return base + d * u + side * v + n0 * (bend * length * t * t)
+    return inflated(poly, width * thick, place, n0,
+                    lambda u, v, k: grad(stops, 0.5 * (u / length) + 0.5 * k), step=width * lod(0.22, 0.34))
+
+
 def whiskers(pet, roots, mat, length=0.24):
     """roots: [(point, direction)] on the left side; mirrored to the right"""
     pieces = []
     for a, out in roots:
         b = a + out.normalized() * length
         mid = (a + b) / 2 + Vector((0, 0, -0.012))
-        pts = catmull([a, mid, b], 4)
+        pts = catmull([a, mid, b], lod(4, 2))
         rad = [(0.0035 * (1 - 0.7 * i / (len(pts) - 1)),) * 2 for i in range(len(pts))]
-        pieces.append((tube(pts, rad, 6), mat))
+        pieces.append((tube(pts, rad, lod(6, 4)), mat))
     pieces += [(mirror(p[0]), p[1]) for p in pieces]
     pet.obj('Whiskers', pieces)
 
@@ -850,13 +901,13 @@ def cat_face(pet, hc, muzzle, nose_mat, whisker):
     bvh = pet.bvh['Head']
     tip, tn = cast(bvh, muzzle, Vector((0, -1, 0.75)))
     M = frame(tn)
-    pet.obj('Nose', [(soft_triangle(ellipsoid(tip + tn * 0.004, (0.034, 0.024, 0.022), M, ex=2.4), M, tip, 0.024, 0.5),
+    pet.obj('Nose', [(soft_triangle(ellipsoid(tip + tn * 0.004, (0.034, 0.024, 0.022), M, seg=lod(24, 12), rings=lod(14, 8), ex=2.4), M, tip, 0.024, 0.5),
                       nose_mat)])
     mz = tip.z - 0.06
     mh, mn = cast_front(bvh, 0, mz)
     Mm = frame(mn)
-    mouth = [(ellipsoid(mh - mn * 0.01, (0.05, 0.035, 0.02), Mm, seg=20, rings=10), 'Mouth_Dark'),
-             (ellipsoid(mh + mn * 0.004 - Z * 0.022, (0.032, 0.03, 0.016), Mm, seg=18, rings=10), 'Tongue_Pink')]
+    mouth = [(ellipsoid(mh - mn * 0.01, (0.05, 0.035, 0.02), Mm, seg=lod(20, 12), rings=lod(10, 8)), 'Mouth_Dark'),
+             (ellipsoid(mh + mn * 0.004 - Z * 0.022, (0.032, 0.03, 0.016), Mm, seg=lod(18, 10), rings=lod(10, 6)), 'Tongue_Pink')]
     pts = [cast_front(bvh, x, tip.z - 0.03 + 0.01 * math.cos(x / 0.04 * math.pi))[0] for x in
            [-0.07 + 0.14 * i / 12 for i in range(13)]]
     mouth.append((ribbon_pts(bvh, hc, pts, 0.009, 0.003), 'Mouth_Line'))
@@ -990,63 +1041,103 @@ def build_cinderkit(pc):
 
 
 def build_flarecat(pc):
+    """pale-gold cat with a mane of broad leaf flames (crest, cheek flares, neck mane, lotus on the back
+    of the head) and a two-layer chest ruff, built in the light game-budget format"""
+    global LOW
+    LOW = True
     p = Pet('Flarecat', pc)
     fur = 'Fur_PaleGold'
-    p.obj('Body', [(blob([body_bm(0.48, -0.27, 0.35, 0.37, 0.24, 0.175),
-                          ellipsoid((0.145, 0.31, 0.29), (0.115, 0.165, 0.155)),
-                          ellipsoid((-0.145, 0.31, 0.29), (0.115, 0.165, 0.155)),
-                          ellipsoid((0, -0.2, 0.36), (0.2, 0.17, 0.17))], 4000), fur)])
-    hc = Vector((0, -0.35, 0.66))
-    muzzle = Vector((0, -0.56, 0.58))
+    p.obj('Body', [(blob([body_bm(0.5, -0.27, 0.35, 0.38, 0.26, 0.19),
+                          ellipsoid((0.155, 0.32, 0.29), (0.13, 0.18, 0.17)),
+                          ellipsoid((-0.155, 0.32, 0.29), (0.13, 0.18, 0.17)),
+                          ellipsoid((0, -0.2, 0.37), (0.21, 0.18, 0.18))], 2000), fur)])
+    hc = Vector((0, -0.35, 0.67))
+    muzzle = Vector((0, -0.57, 0.58))
     p.obj('Head', [(blob([ellipsoid(hc, (0.35, 0.29, 0.27), seg=40, rings=24, ex=2.15),
                           *[ellipsoid((s * 0.21, -0.44, 0.57), (0.16, 0.15, 0.13)) for s in (1, -1)],
-                          ellipsoid(muzzle, (0.1, 0.08, 0.075)), ellipsoid((0, -0.51, 0.52), (0.08, 0.07, 0.06))],
-                         5000), fur)])
+                          ellipsoid(muzzle, (0.105, 0.085, 0.078)), ellipsoid((0, -0.51, 0.52), (0.08, 0.07, 0.06))],
+                         3000), fur)])
     ear_n = Vector((0.3, -1, 0.05)).normalized()
-    cat_ears(p, Vector((0.21, -0.29, 0.82)), Vector((0.33, -0.26, 1.14)), 0.175, ear_n, fur,
-             [(0, '#f2867e'), (0.6, '#f59a92'), (1, '#f8b4a8')])
-    legs_and_paws(p, fur, 'Paw_Tangerine', (0.17, -0.2, 0.27, 0.082), (0.165, 0.32, 0.25, 0.084),
-                  (0.098, 0.128, 0.105))
-    eyes(p, 0.19, 0.64, 0.108)
+    cat_ears(p, Vector((0.21, -0.29, 0.83)), Vector((0.33, -0.26, 1.15)), 0.18, ear_n, fur,
+             [(0, '#f07a76'), (0.6, '#f4928c'), (1, '#f8b0a4')])
+    legs_and_paws(p, fur, 'Paw_Tangerine', (0.17, -0.2, 0.27, 0.095), (0.165, 0.33, 0.25, 0.097),
+                  (0.112, 0.14, 0.11))
+    eyes(p, 0.19, 0.645, 0.11, flush=True)
     cat_face(p, hc, muzzle, 'Nose_Pink', 'Whisker_Tan')
     hb = p.bvh['Head']
-    bh, bn = cast_front(hb, 0.12, 0.79)
-    brows = [(ellipsoid(bh, (0.035, 0.022, 0.012), frame(bn), seg=16, rings=8), 'Flame_Orange')]
-    brows += [(mirror(b[0]), b[1]) for b in brows]
-    p.obj('BrowMarks', brows)
-    # flame mane: crest on top, cheek flares, layered "pinecone" of tongues over the back of the head
-    mane = crest(hb, hc, Vector((0, -0.25, 1)), [
-        (Vector((0, 0.05, 1)), 0.34, 0.12, Vector((0, -0.07, 0))),
-        (Vector((0.5, 0.0, 1)), 0.27, 0.1, Vector((0.05, 0, 0))),
-        (Vector((-0.5, 0.0, 1)), 0.27, 0.1, Vector((-0.05, 0, 0))),
-        (Vector((0.9, 0.0, 0.55)), 0.2, 0.085, Vector((0.03, 0, 0.04))),
-        (Vector((-0.9, 0.0, 0.55)), 0.2, 0.085, Vector((-0.03, 0, 0.04))),
-        (Vector((0, -0.55, 0.8)), 0.15, 0.09, Vector((0, -0.02, 0.02)))])
+    marks = []
+    for x, z in ((0.12, 0.8),):                                   # orange brow dots
+        bh, bn = cast_front(hb, x, z)
+        marks.append((ellipsoid(bh, (0.034, 0.02, 0.012), frame(bn), seg=12, rings=6), 'Flame_Orange'))
+    marks += [(mirror(m[0]), m[1]) for m in marks]
+    peak = [(-0.15, 0.0), (0.15, 0.0), (0.05, -0.28), (0.0, -0.55), (-0.05, -0.28)]   # flame point on the forehead
+    marks.append((decal(hb, hc, Vector((0, -0.7, 0.75)), outline(peak, 2), 0.3, offset=0.005), 'Flame_Orange'))
+    p.obj('BrowMarks', marks)
+
+    mane = []
+    # crest: broad leaves fanning up from the forehead, a second row sweeping back over the head
+    tb, tn = cast(hb, hc, Vector((0, -0.3, 1)))
+    tb = tb - tn * 0.04
+    for ang, L, w, st in ((0, 0.34, 0.13, LEAF_YELLOW), (24, 0.29, 0.115, LEAF_GLOW), (-24, 0.29, 0.115, LEAF_GLOW),
+                          (50, 0.22, 0.1, LEAF_ORANGE), (-50, 0.22, 0.1, LEAF_ORANGE)):
+        a_ = math.radians(ang)
+        d = Vector((math.sin(a_), 0.15, math.cos(a_)))
+        mane.append((leaf(tb, d, Vector((0, -1, 0.1)), L, w, st, bend=0.18, flip=ang < 0), 'Fire_Gradient'))
+    for ang, L, w in ((0, 0.3, 0.13), (30, 0.25, 0.11), (-30, 0.25, 0.11)):
+        a_ = math.radians(ang)
+        d = Vector((math.sin(a_) * 0.6, 0.75, 0.75))
+        mane.append((leaf(tb + Vector((0, 0.06, 0.0)), d, Vector((math.sin(a_), 0.2, 1)), L, w, LEAF_ORANGE, bend=0.12),
+                     'Fire_Gradient'))
+    # cheek flares: broad orange leaves sweeping out and back from the sides of the face
     for s in (1, -1):
-        for dz, L, w in ((0.04, 0.15, 0.07), (-0.05, 0.17, 0.075), (-0.13, 0.13, 0.06)):
-            mane.append((tongue(Vector((s * 0.3, -0.36, 0.56 + dz)), Vector((s, 0.45, -0.2 + dz * 3)), L, w, 0.45,
-                                Vector((0, 0.03, 0.04)), hint=Y, stops=FIRE_ORANGE), 'Fire_Gradient'))
-    rows = ((58, 4, 0.24, 0.14, FIRE), (34, 6, 0.24, 0.14, FIRE), (8, 6, 0.22, 0.13, FIRE_ORANGE),
-            (-18, 5, 0.2, 0.12, FIRE_ORANGE))
+        for dz, L, w, dd in ((0.06, 0.2, 0.09, Vector((1, 0.35, 0.15))), (-0.04, 0.23, 0.1, Vector((1, 0.4, -0.2))),
+                             (-0.13, 0.18, 0.085, Vector((1, 0.3, -0.55)))):
+            b0 = Vector((s * 0.29, -0.37, 0.57 + dz))
+            mane.append((leaf(b0, Vector((s * dd.x, dd.y, dd.z)), Vector((0, -1, 0.1)), L, w, LEAF_ORANGE, bend=-0.12,
+                              flip=s < 0), 'Fire_Gradient'))
+    # neck mane: big leaves behind the head sweeping back and down toward the shoulders (side view)
+    for s in (1, -1):
+        for zz, yy, L, w, st in ((0.72, -0.18, 0.26, 0.12, LEAF_GLOW), (0.58, -0.14, 0.27, 0.125, LEAF_ORANGE),
+                                 (0.45, -0.17, 0.22, 0.11, LEAF_ORANGE)):
+            b0 = Vector((s * 0.2, yy, zz))
+            mane.append((leaf(b0, Vector((s * 0.45, 1, -0.35)), Vector((s, 0.1, 0.25)), L, w, st, bend=-0.1,
+                              flip=s < 0), 'Fire_Gradient'))
+    # lotus over the back of the head: rows of leaves rising upward, yellow on top
+    rows = ((60, 3, 0.25, 0.13, LEAF_YELLOW), (36, 5, 0.25, 0.13, LEAF_GLOW), (10, 5, 0.23, 0.125, LEAF_ORANGE),
+            (-16, 4, 0.2, 0.115, LEAF_ORANGE))
     for ri, (el, cnt, L, w, st) in enumerate(rows):
         for k in range(cnt):
-            off = 0.5 * (ri % 2)
-            az = math.radians(-82 + 164 * (k + off) / (cnt - 1 + off))
+            az = math.radians(-75 + 150 * (k + 0.5) / cnt)
             ce = math.cos(math.radians(el))
             d = Vector((math.sin(az) * ce, math.cos(az) * ce, math.sin(math.radians(el))))
             base, bn = cast(hb, hc, d)
-            out = (Z + bn * 0.55 + Y * 0.25).normalized()
-            mane.append((tongue(base - bn * 0.03, out, L, w, 0.45, bn * 0.04, hint=bn, stops=st, swell=0.4), 'Fire_Gradient'))
+            up = (Z + bn * 0.5 + Y * 0.2).normalized()
+            mane.append((leaf(base - bn * 0.03, up, bn, L, w, st, bend=0.15, flip=k % 2 == 0), 'Fire_Gradient'))
     p.obj('FlameMane', mane)
-    chest_ruff(p, -0.35, 0.46, [(7, 0.068, 0.24, 0.09, FIRE_ORANGE, 0.0), (5, 0.068, 0.2, 0.085, FIRE_YELLOW, -0.04)])
+
+    # chest ruff: outer orange leaves, inner yellow leaves, hanging from under the chin
+    ruff = []
+    for i in range(7):
+        x = (i - 3) * 0.075
+        b0 = Vector((x * 1.1, -0.36 + abs(x) * 0.35, 0.47))
+        ruff.append((leaf(b0, Vector((x * 1.6, -0.25, -1)), Vector((x, -1, 0.1)), 0.27 - abs(x) * 0.3, 0.1,
+                          LEAF_ORANGE, bend=-0.15, flip=x < 0), 'Fire_Gradient'))
+    for i in range(5):
+        x = (i - 2) * 0.072
+        b0 = Vector((x, -0.42 + abs(x) * 0.35, 0.46))
+        ruff.append((leaf(b0, Vector((x * 1.4, -0.4, -1)), Vector((x, -1, 0.2)), 0.22 - abs(x) * 0.35, 0.095,
+                          LEAF_YELLOW, bend=-0.15, flip=x > 0), 'Fire_Gradient'))
+    p.obj('ChestRuff', ruff)
     flame_shell_tail(p, CAT_TAIL, (830, 300, 778, 493), (0.4, 0.41), 0.14, 1.3, 1.06, thick=(0.06, 0.088, 0.105))
     p.obj('FlameMarkings', markings(p, [
-        ('Body', Vector((1, 0.5, 0.15)), 0.14, -0.3, False),
+        ('Body', Vector((1, 0.55, 0.15)), 0.15, -0.35, False),     # haunch
+        ('Body', Vector((1, -0.35, 0.0)), 0.12, 0.15, False),      # shoulder
         ('Leg_BL', Vector((0.5, 1.0, 0.4)), 0.1, -0.3, True),
         ('Leg_FL', Vector((1, -0.5, -0.1)), 0.1, 0.0, False),
         ('Leg_BL', Vector((1, -0.1, 0.0)), 0.1, 0.1, True),
         ('Leg_FL', Vector((0, -1, -0.1)), 0.08, 0.0, True),
     ], 'Flame_Pale', 'Flame_PaleCore'))
+    LOW = False
     return p
 
 

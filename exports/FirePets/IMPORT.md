@@ -18,7 +18,7 @@
 |---|---|---|
 | Ashrat | 3.1 × 4.9 × 4.0 | 11.2k + 14.6k + 5.9k = 31.8k |
 | Cinderkit | 3.6 × 4.4 × 3.3 | 8.9k + 16.8k + 11.8k = 37.5k |
-| Flarecat | 3.7 × 4.5 × 3.4 | 8.9k + 14.4k + 17.4k = 40.6k |
+| Flarecat | 3.7 × 4.5 × 3.5 | 3.7k + 7.9k + 10.5k = 22.2k |
 | Smoulderat | 3.6 × 6.0 × 4.6 | 12.1k + 14.6k + 8.0k = 34.7k |
 
 The length and width include the tail, which sweeps out to the pet's left. Every part is under Roblox's 20k

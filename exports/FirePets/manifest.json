@@ -29,17 +29,17 @@
   },
   "Flarecat": {
     "parts": {
-      "Flarecat_Body": 8880,
-      "Flarecat_Head": 14372,
-      "Flarecat_Fire": 17359
+      "Flarecat_Body": 3728,
+      "Flarecat_Head": 7940,
+      "Flarecat_Fire": 10492
     },
-    "triangles": 40611,
+    "triangles": 22160,
     "size_studs_wide_long_tall": [
-      3.4,
-      4.47,
-      3.71
+      3.53,
+      4.48,
+      3.72
     ],
-    "fbx_mb": 2.02
+    "fbx_mb": 1.67
   },
   "Smoulderat": {
     "parts": {

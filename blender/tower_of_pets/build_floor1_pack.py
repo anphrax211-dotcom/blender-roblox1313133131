@@ -63,7 +63,7 @@ def main(path=OUT):
     sun = bpy.data.objects.new('Sun_Key', bpy.data.lights.new('Sun_Key', 'SUN'))
     sun.data.energy = 3.0; sun.data.color = (1.0, 0.93, 0.80); sun.data.angle = math.radians(3.5)   # warm, soft
     sun.rotation_euler = Vector((0.45, 0.75, -0.55)).normalized().to_track_quat('-Z', 'Y').to_euler()
-    common.coll('LIGHTING', floor1.ROOT).objects.link(sun)
+    common.coll('F1_LIGHTING', floor1.ROOT).objects.link(sun)
     haze(sc)
     cams = floor1.build_floor1_cameras()
     sc.camera = cams['CAM_F1_Overview']

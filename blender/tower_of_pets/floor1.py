@@ -222,7 +222,8 @@ SPRINGS = (
 # flattened pads: name, px, py, radius (1x studs), z (1x, None = keep the ground at the centre), radius scale
 # (WORLD for region-sized pads, 2 for the boss arena, 1 for player-scale pads)
 PADS = (
-    ('Spawn', 215, 860, 64, 12, 1), ('Entrance_Portal', *entrance_px(84), 52, 12, 1), ('Village_Square', 520, 765, 70, 26, WORLD), ('Ruins_Plaza', 650, 380, 60, 118, WORLD),
+    ('Spawn', 215, 860, 64, 12, 1), ('Entrance_Portal', *entrance_px(84), 52, 12, 1),
+    ('Entrance_Hatchery', *entrance_px(0, -104), 74, 12, 1), ('Entrance_Shop', *entrance_px(0, 104), 70, 12, 1), ('Village_Square', 520, 765, 70, 26, WORLD), ('Ruins_Plaza', 650, 380, 60, 118, WORLD),
     ('World_Tree_Pad', 800, 150, 80, 172, WORLD), ('Sky_Temple_Pad', 1240, 130, 56, 310, WORLD),
     ('Fortress_Arena', 1190, 600, 70, 240, 2), ('Fortress_Keep', 1300, 520, 58, 240, WORLD),
     ('Meadow_Riding_Field', 130, 690, 95, None, WORLD), ('Jungle_Clearing', 1380, 690, 48, None, WORLD),
@@ -284,6 +285,9 @@ PATHS = (
     ('Secret_Cliff_Path', 'hidden', [(228, 880, None), (280, 914, None), (322, 885, None), (348, 805, None)]),
 )
 GENTLE_RIVERS = {'Entrance_Brook'}
+# pads that carry built floors (plaza, stairs, buildings): flattened again after every path / river so nothing pokes
+# through, and set a hair under the floor meshes
+HARD_PADS = ('Spawn', 'Entrance_Portal', 'Entrance_Hatchery', 'Entrance_Shop')
 
 
 def bridge_type(name, kind):
@@ -687,6 +691,10 @@ class Terrain:
         self.land = L > 0
         own = np.where(self.land & ~island, K, own)            # path-only cells = natural bridges
         self.own = own
+        for name, cx, cy, r, z in PADS:                        # built floors win over paths and rivers
+            if name in HARD_PADS:
+                wx, wy = px(cx, cy)
+                self.H = H = np.where(np.hypot(X - wx, Y - wy) < r, z - 0.25, H)
         gx, gy = np.gradient(H, S)
         self.slope = np.where(self.land, np.hypot(gx, gy), 9.0)
         self.var = field_noise(X, Y, 555, 30 * WORLD, 3)      # material variation (path dirt / stone, strata)
@@ -1307,6 +1315,8 @@ def build_floor1_cameras(coll_name='CAMERAS'):
               (*px(*entrance_px(100)), 12 * ZL + 34), 'PERSP', 24),
              ('CAM_F1_Entrance_Aerial', (*px(*entrance_px(-330)), 12 * ZL + 230),
               (*px(*entrance_px(30)), 12 * ZL), 'PERSP', 24),
+             ('CAM_F1_Entrance_Plaza', (*px(*entrance_px(-260, 40)), 12 * ZL + 70), (*px(*entrance_px(20)), 12 * ZL + 12),
+              'PERSP', 20),
              ('CAM_F1_Entrance_Brook', (*px(152, 846), 12 * ZL + 45), (*px(112, 872), 12 * ZL - 8), 'PERSP', 26),
              ('CAM_F1_Valley_View', P3(470, 660, 14), P3(700, 470, 60), 'PERSP', 22),
              ('CAM_F1_World_Tree_View', P3(1010, 470, 135), P3(800, 150, 250), 'PERSP', 24),
@@ -1375,7 +1385,8 @@ def build_floor1():
                for n, k, w, pts in T.paths],
         waterfalls=falls, bridges=detail['bridges'],
         entrance=dict(plaza=to_roblox(*entrance['plaza']), portal=to_roblox(*entrance['portal']),
-                      stairs_bottom=to_roblox(*entrance['stairs_bottom'])))
+                      stairs_bottom=to_roblox(*entrance['stairs_bottom']), hatchery=to_roblox(*entrance['hatchery']),
+                      shop=to_roblox(*entrance['shop'])))
     land = T.land
     stats = dict(land_area_sq_studs=int(land.sum() * S * S), extent_x=[float(T.X[land].min()), float(T.X[land].max())],
                  extent_y=[float(T.Y[land].min()), float(T.Y[land].max())],

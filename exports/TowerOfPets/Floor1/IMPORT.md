@@ -41,6 +41,7 @@ folder). In Studio: right-click ServerStorage → Insert from File. Then paste t
 | `Floor1_Mystic_Wilds.fbx` | World Tree Grove, Mossy Caverns, Beast Cave |
 | `Floor1_Jungle_Fortress.fbx` | jungle ring, Fortress Heights (boss plateau), Sky Temple island, Overlook secret, rare-pet islet |
 | `Floor1_Entrance.fbx` | the Floor 1 entrance:<br>• the portal: masonry arch, pillars, Verdant banners, vines and the swirling portal<br>• `Floor1_Portal_TeleportTrigger`, an invisible touch box inside the portal for the return-to-hub teleport<br>• the dais and wide staircase<br>• the emblem plaza (the spawn)<br>• the paved start of the forest road<br><br>Walkable parts (`Entrance_Walk_*`) get exact collision. |
+| `Floor1_Shop.fbx`, `Floor1_Hatchery.fbx` | the hub's Shop and Hatchery (Eggs), copied 1:1 and set either side of the entrance plaza, facing it, with paved walkways. Each is a Model with its `Shop_Root` / `Hatchery_Root` pivot. Their lamps are in `Floor1_Lights.lua` |
 | `Floor1_Bridges.fbx` | 11 built bridges where paths cross open sky: wood truss, stone and rope (decks get exact collision) |
 | `Floor1_Natural_Bridges.fbx` | the rock spans of the Sky Stair, the Fortress Grand Ramp and the Cloud Perch path |
 | `Floor1_Water.fbx` | rivers, lakes, ponds, waterfalls (including small cliff cascades) |
@@ -51,6 +52,7 @@ folder). In Studio: right-click ServerStorage → Insert from File. Then paste t
 | `Floor1_Scatter.lua` | ModuleScript that places every scattered piece by cloning `Floor1_Assets` |
 | `Scatter/Floor1_Scatter_*.lua` | placement data ModuleScripts (position, yaw and scale per piece), one or more per category |
 | `Floor1_Lighting.lua` | ModuleScript: bright fantasy daylight, soft shadows, haze, subtle bloom, terrain clouds |
+| `Floor1_Lights.lua` | ModuleScript: the Shop and Hatchery lamps as PointLights (`build(folder)`) |
 | `Floor1_Scripts.rbxmx` | all of the ModuleScripts above plus the `Floor1_ScatterData` folder, ready for Insert from File |
 | `AI_PROMPT.md` | the manual Studio steps and a ready-to-paste prompt for a Studio AI |
 | `floor1_layout.json` | positions in Roblox coordinates: spawn, regions, areas and level ranges, checkpoints, bosses, eggs, caves, cave pairs, secret areas, path waypoints, waterfalls, bridges |

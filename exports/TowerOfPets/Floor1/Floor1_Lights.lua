@@ -3,6 +3,19 @@
 local M = {}
 
 M.Lights = {
+	{Name = "Hatchery_Light_0", Position = Vector3.new(-5279.331, 74.75, 3759.449), Color = Color3.fromRGB(231, 179, 255), Brightness = 2.93, Range = 50.9},
+	{Name = "Hatchery_Light_1", Position = Vector3.new(-5276.758, 65.75, 3763.736), Color = Color3.fromRGB(255, 179, 249), Brightness = 1.6, Range = 31.2},
+	{Name = "Hatchery_Light_2", Position = Vector3.new(-5288.249, 69.75, 3760.135), Color = Color3.fromRGB(149, 231, 255), Brightness = 1.4, Range = 27.0},
+	{Name = "Hatchery_Light_3", Position = Vector3.new(-5274.529, 69.75, 3751.903), Color = Color3.fromRGB(149, 231, 255), Brightness = 1.4, Range = 27.0},
+	{Name = "Hatchery_Light_4", Position = Vector3.new(-5269.812, 74.75, 3775.312), Color = Color3.fromRGB(255, 218, 170), Brightness = 2.8, Range = 49.3},
+	{Name = "Hatchery_Light_5", Position = Vector3.new(-5280.017, 86.75, 3785.517), Color = Color3.fromRGB(255, 218, 170), Brightness = 1.8, Range = 34.9},
+	{Name = "Hatchery_Light_6", Position = Vector3.new(-5256.007, 86.75, 3771.111), Color = Color3.fromRGB(255, 218, 170), Brightness = 1.8, Range = 34.9},
+	{Name = "Shop_Light_0", Position = Vector3.new(-5172.728, 73.75, 3937.121), Color = Color3.fromRGB(255, 218, 166), Brightness = 3.0, Range = 60},
+	{Name = "Shop_Light_1", Position = Vector3.new(-5162.609, 68.75, 3940.38), Color = Color3.fromRGB(255, 218, 166), Brightness = 3.0, Range = 53.2},
+	{Name = "Shop_Light_2", Position = Vector3.new(-5174.614, 68.75, 3947.583), Color = Color3.fromRGB(255, 218, 166), Brightness = 3.0, Range = 53.2},
+	{Name = "Shop_Light_3", Position = Vector3.new(-5178.901, 69.75, 3926.831), Color = Color3.fromRGB(255, 218, 166), Brightness = 2.8, Range = 49.3},
+	{Name = "Shop_Light_4", Position = Vector3.new(-5168.011, 73.75, 3913.883), Color = Color3.fromRGB(255, 218, 166), Brightness = 2.0, Range = 38.2},
+	{Name = "Shop_Light_5", Position = Vector3.new(-5195.451, 73.75, 3930.347), Color = Color3.fromRGB(255, 218, 166), Brightness = 2.0, Range = 38.2},
 }
 
 -- creates an invisible anchored holder part per light inside `parent` (e.g. a "Lights" Folder)

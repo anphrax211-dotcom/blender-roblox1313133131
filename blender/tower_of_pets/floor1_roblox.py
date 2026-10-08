@@ -336,7 +336,7 @@ def write_rbxmx(out_dir):
         with open(p) as f:
             return f.read()
     items = [item('ModuleScript', n, read(os.path.join(out_dir, n + '.lua')))
-             for n in ('Floor1_Materials', 'Floor1_Scatter', 'Floor1_Lighting')]
+             for n in ('Floor1_Materials', 'Floor1_Scatter', 'Floor1_Lighting', 'Floor1_Lights')]
     sdir = os.path.join(out_dir, 'Scatter')
     mods = [item('ModuleScript', f[:-4], read(os.path.join(sdir, f))) for f in sorted(os.listdir(sdir)) if f.endswith('.lua')]
     items.append(item('Folder', 'Floor1_ScatterData', children=mods))

@@ -23,6 +23,8 @@ GROUPS = (
     ('Floor1_Natural_Bridges', ('NATURAL_BRIDGES',), None),
     ('Floor1_Bridges', ('F1_BRIDGES',), None),
     ('Floor1_Entrance', ('F1_ENTRANCE',), None),
+    ('Floor1_Shop', ('TOWER_OF_PETS_SHOP',), 'Shop_Root'),
+    ('Floor1_Hatchery', ('TOWER_OF_PETS_HATCHERY',), 'Hatchery_Root'),
     ('Floor1_Water', ('WATER',), None),
     ('Floor1_Landmark_Blockouts', ('LANDMARK_BLOCKOUTS',), None),
     ('Floor1_Clouds', ('CLOUDS',), None),

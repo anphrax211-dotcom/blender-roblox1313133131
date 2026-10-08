@@ -265,7 +265,8 @@ def build_plaza(T):
     c, d = frame()
     z = T.sample(c.x, c.y)[0]
     road = math.atan2(d.y, d.x)
-    gaps = ((road, 0.30), (road + math.pi, 0.42), (road + 2.35, 0.22))   # road, stairs, hidden brook path
+    gaps = ((road, 0.30), (road + math.pi, 0.42), (road + 2.35, 0.22),   # road, stairs, hidden brook path
+            (road + math.pi / 2, 0.26), (road - math.pi / 2, 0.26))       # hatchery, shop walkways
     def in_gap(a):
         return any(abs((a - g + math.pi) % TAU - math.pi) < w for g, w in gaps)
     p = Part('Entrance_Walk_Plaza', C)
@@ -452,7 +453,7 @@ def build_road(T, c, d):
                 q = m + n * off * w + n * rnd.uniform(-0.6, 0.6)
                 zq = float(ground_z(T, q.x, q.y))
                 rot = Matrix.Rotation(math.atan2(t.y, t.x) + rnd.uniform(-0.08, 0.08), 3, 'Z')
-                bevel_box(p, Matrix.Identity(4), (q.x, q.y, zq + 0.12), (seg / rows - 0.4, w / cols - 0.4, 0.55),
+                bevel_box(p, Matrix.Identity(4), (q.x, q.y, zq + 0.35), (seg / rows - 0.4, w / cols - 0.4, 0.55),
                           rnd.choice(('Castle_Trim', 'Castle_Stone_Light', 'Castle_Stone')), 0.12)
         if acc < 360 and k % 2 == 0:                               # curb stones along the stone stretch
             for sg in (-1, 1):
@@ -463,13 +464,47 @@ def build_road(T, c, d):
     p.finish()
 
 
+BUILDING_GAP = 24.0                                  # walkway from the plaza border to a building's front
+
+
+def build_buildings(T, c, d):
+    """the hub's own Hatchery (Eggs) and Shop, either side of the plaza, fronts facing it, with paved walkways"""
+    import shop, hatchery
+    side = Vector((-d.y, d.x, 0))
+    z = T.sample(c.x, c.y)[0]
+    out = {}
+    walk = Part('Entrance_Walk_Walkways', C)
+    rnd = random.Random(81)
+    # (the Shop first: the Hatchery renames its collections when the Shop already owns a name, as in the hub)
+    for name, mod, sgn, front in (('Shop', shop, -1, 23.0), ('Hatchery', hatchery, 1, 20.0)):
+        f = -side * sgn                                         # the building faces the plaza
+        pos = c + side * sgn * (PLAZA_R + 2.6 + BUILDING_GAP + front)
+        rot = math.atan2(f.x, -f.y)                              # local -y (the front) -> f
+        if mod is shop:
+            shop.build_shop(None, (pos.x, pos.y, z), rot)
+        else:
+            hatchery.build_hatchery(None, (pos.x, pos.y, z), rot)
+        out[name] = (pos.x, pos.y, z)
+        a = c + side * sgn * (PLAZA_R + 1.0)                    # paved walkway across the gap in the border
+        L = BUILDING_GAP + 2.5
+        for i in range(int(L / 4.2) + 1):
+            for j in range(5):
+                q = a + side * sgn * (i * 4.2 + 2.0) + d * ((j - 2) * 5.6)
+                bevel_box(walk, Matrix.Translation((q.x, q.y, z + 0.3)) @ Matrix.Rotation(math.atan2(d.y, d.x), 4, 'Z'),
+                          (0, 0, 0), (5.4, 4.0, 0.6), rnd.choice(('Castle_Trim', 'Castle_Stone_Light', 'Castle_Stone')),
+                          0.12)
+    walk.finish()
+    return out
+
+
 def build_entrance(T):
     """portal + plaza + hub-asset dressing; returns positions for the layout JSON"""
     coll(C, F.ROOT)
     M, z, H = build_portal(T)
     c, d, zp, gaps = build_plaza(T)
     build_road(T, c, d)
+    buildings = build_buildings(T, c, d)
     dress(T, M, z, H, c, d, gaps)
     front = M @ Vector((0, -DAIS_D - STEPS * TREAD, 0))
     return dict(plaza=(c.x, c.y, zp), portal=tuple(M @ Vector((0, 0, H))), stairs_bottom=tuple(front),
-                facing=(d.x, d.y))
+                facing=(d.x, d.y), hatchery=buildings['Hatchery'], shop=buildings['Shop'])

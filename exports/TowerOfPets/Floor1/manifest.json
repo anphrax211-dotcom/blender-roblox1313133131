@@ -92,8 +92,8 @@
       "size_mb": 2.35
     },
     "Floor1_Entrance": {
-      "parts": 48,
-      "triangles": 59460,
+      "parts": 51,
+      "triangles": 62204,
       "largest_part": 5984,
       "largest_extent": 362.6,
       "root": "Floor1_Entrance",
@@ -102,7 +102,33 @@
         0.0,
         -0.0
       ],
-      "size_mb": 1.17
+      "size_mb": 1.22
+    },
+    "Floor1_Shop": {
+      "parts": 360,
+      "triangles": 59282,
+      "largest_part": 2552,
+      "largest_extent": 60.2,
+      "root": "Shop_Root.001",
+      "root_position_roblox": [
+        -5173.756,
+        59.75,
+        3935.406
+      ],
+      "size_mb": 1.35
+    },
+    "Floor1_Hatchery": {
+      "parts": 349,
+      "triangles": 76532,
+      "largest_part": 2376,
+      "largest_extent": 71.1,
+      "root": "Hatchery_Root.001",
+      "root_position_roblox": [
+        -5274.7,
+        59.75,
+        3767.166
+      ],
+      "size_mb": 1.65
     },
     "Floor1_Water": {
       "parts": 163,
@@ -144,8 +170,8 @@
       "size_mb": 1.44
     }
   },
-  "materials": 123,
-  "lights": 0,
+  "materials": 170,
+  "lights": 13,
   "spawn_roblox": [
     -5225.0,
     60.0,

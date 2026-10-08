@@ -295,15 +295,18 @@ def build_detail_assets():
     _lib('Temple_Platform', temple_platform, R(23))
     _lib('Mist_Puff', mist_puff, R(24))
     _lib('Foam_Ring', foam_ring, R(25))
-    import castle, floor1_entrance
+    import castle, floor1_entrance, shop, hatchery
     castle.build_castle_kit(None)                                  # hub stone lanterns, banners, blocks ...
+    shop.build_shop_materials(); hatchery.build_hatchery_materials()
+    shop.build_shop_kit(None); hatchery.build_hatchery_kit(None)   # the hub Shop / Hatchery kits (entrance)
     floor1_entrance.build_entrance_assets()
     mystic = {'Leaves_Light': 'Leaves_Mystic_Light', 'Leaves_Mid': 'Leaves_Mystic_Mid',
               'Leaves_Dark': 'Leaves_Mystic_Dark', 'Leaves_Highlight': 'Leaves_Mystic_Highlight'}
     for t in ('Tree_Large_Low', 'Tree_Medium_Low', 'Tree_Small_Low', 'Tree_Tall_Thin_Low', 'Bush_01', 'Bush_03'):
         recolour(t, t.replace('_Low', '') + '_Mystic' if 'Tree' in t else t + '_Mystic', mystic)
     # the library is only the source of the linked duplicates: keep it out of renders and exports
-    for name in (LIB, common.ASSET_COLL, foliage.FOLIAGE_ROOT, islands.ROOT, castle.KIT):
+    for name in (LIB, common.ASSET_COLL, foliage.FOLIAGE_ROOT, islands.ROOT, castle.KIT, shop.KIT,
+                 hatchery.CN.get(hatchery.KIT, hatchery.KIT)):
         c = bpy.data.collections.get(name)
         if c is None:
             continue

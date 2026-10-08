@@ -367,8 +367,14 @@ The entrance is built into the south-west of the Verdant mainland, where the map
   - `Cave_Entrance_Hollow` in the ridge;
   - a hidden brook path behind the bushes, crossing the rope bridge to a waterfall overlook;
   - `Secret_Cliff_Path`, a cliffside shortcut.
-- **Not added:** no shops, gyms, houses or other buildings.
-- **Cameras:** `CAM_F1_Entrance_Front`, `_Aerial`, `_Player` and `_Brook`.
+- **Shop and Hatchery:** the hub's own Shop and Hatchery (Eggs), built by `shop.py` and `hatchery.py`, stand either
+  side of the plaza, fronts facing it. Each has its own flat pad and a paved walkway through the plaza border.
+  They export as `Floor1_Shop.fbx` and `Floor1_Hatchery.fbx`, and their lamps go to `Floor1_Lights.lua`.
+- **Built floors stay clean:** the plaza, portal, Shop and Hatchery pads (`HARD_PADS`) are flattened again after
+  every path and river carve and set just under the floor meshes, so no terrain pokes through. Road pavers sit
+  0.35 studs above the ground.
+- **Not added:** no gyms, houses or other buildings.
+- **Cameras:** `CAM_F1_Entrance_Front`, `_Aerial`, `_Plaza`, `_Player` and `_Brook`.
 
 **Roblox delivery** (`exports/TowerOfPets/Floor1/`, see `IMPORT.md` there)
 - Terrain, water, bridges and landmarks are one FBX per group, about 2,900 MeshParts and 1.56M triangles. Each part

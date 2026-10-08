@@ -17,11 +17,13 @@
    4. `Floor1_Mystic_Wilds.fbx`
    5. `Floor1_Jungle_Fortress.fbx`
    6. `Floor1_Entrance.fbx`
-   7. `Floor1_Bridges.fbx`
-   8. `Floor1_Natural_Bridges.fbx`
-   9. `Floor1_Water.fbx`
-   10. `Floor1_Landmark_Blockouts.fbx`
-   11. `Floor1_Clouds.fbx` (optional, last)
+   7. `Floor1_Shop.fbx`
+   8. `Floor1_Hatchery.fbx`
+   9. `Floor1_Bridges.fbx`
+   10. `Floor1_Natural_Bridges.fbx`
+   11. `Floor1_Water.fbx`
+   12. `Floor1_Landmark_Blockouts.fbx`
+   13. `Floor1_Clouds.fbx` (optional, last)
 3. **Import `Floor1_Assets.fbx`** the same way. It's the library of trees, rocks and props, and lands as a pile at
    the centre of the map; that's expected.
 4. **Insert the scripts in one go:** in Explorer, right-click **ServerStorage** → **Insert from File…** → pick
@@ -29,6 +31,7 @@
    - `Floor1_Materials`
    - `Floor1_Scatter`
    - `Floor1_Lighting`
+   - `Floor1_Lights`
    - a folder `Floor1_ScatterData` with 11 modules
 5. **Optional, only if the trees later look white or grey:** Home → **Asset Manager** → **Images** → upload
    `Floor1_Palette.png`. Right-click it → **Copy Asset ID** and give that ID to the AI.
@@ -58,14 +61,17 @@ time, and tell me what you found before moving on.
 - The world is about 17,400 × 11,600 studs, made of floating islands over a void. A cloud sea sits at about
   Y = −3,800.
 - Imported terrain models: `Floor1_Verdant_Forest`, `Floor1_Waterfall_Valley`, `Floor1_Ancient_Ruins`,
-  `Floor1_Mystic_Wilds`, `Floor1_Jungle_Fortress`, `Floor1_Entrance`, `Floor1_Bridges`,
+  `Floor1_Mystic_Wilds`, `Floor1_Jungle_Fortress`, `Floor1_Entrance`, `Floor1_Shop`, `Floor1_Hatchery`,
+  `Floor1_Bridges`,
   `Floor1_Natural_Bridges`, `Floor1_Water`,
   `Floor1_Landmark_Blockouts` and maybe `Floor1_Clouds`.
   - There are about 2,950 MeshParts in total, each named `<Object>__<Material>`.
 - `Floor1_Entrance` is the Floor 1 entrance: a big portal with stairs and a round plaza with a leaf emblem.
-  Players spawn on the plaza.
+  Players spawn on the plaza. Beside the plaza stand the hub's Shop and Hatchery (Eggs) buildings, the same
+  models as in my hub (`Shop_Root` and `Hatchery_Root`).
 - `Floor1_Assets` is the asset library: 76 MeshParts such as `Tree_Large_Low`, `Rock_Large` and `Lantern_Wood`.
-- ServerStorage holds the ModuleScripts `Floor1_Materials`, `Floor1_Scatter`, `Floor1_Lighting` and a folder
+- ServerStorage holds the ModuleScripts `Floor1_Materials`, `Floor1_Scatter`, `Floor1_Lighting`, `Floor1_Lights` and a
+  folder
   `Floor1_ScatterData` with 11 data modules.
 - **Check positions:**
   - Entrance plaza / spawn: about (-5225, 60, 3850).
@@ -101,7 +107,8 @@ Then do the same for "Foliage", "Rocks", "Props", "Ruins", "Water", "Cliffs", "L
   MeshPart inside `ServerStorage.Floor1_Assets`.
 
 **Step 4: lighting, spawn, safety**
-1. Run `require(game.ServerStorage.Floor1_Lighting).apply()`. It sets bright fantasy daylight, haze, bloom and
+1. Run `require(game.ServerStorage.Floor1_Lighting).apply()`. Then create a Folder `workspace.Floor1.Lights` and
+   run `require(game.ServerStorage.Floor1_Lights).build(workspace.Floor1.Lights)` for the shop and hatchery lamps. It sets bright fantasy daylight, haze, bloom and
    terrain clouds.
 2. Add a SpawnLocation (Anchored, Transparency 1, CanCollide off, Neutral) on the plaza emblem at
    (-5225, 61, 3850), facing away from the portal toward the forest road.
@@ -116,7 +123,7 @@ Then do the same for "Foliage", "Rocks", "Props", "Ruins", "Water", "Cliffs", "L
 **Step 5: test**
 
 Start a Play test (F5). Check that:
-- I spawn on the plaza in front of the portal;
+- I spawn on the plaza in front of the portal, and can walk into the Shop and the Hatchery;
 - I can walk up the portal stairs, along the paved road, and across the wooden and stone bridges without falling
   through;
 - trees only block at their trunks;
@@ -124,5 +131,11 @@ Start a Play test (F5). Check that:
 
 Tell me the frame rate and anything that looks wrong, with its location. Don't change the map geometry; describe
 the problem so I can have it fixed in Blender.
+
+**Step 6: shop and hatchery (placeholders)**
+
+Add a ProximityPrompt at the entrance of the Shop and of the Hatchery (the side facing the plaza). Each opens a
+simple placeholder UI with the building's name and a close button: red/gold for the Shop, purple/gold for the
+Hatchery. I'll hook my real shop and egg-hatching systems into these later.
 
 At the end, list everything you created and where it is.

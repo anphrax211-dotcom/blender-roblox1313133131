@@ -394,13 +394,13 @@ python3 blender/water_pets.py --render previews      # also render every turnaro
 ## Spooky Harvest Halloween market stall (`exports/SpookyHarvestStall/`)
 A Halloween event market stall for Roblox Studio, built from the stall reference image (`blender/spooky_stall.py`).
 - **The build script:** the generator writes `BuildSpookyHarvestStall.lua`. Paste it into the Studio Command Bar
-  and it builds `Workspace.SpookyHarvestStall`: 862 native parts in 43 sub-models and 27 folders, with no asset
+  and it builds `Workspace.SpookyHarvestStall`: 1,042 native parts in 43 sub-models and 27 folders, with no asset
   uploads.
 - **What it contains:** a dark wood booth, an orange-and-purple Fabric canopy with seams and a pennant valance,
   a "SPOOKY HARVEST" SurfaceGui sign, two hanging lanterns and two pumpkin lanterns, pumpkins, candy jars,
   autumn leaves, vines and cobwebs. The middle of the counter is left free, with an invisible
   `ShopInteractZone` in front of it.
-- **Previews:** `previews/SpookyHarvest_ThreeQuarter.png`, `_Front.png` and `_Player.png` are rendered from the
+- **Previews:** `previews/SpookyHarvest_ThreeQuarter.png`, `_Front.png`, `_Player.png` and `_Pumpkins.png` (close-ups) are rendered from the
   same part list.
 - **Setup:** see `exports/SpookyHarvestStall/README.md` for steps and the model layout.
 

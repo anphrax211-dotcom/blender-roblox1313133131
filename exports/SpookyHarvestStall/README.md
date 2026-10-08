@@ -41,8 +41,13 @@ deleted in one click.
 - **Glow:** `Neon` is only used on the carved pumpkin faces and lantern glass, in dimmed colours. Five soft
   orange `PointLight`s light the stall (Brightness 0.55–0.7, Range 6–10, no shadows): two lanterns, two pumpkin
   lanterns and the big jack-o'-lantern. Raise `Brightness` on those lights if you want more glow at night.
-- **Pumpkins:** they use `SpecialMesh` spheres (MeshType Sphere) on block parts, so they're smooth and
-  editable. Change a part's Size to reshape it.
+- **Pumpkins:** each is a core plus 8 lobes made from `SpecialMesh` spheres (MeshType Sphere) on block parts,
+  with a curved stem and a curling tendril.
+- **Jack-o'-lantern faces:**
+  - the eyes and nose are triangles built from pairs of mirrored `WedgePart`s;
+  - the grin is a crescent of five segments with pointed corners and two pumpkin-coloured teeth;
+  - every glowing cut-out (dimmed Neon) sits on a slightly larger dark-orange "carved rim";
+  - the pieces are named `GlowEyeL`, `RimNose`, `GlowGrin3`, `ToothTop` and so on, inside each pumpkin model.
 
 ## Editing
 - **Sign text:** change `SignGui.Title.Text` on `Sign.SignBoard`, or `SIGN_TEXT` at the top of the script.

@@ -95,55 +95,124 @@ class Stall:
 
 
 # ------------------------------------------------------------------ decorations
-def pumpkin(s, path, c, w, h, face=True, glow=True, light=0.0, ry=0.0, stem_tilt=12, depth=1.0):
-    """ribbed pumpkin from overlapping sphere-meshed parts; carved face on the front (-Z, turned by ry)"""
+CARVED = (150, 62, 16)            # carved rim around the glowing cut-outs
+CARVE_GLOW = (232, 124, 34)       # dimmed Neon inside the carved face (warm, not blinding)
+
+
+def _wedge_frame(right, up, side):
+    """WedgePart frame for one half of a flat triangle facing the viewer.
+    A WedgePart's triangular faces are its +-X sides: the right angle sits at local (-Y, +Z), the other
+    corners at (-Y, -Z) and (+Y, +Z). side = +1 puts the right angle on the inner (centre) edge of a right half,
+    -1 mirrors it for the left half."""
+    zl = -right * side
+    return Matrix((up.cross(zl), up, zl)).transposed()
+
+
+def pumpkin(s, path, c, w, h, face=True, glow=True, light=0.0, ry=0.0, depth=1.0, stem=True):
+    """squat pumpkin: core + 8 lobes (sphere meshes), curved stem with a tendril, and a carved jack-o'-lantern
+    face (triangle eyes and nose, grin with upturned corners and two teeth) laid on the outer surface"""
     c = Vector(c)
     Ry = rot(0, ry, 0)
-    s.ellipsoid(path, 'Core', (w * 0.86, h, w * 0.86 * depth), c, Ry, PUMPKIN, light=(GLOW, light, w * 3.2) if light else None)
-    for k in range(6):
-        a = math.radians(30 + 60 * k)
-        off = Ry @ Vector((math.cos(a), 0, math.sin(a) * depth)) * w * 0.21
-        s.ellipsoid(path, f'Rib{k + 1}', (w * 0.56, h * 0.95, w * 0.56 * depth), c + off, Ry,
-                    PUMPKIN if k % 2 else PUMPKIN_B)
-    top = c + Vector((0, h * 0.46, 0))
-    s.deco(path, 'Stem', (h * 0.3, w * 0.13, w * 0.13), top + Vector((0, h * 0.12, 0)),
-           rot(0, ry, 90 - stem_tilt), VINE_DARK, 'Wood', shape='Cylinder')
-    tip = top + Vector((0, h * 0.27, 0))
-    for k in range(5):                                         # little curled tendril
-        a0, a1 = math.radians(80 * k), math.radians(80 * (k + 1))
-        r0, r1 = w * (0.17 - 0.025 * k), w * (0.17 - 0.025 * (k + 1))
-        p0 = tip + Ry @ Vector((w * 0.12 + math.cos(a0) * r0, math.sin(a0) * r0, 0))
-        p1 = tip + Ry @ Vector((w * 0.12 + math.cos(a1) * r1, math.sin(a1) * r1, 0))
-        s.rod(path, f'Tendril{k + 1}', p0, p1, w * 0.035, VINE, 'SmoothPlastic')
+    ells = []
+
+    def ell(name, centre, Rl, size, col, **kw):
+        s.ellipsoid(path, name, size, c + Ry @ centre, Ry @ Rl, col, **kw)
+        ells.append((centre, Rl, Vector(size) / 2))
+    ell('Core', Vector(), I3, (w * 0.8, h * 0.9, w * 0.8 * depth), PUMPKIN_B,
+        light=(GLOW, light, w * 3.2) if light else None)
+    for k in range(8):
+        a = math.radians(-90 + 45 * k)
+        sa, ca = abs(math.sin(a)), abs(math.cos(a))
+        radial = w * 0.5 * (1 - (1 - depth) * sa)
+        tang = w * 0.43 * (1 - (1 - depth) * ca)
+        centre = Vector((math.cos(a) * w * 0.27, 0, math.sin(a) * w * 0.27 * depth))
+        ell(f'Lobe{k + 1}', centre, rot(0, 90 - math.degrees(a), 0), (tang, h * (1.0 if k % 2 == 0 else 0.95), radial),
+            PUMPKIN if k % 2 == 0 else PUMPKIN_B)
+    if stem:
+        base = c + Vector((0, h * 0.42, 0))
+        pts = [base, base + Ry @ Vector((0.0, h * 0.14, 0)), base + Ry @ Vector((w * 0.04, h * 0.25, 0)),
+               base + Ry @ Vector((w * 0.1, h * 0.31, 0))]
+        for i in range(3):
+            s.rod(path, f'Stem{i + 1}', pts[i], pts[i + 1], w * (0.15 - 0.03 * i), (86, 104, 42), 'Wood')
+        tip = pts[1]
+        prev = None
+        for i in range(15):                                   # smooth curling tendril
+            t = i / 14
+            a = 2.6 * math.pi * t
+            r = w * (0.13 - 0.08 * t)
+            q = tip + Ry @ Vector((-w * 0.13 - math.cos(a) * r + w * 0.13, h * 0.02 + math.sin(a) * r * 0.8, -w * 0.05))
+            if prev is not None:
+                s.rod(path, f'Tendril{i}', prev, q, w * 0.03, VINE, 'SmoothPlastic', shadow=False)
+            prev = q
     if not face:
         return
-    col = GLOW if glow else (70, 30, 12)
-    mat = 'Neon' if glow else 'SmoothPlastic'
 
-    def on_face(x, y):
-        """point on the front of the core ellipsoid + its local frame"""
-        a, b, d = w * 0.43, h * 0.5, w * 0.43 * depth
-        q = max(0.0, 1 - (x / a) ** 2 - (y / b) ** 2)
-        z = -d * math.sqrt(q)
-        n = Vector((x / a ** 2, y / b ** 2, z / d ** 2)).normalized()
-        p = c + Ry @ Vector((x, y, z))
-        n = Ry @ n
-        return p, n
-    for sx in (-1, 1):                                           # diamond eyes
-        p, n = on_face(sx * w * 0.16, h * 0.1)
-        R = basis(Ry @ X, Y) @ rot(0, 0, 45)
-        R = basis(R @ X - (R @ X).dot(n) * n, R @ Y - (R @ Y).dot(n) * n)
-        s.deco(path, 'EyeL' if sx > 0 else 'EyeR', (w * 0.13, w * 0.13, 0.08), p + n * 0.0, R, col, mat)
-    p, n = on_face(0, -0.01 * h)                                 # nose
-    s.deco(path, 'Nose', (w * 0.07, w * 0.07, 0.08), p, basis(Ry @ X, Y) @ rot(0, 0, 45), col, mat)
-    for k in range(5):                                           # grin: a curved row with tooth gaps
-        t = (k - 2) / 2
-        x = t * w * 0.24
-        y = -h * 0.17 + abs(t) ** 1.6 * h * 0.12
-        p, n = on_face(x, y)
-        ang = math.degrees(math.atan2(1.6 * abs(t) ** 0.6 * 0.12 * h, w * 0.12)) * (1 if t > 0 else -1)
-        R = basis(Ry @ X, Y) @ rot(0, 0, ang)
-        s.deco(path, f'Grin{k + 1}', (w * 0.11, h * (0.09 if k % 2 == 0 else 0.06), 0.08), p, R, col, mat)
+    def hit(u, v):
+        """front surface point and normal (pumpkin-local) at face coords (u, v): first lobe hit by a ray along +Z"""
+        o, d = Vector((u, v, -10.0)), Vector((0, 0, 1.0))
+        best = None
+        for centre, Rl, r in ells:
+            ol = Rl.transposed() @ (o - centre)
+            dl = Rl.transposed() @ d
+            os_, ds = Vector((ol.x / r.x, ol.y / r.y, ol.z / r.z)), Vector((dl.x / r.x, dl.y / r.y, dl.z / r.z))
+            A, B, C = ds.dot(ds), 2 * os_.dot(ds), os_.dot(os_) - 1
+            disc = B * B - 4 * A * C
+            if disc < 0:
+                continue
+            t = (-B - math.sqrt(disc)) / (2 * A)
+            if best is None or t < best[0]:
+                pl = ol + dl * t
+                nl = Vector((pl.x / r.x ** 2, pl.y / r.y ** 2, pl.z / r.z ** 2))
+                best = (t, o + d * t, (Rl @ nl).normalized())
+        return best[1], best[2]
+
+    glow_col, glow_mat = (CARVE_GLOW, 'Neon') if glow else ((70, 30, 12), 'SmoothPlastic')
+
+    def frame_at(u, v):
+        p, n = hit(u, v)
+        right = (X - X.dot(n) * n).normalized()
+        up = (Y - Y.dot(n) * n - Y.dot(right) * right).normalized()
+        return p, n, right, up
+
+    def put(name, size, p, R, col, mat, shape='Block'):
+        s.deco(path, name, size, c + Ry @ p, Ry @ R, col, mat, shape=shape, shadow=False)
+
+    def triangle(name, u, v, b, t, col, mat, lift):
+        """isosceles triangle (apex up) with its base centred at (u, v): two mirrored WedgeParts sharing one frame"""
+        p, n, right, up = frame_at(u, v + t / 2)
+        for side, tag in ((1, 'R'), (-1, 'L')):
+            put(f'{name}{tag}', (0.07, t, b / 2), p + n * lift + right * side * b / 4, _wedge_frame(right * side, up, 1),
+                col, mat, 'Wedge')
+
+    def grin(name, col, mat, lift, k):
+        """crescent grin: five overlapping segments along a smile curve, tapered ends, upturned corner points"""
+        wm, hm, vm = w * 0.52 * k, w * 0.12 * k, -h * 0.25
+        n_seg = 5
+        for i in range(n_seg):
+            t = (i - (n_seg - 1) / 2) / ((n_seg - 1) / 2)          # -1 .. 1
+            u = t * wm * 0.4
+            v = vm + t * t * w * 0.07
+            slope = 2 * t * w * 0.07 / (wm * 0.4)
+            p, n, right, up = frame_at(u, v)
+            R = Matrix((right, up, right.cross(up))).transposed() @ rot(0, 0, math.degrees(math.atan(slope)))
+            put(f'{name}{i + 1}', (wm / n_seg * 1.35, hm * (1 - 0.35 * abs(t)), 0.07), p + n * lift, R, col, mat)
+        for side, tag in ((1, 'L'), (-1, 'R')):                     # pointed corners rising out of the ends
+            u = side * wm * 0.5
+            p, n, right, up = frame_at(u, vm + w * 0.07 + hm * 0.25)
+            R = _wedge_frame(-right * side, up, 1) @ rot(-side * 25, 0, 0)
+            put(f'{name}Corner{tag}', (0.07, hm * 0.9, w * 0.09 * k), p + n * lift, R, col, mat, 'Wedge')
+
+    for layer, col, mat, lift, k in (('Rim', CARVED, 'SmoothPlastic', 0.012, 1.18), ('Glow', glow_col, glow_mat, 0.03, 1.0)):
+        for sx, tag in ((1, 'L'), (-1, 'R')):
+            triangle(f'{layer}Eye{tag}', sx * w * 0.19, -(k - 1) * w * 0.025, w * 0.22 * k, w * 0.19 * k, col, mat, lift)
+        triangle(f'{layer}Nose', 0, -h * 0.1 - (k - 1) * w * 0.015, w * 0.1 * k, w * 0.08 * k, col, mat, lift)
+        grin(f'{layer}Grin', col, mat, lift, k)
+    vm, hm = -h * 0.25, w * 0.12
+    for tag, u, dv in (('ToothTop', -w * 0.07, hm * 0.32), ('ToothBottom', w * 0.08, -hm * 0.3)):
+        v = vm + (u / (w * 0.21)) ** 2 * w * 0.07 + dv
+        p, n, right, up = frame_at(u, v)
+        put(tag, (w * 0.065, hm * 0.42, 0.07), p + n * 0.05, Matrix((right, up, right.cross(up))).transposed(),
+            PUMPKIN, 'SmoothPlastic')
 
 
 def leaf(s, path, c, n, size, color, spin=0.0):
@@ -258,7 +327,7 @@ def pumpkin_lantern(s, path, post_top, side):
                rot(0, 90 * (i % 2), 90), IRON, 'Metal', shape='Cylinder', shadow=False)
     c = top - Vector((0, 1.15 + 0.85, 0))
     s.deco(path, 'Cap', (0.3, 0.75, 0.75), c + Vector((0, 0.82, 0)), rot(0, 0, 90), IRON, 'Metal', shape='Cylinder')
-    pumpkin(s, path, c, 1.75, 1.55, face=True, glow=True, light=0.6)
+    pumpkin(s, path, c, 1.8, 1.4, face=True, glow=True, light=0.6, stem=False)
     s.deco(path, 'Spike1', (0.3, 0.5, 0.5), c - Vector((0, 0.86, 0)), rot(0, 0, 90), IRON, 'Metal', shape='Cylinder')
     s.deco(path, 'Spike2', (0.3, 0.28, 0.28), c - Vector((0, 1.1, 0)), rot(0, 0, 90), IRON, 'Metal', shape='Cylinder')
     s.deco(path, 'SpikeTip', (0.16, 0.16, 0.16), c - Vector((0, 1.3, 0)), I3, IRON, 'Metal', shape='Ball')
@@ -367,7 +436,7 @@ def build():
     s.deco(tr, 'PlaqueRing', (0.14, 1.9, 1.9), (-0.6, 1.15, -3.74), rot(0, 90, 0), WOOD_TRIM, 'Wood', shape='Cylinder')
     for sx in (-1, 1):
         s.deco(tr, 'PlaqueSweep', (1.6, 0.2, 0.12), (-0.6 + sx * 1.55, 1.75, -3.76), rot(0, 0, -sx * 22), WOOD_TRIM, 'Wood')
-    pumpkin(s, f'{ct}/@PlaquePumpkin', (-0.6, 1.1, -3.78), 1.6, 1.25, glow=True, light=0.0, depth=0.35)
+    pumpkin(s, f'{ct}/@PlaquePumpkin', (-0.6, 1.12, -3.78), 1.65, 1.2, glow=True, light=0.0, depth=0.35, stem=False)
     for sx in (-1, 1):
         vine(s, f'{ct}/FrontVines', [Vector((sx * 2.0, 1.35, -3.82)), Vector((sx * 3.0, 1.75, -3.82)),
                                     Vector((sx * 4.1, 1.55, -3.82)), Vector((sx * 5.1, 1.9, -3.82))])
@@ -438,7 +507,7 @@ def build():
     s.deco(f'{sg}/Frame', 'TrimLine2', (12.3, 0.08, 0.06), (0, 10.88, Z_FRONT - 0.37), I3, WOOD_TRIM, 'Wood')
     for sx in (-1, 1):
         bat(s, f'{sg}/@Bat{"L" if sx < 0 else "R"}', (sx * 5.35, 12.0, Z_FRONT - 0.42), 1.5)
-    pumpkin(s, f'{sg}/@CrestPumpkin', (0, 14.55, Z_FRONT - 0.2), 1.8, 1.45, glow=True, light=0.0)
+    pumpkin(s, f'{sg}/@CrestPumpkin', (0, 14.45, Z_FRONT - 0.2), 1.9, 1.35, glow=True, light=0.0)
     for sx in (-1, 1):
         curl(s, f'{sg}/Vines', Vector((sx * 1.7, 14.2, Z_FRONT - 0.35)), 0.5, Vector((sx, 0, 0)), Y, 1.15, 0.15,
              start=math.pi * 0.95)
@@ -454,9 +523,9 @@ def build():
         pumpkin_lantern(s, f'{lg}/@PumpkinLantern{"L" if sx < 0 else "R"}', (sx * (W_POST + 0.55), 9.6, Z_FRONT), sx)
     # ---- counter props (centre of the counter left free for the shop interaction)
     pr = 'CounterProps'
-    pumpkin(s, f'{pr}/@BigJackOLantern', (4.6, COUNTER_TOP + 1.05, -2.35), 2.5, 2.1, glow=True, light=0.55, ry=-12)
-    pumpkin(s, f'{pr}/@SmallPumpkin1', (6.1, COUNTER_TOP + 0.52, -2.95), 1.15, 1.0, face=True, glow=False, ry=-20)
-    pumpkin(s, f'{pr}/@SmallPumpkin2', (2.85, COUNTER_TOP + 0.62, -2.7), 1.35, 1.2, face=True, glow=False, ry=15)
+    pumpkin(s, f'{pr}/@BigJackOLantern', (4.6, COUNTER_TOP + 0.85, -2.35), 2.6, 1.75, glow=True, light=0.55, ry=-12)
+    pumpkin(s, f'{pr}/@SmallPumpkin1', (6.1, COUNTER_TOP + 0.44, -2.95), 1.2, 0.9, face=True, glow=True, ry=-20)
+    pumpkin(s, f'{pr}/@SmallPumpkin2', (2.85, COUNTER_TOP + 0.52, -2.7), 1.4, 1.05, face=True, glow=True, ry=15)
     candy_jar(s, f'{pr}/@CandyJarTall', (-4.3, COUNTER_TOP, -2.5), 1.55, 1.9,
               [(236, 120, 30), (130, 60, 170), (250, 160, 50), (100, 44, 140)], cubes=True)
     candy_jar(s, f'{pr}/@CandyJarSmall', (-5.9, COUNTER_TOP, -2.7), 1.05, 1.25, [(244, 128, 30), (250, 170, 60)],
@@ -519,7 +588,7 @@ LUA_HEAD = '''--[[ SPOOKY HARVEST - Halloween event market stall
      (View > Command Bar) and press Enter. It builds Workspace.SpookyHarvestStall (replacing an old copy),
      selects it, and you can then move it with the Move tool or Model:PivotTo().
 
-     Native Roblox parts only (no uploads): Parts, SpecialMesh spheres, WoodPlanks / Wood / Fabric / Metal /
+     Native Roblox parts only (no uploads): Parts, WedgeParts, SpecialMesh spheres, WoodPlanks / Wood / Fabric / Metal /
      Glass / Neon materials, a SurfaceGui sign and soft PointLights.
      Front of the stall faces -Z. Structure parts collide; decorations do not. Everything is Anchored. ]]
 
@@ -584,9 +653,14 @@ local P = {
 LUA_TAIL = '''}
 
 for _, d in ipairs(P) do
-	local p = Instance.new("Part")
+	local p
+	if d[3] == "Wedge" then
+		p = Instance.new("WedgePart")
+	else
+		p = Instance.new("Part")
+		p.Shape = Enum.PartType[d[3]]
+	end
 	p.Name = d[2]
-	p.Shape = Enum.PartType[d[3]]
 	p.Size = Vector3.new(d[4], d[5], d[6])
 	p.CFrame = CFrame.new(d[7], d[8], d[9], d[10], d[11], d[12], d[13], d[14], d[15], d[16], d[17], d[18])
 	p.Color = Color3.fromRGB(d[19], d[20], d[21])
@@ -716,6 +790,15 @@ def render_preview(s, out_dir):
             d = min(sy, sz)
             bmesh.ops.create_cone(bm, cap_ends=True, segments=20, radius1=d / 2, radius2=d / 2, depth=sx)
             bmesh.ops.rotate(bm, verts=bm.verts, cent=(0, 0, 0), matrix=Matrix.Rotation(math.pi / 2, 3, 'Y'))
+        elif p['shape'] == 'Wedge':        # Roblox WedgePart: slope from the top-back edge down to the bottom-front edge
+            vs = [bm.verts.new((x * sx / 2, y * sy / 2, z * sz / 2)) for x in (-1, 1)
+                  for y, z in ((-1, -1), (-1, 1), (1, 1))]
+            bm.faces.new((vs[0], vs[1], vs[2]))
+            bm.faces.new((vs[3], vs[5], vs[4]))
+            bm.faces.new((vs[0], vs[3], vs[4], vs[1]))
+            bm.faces.new((vs[1], vs[4], vs[5], vs[2]))
+            bm.faces.new((vs[2], vs[5], vs[3], vs[0]))
+            bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
         elif p['mesh'] == 'Sphere':
             bmesh.ops.create_uvsphere(bm, u_segments=20, v_segments=12, radius=0.5)
             bmesh.ops.scale(bm, vec=(sx, sy, sz), verts=bm.verts)

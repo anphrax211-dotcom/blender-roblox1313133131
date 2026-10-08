@@ -373,8 +373,52 @@ The entrance is built into the south-west of the Verdant mainland, where the map
 - **Built floors stay clean:** the plaza, portal, Shop and Hatchery pads (`HARD_PADS`) are flattened again after
   every path and river carve and set just under the floor meshes, so no terrain pokes through. Road pavers sit
   0.35 studs above the ground.
-- **Not added:** no gyms, houses or other buildings.
+- **Portal upgrade:** a second, proud ring of pale voussoirs with its own cyan runes and rune columns down the
+  jambs, a swirl ring and orbiting particles in the opening, stone fire braziers at the front of the dais, and
+  warm brazier lights plus a cyan portal glow light (in `Floor1_Lights.lua`).
 - **Cameras:** `CAM_F1_Entrance_Front`, `_Aerial`, `_Plaza`, `_Player` and `_Brook`.
+
+**Verdant Village** (`floor1_village.py`, `Floor1_Village.fbx`)
+
+Placeholder houses round the entrance for quest NPCs later. The portal, plaza, road, Shop and Hatchery stay where
+they were.
+
+- **Seven houses, every one different.** Each has:
+  - a stone masonry foundation, plaster walls and a dark timber frame (posts, rails, X / chevron / diagonal braces);
+  - glowing windows with open shutters and flower boxes;
+  - an arched plank door in a stone frame, a hanging sign, a door lamp and a timber porch with stone steps;
+  - a masonry chimney.
+
+  Roofs are straight gables, bell-cast curves or thatch, in red, brown, blue, teal, green, purple or straw.
+
+  | House | Look | Extra |
+  |---|---|---|
+  | Elder | two storeys, jettied | balcony and a roof dormer |
+  | Baker | bell-cast roof | domed bread oven |
+  | Smith | stone ground floor | open forge shed |
+  | Weaver | tall, jettied | balcony and a firewood lean-to |
+  | Gardener | | vine pergola |
+  | Scholar | | round stone tower with a spire |
+  | Fisher | thatched cottage by the lake | net rack |
+- **NPC spots:** each house has an NPC spot on its porch, facing the road, and each market stall has one behind its
+  counter. They are in `floor1_layout.json` (`village`) and in the ModuleScript `Floor1_Village.lua`;
+  `buildSpots(folder)` makes invisible marker parts with `Role` / `House` attributes.
+- **Market:** two stalls with striped awnings and produce beside the road.
+- **Props:** barrels, crates, firewood, flower pots, a cart, baskets, hay bales, clotheslines, garden patches,
+  benches, fences and a well. They sit beside and behind the houses, never on the road or the riding routes.
+- **Walks:** stepping-stone walks run from each porch to the road.
+- **Lamps:** a warm lamp on every house, exported to `Floor1_Lights.lua`.
+- **Lake on the right of the village:** an irregular shore with grass to the water's edge, rocks, reeds, flowers,
+  bushes, small trees, lily pads and a fishing jetty. Two waterfalls drop into it from a new mossy cliff behind it,
+  with foam, mist and splash rocks. It's a lake, not a river.
+- **Plaza and road:**
+  - benches and flower beds round the plaza rim; the centre and the walk-ins stay open;
+  - grass tufts, flowers and occasional Verdant banners along the road edges.
+- **Hillside:** layered rocks, moss drapes, vines, bushes, flowers and hub trees at different heights on the portal
+  ridge and the cliff.
+- **Clean floors:** every house and stall has its own flat pad.
+- **Collision:** porches, steps and walks (`Village_Walk_*`) get exact collision.
+- **Cameras:** `CAM_F1_Village_Aerial`, `_Street`, `_Lakeside` and `_Lake`.
 
 **Roblox delivery** (`exports/TowerOfPets/Floor1/`, see `IMPORT.md` there)
 - Terrain, water, bridges and landmarks are one FBX per group, about 2,900 MeshParts and 1.56M triangles. Each part

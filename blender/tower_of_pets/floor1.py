@@ -63,6 +63,30 @@ def entrance_px(dist, side=0.0):
     return (ENTRANCE_SPAWN_PX[0] - dx * k * dist - dy * k * side, ENTRANCE_SPAWN_PX[1] - dy * k * dist + dx * k * side)
 
 
+def village_px(f, r):
+    """sheet pixel `f` studs forward of the plaza centre (toward the road), `r` studs to the right as seen from the
+    road looking at the portal (the Hatchery side)"""
+    return entrance_px(-f, -r)
+
+
+def village_ang(df, dr):
+    """world angle (deg) of the plaza-frame direction (forward df, right dr)"""
+    (ax, ay), (bx, by) = village_px(0, 0), village_px(df, dr)
+    return math.degrees(math.atan2(ay - by, bx - ax))           # sheet y points down
+
+
+# the Verdant Village round the entrance: placeholder NPC / quest houses (name, forward, right, style) - the houses
+# themselves are built in floor1_village.py; the terrain gives each a flat pad. Market stalls likewise.
+VILLAGE_HOUSES = (
+    ('House_Elder', -30, -215, 0), ('House_Baker', 95, -228, 1), ('House_Smith', 215, -180, 2),
+    ('House_Weaver', 335, -165, 3), ('House_Gardener', 165, 190, 4), ('House_Scholar', 55, 238, 6),
+    ('House_Fisher', -35, 268, 5),
+)
+VILLAGE_STALLS = (('Stall_Fruit', 105, -112), ('Stall_Flowers', 150, -82))
+VILLAGE_LAKE_C, VILLAGE_LAKE_R = (-125, 425), 105.0          # the lake on the right of the village
+VILLAGE_MESA = (-300, 505)                                    # the mossy cliff whose falls feed it
+
+
 # ------------------------------------------ layout (map-sheet pixels; heights / sizes in 1x studs, x WORLD below) ---
 # z: base height of the area's ground. style: (kind, amplitude, wavelength) - see style_height().
 # irr: edge irregularity. grow: studs the outline is grown into the gaps inside its landmass. kind: 'land' areas
@@ -174,6 +198,7 @@ FEATURES = (
     (*entrance_px(290), 24, 17, 1.1), (*entrance_px(240, -160), 15, 11, 1.2),   # rocky ridge behind the portal
     (*entrance_px(260, 180), 16, 12, 1.2), (*entrance_px(400, 60), 15, 10, 1.3),
     (150, 828, 9, 8, 1.0), (276, 896, 10, 10, 1.0),                             # knolls round the entrance plaza
+    (*village_px(*VILLAGE_MESA), 15, 10, 0.32), (*village_px(VILLAGE_MESA[0] - 70, VILLAGE_MESA[1] + 110), 11, 8, 0.4),
 )
 WORLD_TREE = (800, 150)                    # px; trunk centre on the World Tree pad
 ROOTS = ((-160, 230), (-115, 190), (-60, 240), (-20, 160), (25, 220), (70, 180), (120, 230), (165, 170), (205, 200))
@@ -187,6 +212,9 @@ LAKES = (
     ('Emerald_Lake_Water', [(842, 282), (900, 256), (980, 256), (1040, 285), (1058, 340), (1042, 410),
                             (1000, 450), (930, 462), (868, 446), (842, 400), (858, 350), (832, 312)], 97.0, 18.0),
     ('Ruins_Pond', [(705, 288), (745, 282), (770, 300), (752, 322), (712, 322)], 117.0, 4.0),
+    ('Village_Lake', [village_px(VILLAGE_LAKE_C[0] + VILLAGE_LAKE_R * k * math.cos(a), VILLAGE_LAKE_C[1] + VILLAGE_LAKE_R
+                                * k * math.sin(a)) for a, k in ((TAU * i / 11, (1.0, 0.86, 1.08, 0.92, 1.12, 0.84,
+                                1.0, 1.1, 0.88, 1.04, 0.94)[i]) for i in range(11))], 11.6, 2.6),
     ('Entrance_Spring_Pool', [(162, 862), (168, 859), (175, 862), (176, 868), (169, 872), (162, 870)], 10.0, 2.0),
     ('Riverfall_Pond_West', [(455, 568), (510, 560), (535, 580), (512, 600), (462, 598)], -11.0, 5.0),
     ('Riverfall_Pond_East', [(618, 628), (668, 624), (695, 642), (668, 662), (622, 658)], -11.0, 5.0),
@@ -218,6 +246,8 @@ SPRINGS = (
     ('Beast_East_Falls', (1300, 330), 0, None, 10),
     ('Whispering_West_Falls', (170, 560), 200, None, 12),
     ('Fortress_East_Falls', (1420, 600), 0, None, 14),
+    ('Village_Lake_Falls_A', village_px(VILLAGE_MESA[0] + 45, VILLAGE_MESA[1] - 50), village_ang(1, -0.75), None, 4),
+    ('Village_Lake_Falls_B', village_px(VILLAGE_MESA[0] + 62, VILLAGE_MESA[1] + 2), village_ang(1, -0.2), None, 2.6),
 )
 # flattened pads: name, px, py, radius (1x studs), z (1x, None = keep the ground at the centre), radius scale
 # (WORLD for region-sized pads, 2 for the boss arena, 1 for player-scale pads)
@@ -230,6 +260,8 @@ PADS = (
     ('MiniBoss_1', 440, 430, 36, None, 2), ('MiniBoss_2', 970, 690, 36, None, 2), ('MiniBoss_3', 1170, 140, 28, 310, 2),
     ('Lake_Islet', 960, 330, 22, 101, WORLD),
     ('CP_1', 400, 676, 16, None, 1), ('CP_2', 560, 600, 16, None, 1), ('CP_3', 815, 455, 16, None, 1),
+    *((n, *village_px(f, r), 36, None, 1) for n, f, r, _ in VILLAGE_HOUSES),
+    *((n, *village_px(f, r), 15, None, 1) for n, f, r in VILLAGE_STALLS),
     ('CP_4', 1108, 292, 16, None, 1), ('CP_5', 1305, 160, 16, 310, 1), ('CP_6', 880, 700, 16, None, 1),
 )
 # paths: name, kind, [(px, py, z or None)] - None follows the ground. kind -> width, max grade, bank width
@@ -285,6 +317,7 @@ PATHS = (
     ('Secret_Cliff_Path', 'hidden', [(228, 880, None), (280, 914, None), (322, 885, None), (348, 805, None)]),
 )
 GENTLE_RIVERS = {'Entrance_Brook'}
+GRASSY_SHORES = {'Village_Lake', 'Entrance_Spring_Pool'}
 # pads that carry built floors (plaza, stairs, buildings): flattened again after every path / river so nothing pokes
 # through, and set a hair under the floor meshes
 HARD_PADS = ('Spawn', 'Entrance_Portal', 'Entrance_Hatchery', 'Entrance_Shop')
@@ -823,7 +856,8 @@ class Terrain:
         swampy = a.name in ('Lotus_Swamp', 'Secret_Lotus_Grotto')
         if self.lake_f[i, j] < 1.0 and zmax < self.lake_z[i, j] - 0.4:
             return 'F1_Lakebed'
-        if self.lake_f[i, j] < 1.3 and zmax < self.lake_z[i, j] + 1.6 * WORLD:
+        grassy = LAKES[self.lake_i[i, j]][0] in GRASSY_SHORES          # village lake: grass to the water's edge
+        if self.lake_f[i, j] < 1.3 and zmax < self.lake_z[i, j] + (0.35 if grassy else 1.6) * WORLD:
             return 'F1_Mud' if swampy else 'F1_Sand'
         if a.name == 'Cloudridge_Peaks' and (zmax > 200 * WORLD or (zmax > 160 * WORLD and v > 0.25 and slope < 0.5)):
             return 'F1_Snow'
@@ -989,6 +1023,11 @@ def waterfall(p, T, start, ang, zw, w, name, falls):
         return None
     hb, landb = T.sample(*(q + d * 12 * WORLD))
     zb = hb + 0.2 if landb and hb < zw - 20 else CLOUD_Z + 10
+    for k in range(1, 16):                                       # falls into a lake end at its surface
+        i, j = (int(round((v + EXT) / S)) for v in q + d * (k * S / 2))
+        if T.lake_f[i, j] < 1.0 and T.land[i, j]:
+            zb = float(T.lake_z[i, j]) + 0.2
+            break
     top = zw + 0.3
     side = Vector((-d.y, d.x)) * (w / 2)
     c = q + d * 4.0
@@ -1318,6 +1357,14 @@ def build_floor1_cameras(coll_name='CAMERAS'):
              ('CAM_F1_Entrance_Plaza', (*px(*entrance_px(-260, 40)), 12 * ZL + 70), (*px(*entrance_px(20)), 12 * ZL + 12),
               'PERSP', 20),
              ('CAM_F1_Entrance_Brook', (*px(152, 846), 12 * ZL + 45), (*px(112, 872), 12 * ZL - 8), 'PERSP', 26),
+             ('CAM_F1_Village_Aerial', (*px(*village_px(560, -40)), 12 * ZL + 290), (*px(*village_px(20, 90)), 12 * ZL),
+              'PERSP', 20),
+             ('CAM_F1_Village_Lake', (*px(*village_px(40, 360)), 12 * ZL + 28), (*px(*village_px(-240, 450)), 12 * ZL + 34),
+              'PERSP', 22),
+             ('CAM_F1_Village_Street', (*px(*village_px(235, -70)), 12 * ZL + 12), (*px(*village_px(20, -225)), 12 * ZL + 14),
+              'PERSP', 22),
+             ('CAM_F1_Village_Lakeside', (*px(*village_px(250, 110)), 12 * ZL + 16), (*px(*village_px(10, 270)), 12 * ZL + 12),
+              'PERSP', 22),
              ('CAM_F1_Valley_View', P3(470, 660, 14), P3(700, 470, 60), 'PERSP', 22),
              ('CAM_F1_World_Tree_View', P3(1010, 470, 135), P3(800, 150, 250), 'PERSP', 24),
              ('CAM_F1_Fortress_View', P3(880, 720, 120), P3(1240, 560, 250), 'PERSP', 24),
@@ -1357,9 +1404,10 @@ def build_floor1():
     build_clouds()
     build_guides(T, falls, marks)
     build_scale_refs(T)
-    import floor1_detail, floor1_entrance
+    import floor1_detail, floor1_entrance, floor1_village
     detail = floor1_detail.build_detail(T, falls)
     entrance = floor1_entrance.build_entrance(T)
+    village = floor1_village.build_village(T)
     # layout data for Roblox scripting (Roblox coordinates: X, Y up, Z = -Blender Y)
     areas = []
     for a in AREAS:
@@ -1386,7 +1434,13 @@ def build_floor1():
         waterfalls=falls, bridges=detail['bridges'],
         entrance=dict(plaza=to_roblox(*entrance['plaza']), portal=to_roblox(*entrance['portal']),
                       stairs_bottom=to_roblox(*entrance['stairs_bottom']), hatchery=to_roblox(*entrance['hatchery']),
-                      shop=to_roblox(*entrance['shop'])))
+                      shop=to_roblox(*entrance['shop'])),
+        village=dict(
+            houses=[dict(name=h['name'], role=h['role'], position=to_roblox(*h['pos']), npc_spot=to_roblox(*h['npc']),
+                         facing=[round(h['facing'][0], 3), 0.0, round(-h['facing'][1], 3)]) for h in village['houses']],
+            stalls=[dict(name=s_['name'], position=to_roblox(*s_['pos']), npc_spot=to_roblox(*s_['npc']),
+                         facing=[round(s_['facing'][0], 3), 0.0, round(-s_['facing'][1], 3)])
+                    for s_ in village['stalls']]))
     land = T.land
     stats = dict(land_area_sq_studs=int(land.sum() * S * S), extent_x=[float(T.X[land].min()), float(T.X[land].max())],
                  extent_y=[float(T.Y[land].min()), float(T.Y[land].max())],

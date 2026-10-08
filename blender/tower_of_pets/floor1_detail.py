@@ -300,6 +300,8 @@ def build_detail_assets():
     shop.build_shop_materials(); hatchery.build_hatchery_materials()
     shop.build_shop_kit(None); hatchery.build_hatchery_kit(None)   # the hub Shop / Hatchery kits (entrance)
     floor1_entrance.build_entrance_assets()
+    import floor1_village
+    floor1_village.build_village_assets()
     mystic = {'Leaves_Light': 'Leaves_Mystic_Light', 'Leaves_Mid': 'Leaves_Mystic_Mid',
               'Leaves_Dark': 'Leaves_Mystic_Dark', 'Leaves_Highlight': 'Leaves_Mystic_Highlight'}
     for t in ('Tree_Large_Low', 'Tree_Medium_Low', 'Tree_Small_Low', 'Tree_Tall_Thin_Low', 'Bush_01', 'Bush_03'):

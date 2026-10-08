@@ -19,11 +19,12 @@
    6. `Floor1_Entrance.fbx`
    7. `Floor1_Shop.fbx`
    8. `Floor1_Hatchery.fbx`
-   9. `Floor1_Bridges.fbx`
-   10. `Floor1_Natural_Bridges.fbx`
-   11. `Floor1_Water.fbx`
-   12. `Floor1_Landmark_Blockouts.fbx`
-   13. `Floor1_Clouds.fbx` (optional, last)
+   9. `Floor1_Village.fbx`
+   10. `Floor1_Bridges.fbx`
+   11. `Floor1_Natural_Bridges.fbx`
+   12. `Floor1_Water.fbx`
+   13. `Floor1_Landmark_Blockouts.fbx`
+   14. `Floor1_Clouds.fbx` (optional, last)
 3. **Import `Floor1_Assets.fbx`** the same way. It's the library of trees, rocks and props, and lands as a pile at
    the centre of the map; that's expected.
 4. **Insert the scripts in one go:** in Explorer, right-click **ServerStorage** → **Insert from File…** → pick
@@ -32,6 +33,7 @@
    - `Floor1_Scatter`
    - `Floor1_Lighting`
    - `Floor1_Lights`
+   - `Floor1_Village`
    - a folder `Floor1_ScatterData` with 11 modules
 5. **Optional, only if the trees later look white or grey:** Home → **Asset Manager** → **Images** → upload
    `Floor1_Palette.png`. Right-click it → **Copy Asset ID** and give that ID to the AI.
@@ -62,16 +64,20 @@ time, and tell me what you found before moving on.
   Y = −3,800.
 - Imported terrain models: `Floor1_Verdant_Forest`, `Floor1_Waterfall_Valley`, `Floor1_Ancient_Ruins`,
   `Floor1_Mystic_Wilds`, `Floor1_Jungle_Fortress`, `Floor1_Entrance`, `Floor1_Shop`, `Floor1_Hatchery`,
-  `Floor1_Bridges`,
+  `Floor1_Village`, `Floor1_Bridges`,
   `Floor1_Natural_Bridges`, `Floor1_Water`,
   `Floor1_Landmark_Blockouts` and maybe `Floor1_Clouds`.
-  - There are about 2,950 MeshParts in total, each named `<Object>__<Material>`.
+  - There are about 3,300 MeshParts in total (plus about 600 if I imported the clouds), each named
+    `<Object>__<Material>`.
 - `Floor1_Entrance` is the Floor 1 entrance: a big portal with stairs and a round plaza with a leaf emblem.
   Players spawn on the plaza. Beside the plaza stand the hub's Shop and Hatchery (Eggs) buildings, the same
   models as in my hub (`Shop_Root` and `Hatchery_Root`).
-- `Floor1_Assets` is the asset library: 76 MeshParts such as `Tree_Large_Low`, `Rock_Large` and `Lantern_Wood`.
-- ServerStorage holds the ModuleScripts `Floor1_Materials`, `Floor1_Scatter`, `Floor1_Lighting`, `Floor1_Lights` and a
-  folder
+- `Floor1_Village` is a small village round the plaza: seven placeholder houses for quest NPCs
+  (`Village_House_Elder`, `_Baker`, `_Smith`, `_Weaver`, `_Gardener`, `_Scholar`, `_Fisher`) and two market stalls
+  (`Village_Market_Stalls`). A lake with two waterfalls lies to the right of the village.
+- `Floor1_Assets` is the asset library: 87 MeshParts such as `Tree_Large_Low`, `Rock_Large` and `Lantern_Wood`.
+- ServerStorage holds the ModuleScripts `Floor1_Materials`, `Floor1_Scatter`, `Floor1_Lighting`, `Floor1_Lights`,
+  `Floor1_Village` and a folder
   `Floor1_ScatterData` with 11 data modules.
 - **Check positions:**
   - Entrance plaza / spawn: about (-5225, 60, 3850).
@@ -108,8 +114,8 @@ Then do the same for "Foliage", "Rocks", "Props", "Ruins", "Water", "Cliffs", "L
 
 **Step 4: lighting, spawn, safety**
 1. Run `require(game.ServerStorage.Floor1_Lighting).apply()`. Then create a Folder `workspace.Floor1.Lights` and
-   run `require(game.ServerStorage.Floor1_Lights).build(workspace.Floor1.Lights)` for the shop and hatchery lamps. It sets bright fantasy daylight, haze, bloom and
-   terrain clouds.
+   run `require(game.ServerStorage.Floor1_Lights).build(workspace.Floor1.Lights)` for the shop, hatchery, house and portal
+   lamps. `Floor1_Lighting` sets bright fantasy daylight, haze, bloom and terrain clouds.
 2. Add a SpawnLocation (Anchored, Transparency 1, CanCollide off, Neutral) on the plaza emblem at
    (-5225, 61, 3850), facing away from the portal toward the forest road.
 3. Touching `Floor1_Portal_TeleportTrigger` (inside the entrance portal) should take the player back to the hub.
@@ -124,6 +130,7 @@ Then do the same for "Foliage", "Rocks", "Props", "Ruins", "Water", "Cliffs", "L
 
 Start a Play test (F5). Check that:
 - I spawn on the plaza in front of the portal, and can walk into the Shop and the Hatchery;
+- I can walk up onto every house porch and along the stepping-stone walks;
 - I can walk up the portal stairs, along the paved road, and across the wooden and stone bridges without falling
   through;
 - trees only block at their trunks;
@@ -137,5 +144,18 @@ the problem so I can have it fixed in Blender.
 Add a ProximityPrompt at the entrance of the Shop and of the Hatchery (the side facing the plaza). Each opens a
 simple placeholder UI with the building's name and a close button: red/gold for the Shop, purple/gold for the
 Hatchery. I'll hook my real shop and egg-hatching systems into these later.
+
+**Step 7: village NPC placeholders (for quests later)**
+1. Create a Folder `workspace.Floor1.NPCSpots` and run
+   `require(game.ServerStorage.Floor1_Village).buildSpots(workspace.Floor1.NPCSpots)`. It makes one invisible
+   marker part per house porch and market stall, facing the road, with `Role` and `House` attributes. It should
+   report 9.
+2. At each marker, put a simple placeholder NPC: a standard R15 rig, anchored, named after its role (Elder, Baker,
+   Smith, Weaver, Gardener, Scholar, Fisher, Merchant), standing on the marker's position and facing the same way.
+   Give each one a BillboardGui name tag and a ProximityPrompt "Talk".
+3. Talking opens one shared placeholder dialog with the NPC's name, a line such as "I might have a quest for you
+   soon!", and a close button.
+4. Keep it data-driven: one ModuleScript in ReplicatedStorage maps each Role to its display name and dialog lines,
+   so I can add real quests later without touching the map.
 
 At the end, list everything you created and where it is.

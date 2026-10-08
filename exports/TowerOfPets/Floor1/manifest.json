@@ -1,7 +1,7 @@
 {
   "files": {
     "Floor1_Verdant_Forest": {
-      "parts": 505,
+      "parts": 507,
       "triangles": 396268,
       "largest_part": 5943,
       "largest_extent": 1859.9,
@@ -92,8 +92,8 @@
       "size_mb": 2.35
     },
     "Floor1_Entrance": {
-      "parts": 51,
-      "triangles": 62204,
+      "parts": 57,
+      "triangles": 64108,
       "largest_part": 5984,
       "largest_extent": 362.6,
       "root": "Floor1_Entrance",
@@ -102,7 +102,7 @@
         0.0,
         -0.0
       ],
-      "size_mb": 1.22
+      "size_mb": 1.27
     },
     "Floor1_Shop": {
       "parts": 360,
@@ -130,9 +130,22 @@
       ],
       "size_mb": 1.65
     },
+    "Floor1_Village": {
+      "parts": 207,
+      "triangles": 103668,
+      "largest_part": 5984,
+      "largest_extent": 392.8,
+      "root": "Floor1_Village",
+      "root_position_roblox": [
+        0.0,
+        0.0,
+        -0.0
+      ],
+      "size_mb": 2.65
+    },
     "Floor1_Water": {
-      "parts": 163,
-      "triangles": 97618,
+      "parts": 165,
+      "triangles": 98132,
       "largest_part": 5672,
       "largest_extent": 1776.0,
       "root": "Floor1_Water",
@@ -141,7 +154,7 @@
         0.0,
         -0.0
       ],
-      "size_mb": 1.36
+      "size_mb": 1.37
     },
     "Floor1_Landmark_Blockouts": {
       "parts": 83,
@@ -170,8 +183,8 @@
       "size_mb": 1.44
     }
   },
-  "materials": 170,
-  "lights": 13,
+  "materials": 208,
+  "lights": 23,
   "spawn_roblox": [
     -5225.0,
     60.0,

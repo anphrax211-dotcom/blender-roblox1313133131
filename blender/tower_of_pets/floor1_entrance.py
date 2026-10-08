@@ -61,6 +61,7 @@ def build_entrance_materials():
     P('F1_Portal_Core', (0.80, 0.97, 1.0), 0.2, emit=2.2, emit_rgb=(0.75, 0.97, 1.0))
     P('F1_Portal_Swirl', (0.55, 0.95, 1.0), 0.2, emit=1.8, emit_rgb=(0.55, 0.95, 1.0))
     P('F1_Rune_Glow', (0.2, 0.9, 1.0), 0.3, emit=2.5)
+    P('Fire_Core', (1.0, 0.85, 0.35), 0.4, emit=2.6)
 
 
 # ---------------------------------------------------------------- shapes ----
@@ -202,6 +203,18 @@ def build_portal(T):
         r = (OPEN_W + 6) / 2
         c = Vector((r * math.cos(a), -1.75, OPEN_HS + r * math.sin(a)))
         w.box(Mz @ c, (0.9, 0.2, 1.6), 'F1_Rune_Glow', Mz.to_3x3().normalized() @ Matrix.Rotation(a - math.pi / 2, 3, 'Y'))
+    # layered outer ring: a second, proud course of pale voussoirs with its own cyan runes
+    arch_out2 = round_arch(OPEN_W + 19, OPEN_HS, 16)
+    voussoirs(w, Mz, arch_out2, arch_out, -3.6, -1.2, rnd, stone=5.2, mat='Castle_Stone_Light', backing=False)
+    for k in range(11):
+        a = math.pi * (k + 1) / 12
+        r = (OPEN_W + 15.5) / 2
+        c = Vector((r * math.cos(a), -3.75, OPEN_HS + r * math.sin(a)))
+        w.box(Mz @ c, (0.8, 0.2, 1.4), 'F1_Rune_Glow', Mz.to_3x3().normalized() @ Matrix.Rotation(a - math.pi / 2, 3, 'Y'))
+    for s in (-1, 1):                                           # rune columns down the jambs
+        for k in range(5):
+            w.box(Mz @ Vector((s * (OPEN_W + 15.5) / 2, -3.75, 4.0 + k * 5.0)), (0.8, 0.2, 1.4 + (k % 2) * 0.8),
+                  'F1_Rune_Glow', Mz.to_3x3().normalized())
     w.finish()
     # pillars, wing walls, banners
     pl = Part('Entrance_Portal_Pillars', C)
@@ -246,6 +259,14 @@ def build_portal(T):
             if prev is not None:
                 e.beam(Mz @ prev, Mz @ q, 1.4 * (1 - t * 0.5), 0.15, 'F1_Portal_Swirl' if arm % 2 else 'F1_Portal_Core')
             prev = q
+    e.torus(Mz @ Vector((0, 1.6, cz)), OPEN_W / 2 - 2.2, 0.35, 'F1_Portal_Swirl', 40, 4,
+            rot=Mz.to_3x3().normalized() @ Matrix.Rotation(math.pi / 2, 3, 'X') @ Matrix.Diagonal((1.0, 1.25, 1.0)))
+    for k in range(40):                                         # particles orbiting the opening
+        a = rnd.uniform(0, TAU); r = rnd.uniform(OPEN_W / 2 - 4, OPEN_W / 2 + 1)
+        zz = cz + r * math.sin(a) * 1.2
+        if zz < 0.8:
+            continue
+        e.ico(Mz @ Vector((r * math.cos(a), rnd.uniform(-2.5, 1.0), zz)), rnd.uniform(0.2, 0.45), 'F1_Rune_Glow', 1)
     for k in range(70):                                         # sparkles drifting out of the portal
         x = rnd.uniform(-OPEN_W / 2, OPEN_W / 2); zz = rnd.uniform(1, OPEN_HS + 12); y = rnd.uniform(-14, 1.5)
         e.ico(Mz @ Vector((x, y, zz)), rnd.uniform(0.15, 0.4), rnd.choice(('F1_Portal_Core', 'F1_Portal_Swirl')), 1)
@@ -256,6 +277,27 @@ def build_portal(T):
     tr = t.finish()
     tr.hide_render = True
     tr.display_type = 'WIRE'
+    # stone fire braziers at the front corners of the dais + warm / cyan lamps
+    import bpy
+    b = Part('Entrance_Portal_Braziers', C)
+    lights = coll('F1_VILLAGE_LIGHTS', F.ROOT).name
+    for s in (-1, 1):
+        q = Mz @ Vector((s * 40.0, -DAIS_D + 3.5, 0))
+        Mb = Matrix.Translation(q)
+        bevel_box(b, Mb, (0, 0, 1.2), (4.4, 4.4, 2.4), 'Castle_Stone_Light', 0.25)
+        b.cyl(q + Vector((0, 0, 4.4)), 1.0, 4.0, 'Castle_Stone', 8)
+        b.cyl(q + Vector((0, 0, 7.0)), 2.6, 1.4, 'Iron_Band', 10, r2=1.6)
+        b.cone(q + Vector((0, 0, 7.6)), 2.0, 3.4, 'Forge_Glow', 7)
+        b.cone(q + Vector((0, 0, 8.4)), 1.1, 3.6, 'Fire_Core', 6)
+        L = bpy.data.lights.new(f'Portal_Brazier_Light_{s + 1}', 'POINT')
+        L.color = (1.0, 0.62, 0.28); L.energy = 2600; L.shadow_soft_size = 1.0
+        o = bpy.data.objects.new(L.name, L); o.location = q + Vector((0, 0, 11.0))
+        bpy.data.collections[lights].objects.link(o)
+    b.finish()
+    L = bpy.data.lights.new('Portal_Glow_Light', 'POINT')
+    L.color = (0.35, 0.85, 1.0); L.energy = 6000; L.shadow_soft_size = 4.0
+    o = bpy.data.objects.new(L.name, L); o.location = Mz @ Vector((0, -6.0, OPEN_HS * 0.7))
+    bpy.data.collections[lights].objects.link(o)
     return M, z, H
 
 
@@ -363,6 +405,9 @@ def dress(T, M, z0, H, c, d, gaps):
             if (k + (sgn > 0)) % 2:
                 continue
             q = c + d * dist + side * sgn * rnd.uniform(70, 95)
+            if any((Vector(F.px(*F.village_px(f, r))) - q.xy).length < 48 for n, f, r, *_ in
+                   F.VILLAGE_HOUSES + F.VILLAGE_STALLS):
+                continue                                        # (village houses and stalls stand there)
             place('Trees', rnd.choice(('Tree_Medium_High', 'Tree_Large_High', 'Tree_Small')), q.x, q.y, gz(q) - 1,
                   rnd.uniform(0, TAU), rnd.uniform(1.9, 2.6))
     # planters, bushes, flowers and rocks round the stairs and plaza

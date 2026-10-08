@@ -71,6 +71,7 @@ def main(path=OUT):
     os.makedirs(JSON_DIR, exist_ok=True)
     with open(os.path.join(JSON_DIR, 'floor1_layout.json'), 'w') as f:
         json.dump(layout, f, indent=1)
+    floor1_roblox.write_village(layout['village'], JSON_DIR)
     # environment scatter -> Roblox placement data + placer + lighting scripts
     offsets = {}
     for name in {p[1] for p in floor1_detail.PLACED}:

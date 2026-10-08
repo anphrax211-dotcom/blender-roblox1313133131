@@ -366,3 +366,27 @@ python3 blender/fire_pets.py                          # rebuild blender/FirePets
 python3 blender/fire_pets.py --render previews        # also render every turnaround camera + the sheet
 python3 blender/export_fire_pets.py                   # rebuild exports/FirePets/*.fbx + textures
 ```
+
+## Water pets: Bogtoad, Bubbletoad, Puddlepup, Rainhound (`blender/WaterPets.blend`)
+Four Common water-type pets from the water-pet turnaround sheet (`blender/water_pets.py`). They're built in the
+same style and pipeline as the fire pets, reusing `fire_pets.py`'s helpers, on the same shared scale. All four
+use the light game-budget format (about 19–27k triangles each), and every eye is flush with the head.
+
+| Pet | Look | Parts beyond the usual body / head / legs / paws / eyes |
+|---|---|---|
+| Bogtoad | squat olive-green toad, cream belly, amber eyes, wide open smile, brown toes | `_Belly`, `_Spots`, `_Cheeks`, `_Moss` (puffy clover clumps on the head and spine), `_Nostrils`, `_Mouth` |
+| Bubbletoad | round teal toad, pale aqua belly, indigo eyes, webbed cyan feet | `_Belly`, `_Spots` (cyan bubble spots), `_Bubbles` (clear glossy bubbles on the head and down the back) |
+| Puddlepup | chunky blue puppy, navy floppy ears, pale muzzle and chest fluff, tongue out | `_Muzzle`, `_ChestFluff`, `_WaterTopknot`, `_Tail` (clear water curl with a droplet), `_Spots` |
+| Rainhound | taller dark-blue dog, long ears fading to aqua tips | `_Muzzle`, `_CloudTuft`, `_ChestFluff` (cloud puffs), `_Tail` (cloud swirl, blue inside → white outside), `_RainDrops` (aqua teardrops on body, legs and ears) |
+
+- **Layout:** left to right, Bogtoad x=−3.9, Bubbletoad −1.3, Puddlepup 1.3, Rainhound 3.9. Each faces −Y on
+  z = 0.
+- **Collections:** one per pet under `PETS`, with every part a separate editable mesh parented to `<Pet>_Root`.
+  `STUDIO`, `CAMERAS` (`CAM_<Pet>_Front/_Side/_Back`, orthographic) and `LABELS` work like the fire pets.
+- **Previews:** `previews/WaterPets_Turnaround.png`, `WaterPets_<Pet>_<View>.png`,
+  `WaterPets_Overview_ThreeQuarter.png` and `WaterPets_Lineup_Front.png`.
+
+```
+python3 blender/water_pets.py                        # rebuild blender/WaterPets.blend
+python3 blender/water_pets.py --render previews      # also render every turnaround camera + the sheet
+```

@@ -1326,7 +1326,7 @@ def build_scene():
     return sc
 
 
-def render_previews(sc, out, only=None, samples=48):
+def render_previews(sc, out, only=None, samples=48, prefix='FirePets'):
     os.makedirs(out, exist_ok=True)
     sc.cycles.samples = samples
     shots = []
@@ -1335,7 +1335,7 @@ def render_previews(sc, out, only=None, samples=48):
     for pet in PET_X:
         for view in ('Front', 'Side', 'Back'):
             sc.camera = bpy.data.objects[f'CAM_{pet}_{view}']
-            sc.render.filepath = os.path.join(out, f'FirePets_{pet}_{view}.png')
+            sc.render.filepath = os.path.join(out, f'{prefix}_{pet}_{view}.png')
             if not only or pet in only:
                 bpy.ops.render.render(write_still=True)
             shots.append(sc.render.filepath)
@@ -1344,7 +1344,7 @@ def render_previews(sc, out, only=None, samples=48):
         sc.cycles.samples = 64
         for cam in ('CAM_Overview_ThreeQuarter', 'CAM_Lineup_Front'):
             sc.camera = bpy.data.objects[cam]
-            sc.render.filepath = os.path.join(out, f'FirePets_{cam[4:]}.png')
+            sc.render.filepath = os.path.join(out, f'{prefix}_{cam[4:]}.png')
             bpy.ops.render.render(write_still=True)
     sc.camera = bpy.data.objects['CAM_Overview_ThreeQuarter']
     try:
@@ -1368,7 +1368,7 @@ def render_previews(sc, out, only=None, samples=48):
             dr.text((LW + c * W + W // 2 - 40, y0 + 8), view, fill=(40, 40, 44), font=small)
         if r:
             dr.line((0, y0, sheet.width, y0), fill=(120, 120, 124), width=2)
-    sheet.save(os.path.join(out, 'FirePets_Turnaround.png'))
+    sheet.save(os.path.join(out, f'{prefix}_Turnaround.png'))
 
 
 def main():

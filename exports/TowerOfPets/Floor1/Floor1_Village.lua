@@ -11,11 +11,26 @@ M.Houses = {
 	{Name = "House_Scholar", Role = "Scholar", Position = Vector3.new(-5133.4, 60.0, 3757.7), NpcSpot = Vector3.new(-5123.4, 63.1, 3771.4), Facing = Vector3.new(0.274, 0.0, 0.962)},
 	{Name = "House_Herbalist", Role = "Herbalist", Position = Vector3.new(-5082.7, 58.8, 3741.3), NpcSpot = Vector3.new(-5078.0, 61.9, 3755.2), Facing = Vector3.new(0.209, 0.0, 0.978)},
 	{Name = "House_Fisher", Role = "Fisher", Position = Vector3.new(-5346.1, 59.8, 3733.7), NpcSpot = Vector3.new(-5331.5, 62.9, 3739.6), Facing = Vector3.new(0.721, 0.0, 0.693)},
+	{Name = "House_Mayor", Role = "Elder", Position = Vector3.new(-2048.0, 142.7, 2936.9), NpcSpot = Vector3.new(-2060.3, 145.8, 2923.6), Facing = Vector3.new(-0.403, 0.0, -0.915)},
+	{Name = "House_Tailor", Role = "Baker", Position = Vector3.new(-1899.2, 147.9, 2895.5), NpcSpot = Vector3.new(-1911.6, 151.0, 2884.1), Facing = Vector3.new(-0.457, 0.0, -0.89)},
+	{Name = "House_Carpenter", Role = "Smith", Position = Vector3.new(-1782.7, 148.7, 2937.3), NpcSpot = Vector3.new(-1790.9, 151.9, 2922.5), Facing = Vector3.new(-0.149, 0.0, -0.989)},
+	{Name = "House_Brewer", Role = "Weaver", Position = Vector3.new(-1731.9, 141.6, 2961.5), NpcSpot = Vector3.new(-1734.2, 144.7, 2945.7), Facing = Vector3.new(-0.043, 0.0, -0.999)},
+	{Name = "House_Florist", Role = "Gardener", Position = Vector3.new(-1879.1, 127.4, 2734.8), NpcSpot = Vector3.new(-1868.2, 130.6, 2746.9), Facing = Vector3.new(0.355, 0.0, 0.935)},
+	{Name = "House_Librarian", Role = "Scholar", Position = Vector3.new(-1828.5, 133.5, 2751.9), NpcSpot = Vector3.new(-1820.0, 136.6, 2766.5), Facing = Vector3.new(0.173, 0.0, 0.985)},
+	{Name = "House_Apothecary", Role = "Herbalist", Position = Vector3.new(-1778.0, 129.4, 2769.0), NpcSpot = Vector3.new(-1772.2, 132.5, 2782.5), Facing = Vector3.new(0.288, 0.0, 0.958)},
+	{Name = "House_Angler", Role = "Fisher", Position = Vector3.new(-1984.7, 118.5, 2605.6), NpcSpot = Vector3.new(-1974.0, 121.6, 2617.0), Facing = Vector3.new(0.366, 0.0, 0.931)},
+	{Name = "House_Potter", Role = "Potter", Position = Vector3.new(-1737.5, 120.7, 2585.1), NpcSpot = Vector3.new(-1752.5, 123.9, 2591.4), Facing = Vector3.new(-0.999, 0.0, 0.033)},
+	{Name = "House_Cooper", Role = "Cooper", Position = Vector3.new(-1778.7, 125.0, 2494.5), NpcSpot = Vector3.new(-1781.2, 128.1, 2511.9), Facing = Vector3.new(-0.468, 0.0, 0.884)},
+	{Name = "House_Miller", Role = "Miller", Position = Vector3.new(-1892.1, 120.9, 2644.0), NpcSpot = Vector3.new(-1884.0, 124.0, 2629.2), Facing = Vector3.new(0.752, 0.0, -0.659)},
 }
 
 M.Stalls = {
 	{Name = "Stall_Fruit", Position = Vector3.new(-5097.1, 58.9, 3845.5), NpcSpot = Vector3.new(-5096.9, 58.9, 3846.5), Facing = Vector3.new(-0.146, 0.0, -0.989)},
 	{Name = "Stall_Flowers", Position = Vector3.new(-5062.8, 59.4, 3836.6), NpcSpot = Vector3.new(-5062.6, 59.4, 3837.6), Facing = Vector3.new(-0.199, 0.0, -0.98)},
+	{Name = "Stall_Produce", Position = Vector3.new(-1856.8, 143.8, 2893.8), NpcSpot = Vector3.new(-1856.4, 143.8, 2894.7), Facing = Vector3.new(-0.331, 0.0, -0.944)},
+	{Name = "Stall_Blooms", Position = Vector3.new(-1823.9, 147.6, 2907.1), NpcSpot = Vector3.new(-1823.7, 147.6, 2908.1), Facing = Vector3.new(-0.271, 0.0, -0.963)},
+	{Name = "Stall_Bread", Position = Vector3.new(-1883.3, 120.9, 2616.7), NpcSpot = Vector3.new(-1884.2, 120.9, 2617.2), Facing = Vector3.new(0.887, 0.0, -0.461)},
+	{Name = "Stall_Cloth", Position = Vector3.new(-1768.3, 122.1, 2551.9), NpcSpot = Vector3.new(-1767.5, 122.1, 2551.3), Facing = Vector3.new(-0.856, 0.0, 0.517)},
 }
 
 -- creates an anchored, invisible, non-colliding marker Part per NPC spot inside `parent` (e.g. a Folder

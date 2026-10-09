@@ -271,12 +271,22 @@ STYLES = (
     dict(name='Fisher', w=20, dep=16, h1=8.5, h2=0, jetty=0, roof='thatch', ridge='x', rise=10, rmat='Thatch',
          plaster='Plaster_White', shutter='Wood_Shutter_Blue', brace='diag', chimney=(1, -0.2), balcony=False,
          sign='Cloth_Blue', extra='nets'),
-    dict(name='Scholar', w=22, dep=18, h1=9.5, h2=8.5, jetty=1.0, roof='gable', ridge='x', rise=11, rmat='Roof_Purple',
+    dict(name='Scholar', w=22, dep=18, h1=9.5, h2=8.5, jetty=1.0, roof='gable', ridge='x', rise=11, rmat='Roof_Green',
          plaster='Plaster_Cream', shutter='Wood_Shutter_Blue', brace='diag', chimney=(1, 0.0), balcony=False,
          sign='Verdant_Emblem', extra='tower'),
     dict(name='Herbalist', w=18, dep=16, h1=9.0, h2=0, jetty=0, roof='gable', ridge='y', rise=12, rmat='Roof_Orange',
          plaster='Plaster_Sage', shutter='Wood_Shutter_Green', brace='x', chimney=(-1, 0.3), balcony=False,
          sign='Flower_Purple', extra='herbs'),
+    # the three plaza houses (concept palette: warm orange, brown and dark green roofs)
+    dict(name='Potter', w=20, dep=17, h1=9.5, h2=0, jetty=0, roof='gable', ridge='x', rise=10, rmat='Roof_Orange',
+         plaster='Plaster_Peach', shutter='Wood_Shutter_Green', brace='diag', chimney=(1, 0.2), balcony=False,
+         sign='Produce_Orange', extra='lean_to'),
+    dict(name='Cooper', w=24, dep=19, h1=9.5, h2=8.0, jetty=1.1, roof='curved', ridge='x', rise=10, rmat='Roof_Brown',
+         plaster='Plaster_Cream', shutter='Wood_Shutter_Red', brace='x', chimney=(-1, 0.1), balcony=True,
+         sign='Wood_Plank', extra='dormer'),
+    dict(name='Miller', w=22, dep=18, h1=9.0, h2=8.0, jetty=1.0, roof='gable', ridge='y', rise=12, rmat='Roof_Green',
+         plaster='Plaster_White', shutter='Wood_Shutter_Blue', brace='chevron', chimney=(1, -0.2), balcony=False,
+         sign='Leaves_Mid', extra='herbs'),
 )
 
 
@@ -572,8 +582,15 @@ def build_village_assets():
 
 
 # ---------------------------------------------------------------- build
+def village_frame():
+    """village centre (world), unit direction along the Village Road away from the Floor Entrance"""
+    cx, cy = F.px(*F.VILLAGE_CENTER_PX)
+    ax, ay = F.px(*F.VILLAGE_AXIS_PX)
+    return Vector((cx, cy, 0)), Vector((ax - cx, ay - cy, 0)).normalized()
+
+
 def nearest_road(T, q):
-    pts = next(pts for n, k, w, pts in T.paths if n == 'Entrance_Road')
+    pts = [p for n, k, w, pts in T.paths if n in ('Village_Road', 'Entrance_Road') for p in pts]
     return min((Vector((x, y, z)) for x, y, z in pts), key=lambda v: (v.xy - q.xy).length)
 
 
@@ -595,26 +612,59 @@ def stepping_stones(T, walk, a, b, rnd):
                       rnd.choice(('Castle_Stone_Light', 'Castle_Trim', 'Castle_Stone')), 0.2)
 
 
+def sites():
+    """the two settlements: the hamlet round the Floor Entrance (original layout) and Verdant Village proper"""
+    return (
+        dict(key='entrance', prefix='Village', frame=frame, px=F.entrance_village_px, houses=F.ENTRANCE_HOUSES,
+             stalls=F.ENTRANCE_STALLS, lake='Village_Lake', lake_c=F.ENTRANCE_LAKE_C, mesa=F.ENTRANCE_MESA,
+             road='Entrance_Road', plaza=None, fr1=(-60, 360), fr2=(-120, 330), road_r=(70, 400), seed=301),
+        dict(key='village', prefix='Verdant_Village', frame=village_frame, px=F.village_px, houses=F.VILLAGE_HOUSES,
+             stalls=F.VILLAGE_STALLS, lake='Verdant_Village_Lake', lake_c=F.VILLAGE_LAKE_C, mesa=F.VILLAGE_MESA,
+             road='Village_Road', plaza=F.VILLAGE_PLAZA, fr1=(-260, 260), fr2=(-260, 240), road_r=(0, 330), seed=302),
+    )
+
+
+SITE = None
+
+
+def build_villages(T):
+    """both settlements; returns the merged layout data (houses / stalls carry their site)"""
+    global SITE
+    out = dict(houses=[], stalls=[], plaza=None)
+    for st in sites():
+        SITE = st
+        v = build_village(T)
+        for h in v['houses'] + v['stalls']:
+            h['site'] = st['key']
+        out['houses'] += v['houses']; out['stalls'] += v['stalls']
+        if v.get('plaza'):
+            out['plaza'] = v['plaza']
+    return out
+
+
 def build_village(T):
     from floor1_detail import place, ground_z
     coll(C, F.ROOT)
     coll(LIGHTS, F.ROOT)
-    rnd = random.Random(301)
-    c, d = frame()
+    rnd = random.Random(SITE['seed'])
+    c, d = SITE['frame']()
     side = Vector((-d.y, d.x, 0))
+    c0, d0 = frame()
+    side0 = Vector((-d0.y, d0.x, 0))
     gz = lambda q: float(ground_z(T, q.x, q.y))
     W = lambda f, r: c + d * f + side * r
     houses = []
     walk_lines = []
-    walks = Part('Village_Walk_Paths', C)
-    for (name, f, r, si) in F.VILLAGE_HOUSES:
+    walks = Part(SITE['prefix'] + '_Walk_Paths', C)
+    for (name, f, r, si) in SITE['houses']:
         st = STYLES[si]
         pos = W(f, r)
         z = T.sample(pos.x, pos.y)[0]
         road = nearest_road(T, pos)
+        if SITE['plaza'] and name in F.VILLAGE_PLAZA_HOUSES:   # plaza houses face the fountain; their walk ends at the rim
+            road = W(*F.VILLAGE_PLAZA)
+            road.z = z
         fdir = (road - pos).xy.normalized()
-        if st['name'] == 'Fisher':                              # the fisher looks out over the road, back to the lake
-            pass
         rot = math.atan2(fdir.x, -fdir.y)
         M = Matrix.Translation((pos.x, pos.y, z)) @ Matrix.Rotation(rot, 4, 'Z')
         Mw = M @ Matrix.Diagonal((HOUSE_SCALE, HOUSE_SCALE, HOUSE_SCALE, 1.0))
@@ -624,7 +674,8 @@ def build_village(T):
             part.finish()
         npc, wstart, lamp = Mw @ npc, Mw @ wstart, Mw @ lamp
         # walk from the porch steps to the road edge
-        end = road + (pos - road).xy.normalized().to_3d() * 27.0
+        end = road + (pos - road).xy.normalized().to_3d() * (F.VILLAGE_PLAZA_R + 3 if name in F.VILLAGE_PLAZA_HOUSES
+                                                             else 27.0)
         stepping_stones(T, walks, wstart, end, rnd)
         walk_lines.append((wstart.copy(), end.copy()))
         L = bpy.data.lights.new(f'Village_Light_{name}', 'POINT')
@@ -636,13 +687,14 @@ def build_village(T):
                            facing=(fdir.x, fdir.y), M=M, w=st['w'] * HOUSE_SCALE, dep=st['dep'] * HOUSE_SCALE))
     walks.finish()
     # market stalls (face the road)
-    sp = Part('Village_Market_Stalls', C)
-    colours = (('Awning_Red', 'Awning_White'), ('Awning_Blue', 'Awning_Yellow'))
+    sp = Part(SITE['prefix'] + '_Market_Stalls', C)
+    colours = (('Awning_Red', 'Awning_White'), ('Awning_Blue', 'Awning_Yellow'), ('Awning_Red', 'Awning_Yellow'),
+               ('Awning_Blue', 'Awning_White'))
     stalls = []
-    for k, (name, f, r) in enumerate(F.VILLAGE_STALLS):
+    for k, (name, f, r) in enumerate(SITE['stalls']):
         pos = W(f, r)
         z = T.sample(pos.x, pos.y)[0]
-        road = nearest_road(T, pos)
+        road = nearest_road(T, pos) if k < 2 else W(*F.VILLAGE_PLAZA)    # plaza stalls face the fountain
         fd = (road - pos).xy.normalized()
         M = Matrix.Translation((pos.x, pos.y, z)) @ Matrix.Rotation(math.atan2(fd.x, -fd.y), 4, 'Z')
         build_stall(sp, M, rnd, colours[k])
@@ -654,9 +706,14 @@ def build_village(T):
     dress_houses(T, houses, place, gz, rnd)
     dress_greenery(T, houses, walk_lines, place, gz, rnd, c, d, side)
     dress_lake(T, place, gz, rnd, c, d, side)
-    dress_plaza(T, place, gz, rnd, c, d, side)
-    dress_hillside(T, place, gz, rnd, c, d, side)
-    return dict(houses=[{k: v for k, v in h.items() if k not in ('M',)} for h in houses], stalls=stalls)
+    heart = None
+    if SITE['key'] == 'entrance':
+        dress_plaza(T, place, gz, rnd, c, d, side)
+        dress_hillside(T, place, gz, rnd, c, d, side)           # the portal hill + the mesa over its lake
+    else:
+        dress_hillside(T, place, gz, rnd, c, d, side, mesa_only=True)
+        heart = build_village_heart(T, place, gz, random.Random(611), c, d, side)
+    return dict(plaza=heart, houses=[{k: v for k, v in h.items() if k not in ('M',)} for h in houses], stalls=stalls)
 
 
 def clear_of_routes(T, q, margin):
@@ -677,10 +734,13 @@ def dress_houses(T, houses, place, gz, rnd):
         'Fisher': (('Barrel', 3), ('Crate', 2), ('Basket', 2), ('Clothesline', 1)),
         'Scholar': (('Bench', 1), ('Flower_Pot', 3), ('Crate', 1), ('Garden_Patch', 1)),
         'Herbalist': (('Flower_Pot', 4), ('Basket', 3), ('Garden_Patch', 1), ('Barrel', 1)),
+        'Potter': (('Crate', 2), ('Basket', 2), ('Flower_Pot', 3), ('Firewood_Stack', 1)),
+        'Cooper': (('Barrel', 4), ('Crate', 1), ('Cart', 1), ('Bench', 1)),
+        'Miller': (('Hay_Bale', 3), ('Basket', 2), ('Garden_Patch', 2), ('Flower_Pot', 1)),
     }
     def crowded(q, me):                                         # keep props out of the neighbours' footprints
         return any((Vector(o['pos'][:2]) - q.xy).length < 24 for o in houses if o is not me) or \
-            any((Vector(F.px(*F.village_px(f, r))) - q.xy).length < 14 for n, f, r in F.VILLAGE_STALLS)
+            any((Vector(F.px(*SITE['px'](f, r))) - q.xy).length < 14 for n, f, r in SITE['stalls'])
     for h in houses:
         M = h['M']
         R = Matrix.Rotation(math.atan2(h['facing'][0], -h['facing'][1]), 3, 'Z')
@@ -725,8 +785,8 @@ def dress_houses(T, houses, place, gz, rnd):
 def dress_lake(T, place, gz, rnd, c, d, side):
     """shoreline: rocks, reeds, flowers, bushes, small trees; lily pads; a fishing jetty"""
     from floor1_detail import grid_index
-    lc = c + d * F.VILLAGE_LAKE_C[0] + side * F.VILLAGE_LAKE_C[1]
-    li = next(k for k, l in enumerate(F.LAKES) if l[0] == 'Village_Lake')
+    lc = c + d * SITE['lake_c'][0] + side * SITE['lake_c'][1]
+    li = next(k for k, l in enumerate(F.LAKES) if l[0] == SITE['lake'])
     zw = F.LAKES[li][2]
     # walk round the shore: find the water edge along rays from the centre
     for k in range(64):
@@ -754,8 +814,8 @@ def dress_lake(T, place, gz, rnd, c, d, side):
                       q.x, q.y, zq, rnd.uniform(0, TAU), rnd.uniform(*sc))
         if k % 9 == 4:                                          # small trees round the lake
             q = edge + u * rnd.uniform(24, 34)
-            if clear_of_routes(T, q, 10) and not any((Vector(F.px(*F.village_px(f, r))) - q.xy).length < 45
-                                                     for n, f, r, *_ in F.VILLAGE_HOUSES):
+            if clear_of_routes(T, q, 10) and not any((Vector(F.px(*SITE['px'](f, r))) - q.xy).length < 45
+                                                     for n, f, r, *_ in SITE['houses']):
                 place('Trees', rnd.choice(('Tree_Small', 'Tree_Medium_High')), q.x, q.y, gz(q) - 1, rnd.uniform(0, TAU),
                       rnd.uniform(1.6, 2.2))
     for k in range(26):                                         # lily pads
@@ -820,11 +880,13 @@ def dress_plaza(T, place, gz, rnd, c, d, side):
             place('Props', 'Verdant_Banner_Pole', q.x, q.y, gz(Vector((q.x, q.y, 0))), math.atan2(t.y, t.x), 1.15)
 
 
-def dress_hillside(T, place, gz, rnd, c, d, side):
+def dress_hillside(T, place, gz, rnd, c, d, side, mesa_only=False):
     """layered rocks, moss, vines, bushes, flowers and trees at different heights on the portal hill and the cliff"""
     from floor1_detail import grid_index
     zp = T.sample(c.x, c.y)[0]
-    centres = ((-290, 0, 260), (-240, 160, 150), (-260, -180, 150), (F.VILLAGE_MESA[0], F.VILLAGE_MESA[1], 140))
+    centres = ((-290, 0, 260), (-240, 160, 150), (-260, -180, 150), (SITE['mesa'][0], SITE['mesa'][1], 140))
+    if mesa_only:
+        centres = centres[3:]
     for fc, rc, rad in centres:
         o = c + d * fc + side * rc
         for k in range(70):
@@ -833,8 +895,8 @@ def dress_hillside(T, place, gz, rnd, c, d, side):
             i, j = grid_index(T, q.x, q.y)
             if not T.land[i, j] or T.path_e[i, j] < 10 or T.lake_f[i, j] < 1.2:
                 continue
-            if (q - c).xy.length < 120 or any((Vector(F.px(*F.village_px(f, r))) - q.xy).length < 40
-                                              for n, f, r, *_ in F.VILLAGE_HOUSES + F.VILLAGE_STALLS):
+            if (q - c).xy.length < 120 or any((Vector(F.px(*SITE['px'](f, r))) - q.xy).length < 40
+                                              for n, f, r, *_ in SITE['houses'] + SITE['stalls']):
                 continue                                         # (plaza, stairs, buildings and houses stay clear)
             zq = gz(q)
             sl = T.slope[i, j]
@@ -871,8 +933,9 @@ def dress_greenery(T, houses, walk_lines, place, gz, rnd, c, d, side):
     only collide at their trunks), so riders can still cross the grass"""
     from floor1_detail import grid_index
     from floor1_entrance import PLAZA_R
-    stalls = [Vector(F.px(*F.village_px(f, r))) for n, f, r in F.VILLAGE_STALLS]
-    bld = [Vector(F.px(*F.village_px(0, s_ * 105))) for s_ in (-1, 1)]          # shop, hatchery
+    stalls = [Vector(F.px(*SITE['px'](f, r))) for n, f, r in SITE['stalls']]
+    vp = c + d * SITE['plaza'][0] + side * SITE['plaza'][1] if SITE['plaza'] else c + d * 1e6
+    bld = [Vector(F.px(*F.entrance_px(0, s_ * 104))) for s_ in (-1, 1)]         # entrance shop, hatchery
 
     def seg_d(q, a, b):
         ab = (b - a).xy
@@ -883,7 +946,7 @@ def dress_greenery(T, houses, walk_lines, place, gz, rnd, c, d, side):
         i, j = grid_index(T, q.x, q.y)
         if not (T.land[i, j] and T.path_e[i, j] > path_m and T.lake_f[i, j] > 1.08 and T.river_d[i, j] > 6):
             return False
-        if (q - c).xy.length < PLAZA_R + 6:
+        if (q - c).xy.length < PLAZA_R + 6 or (q - vp).xy.length < F.VILLAGE_PLAZA_R + 9:
             return False
         if any((Vector(h['pos'][:2]) - q.xy).length < house_r for h in houses):
             return False
@@ -920,7 +983,7 @@ def dress_greenery(T, houses, walk_lines, place, gz, rnd, c, d, side):
                 if free(q, house_r=22.0):
                     place('Trees', kind, q.x, q.y, gz(q) - 1, rnd.uniform(0, TAU), rnd.uniform(*sc)); n += 1
     for k in range(260):                                         # the green backdrop behind the village rows
-        f = rnd.uniform(-60, 360)
+        f = rnd.uniform(*SITE['fr1'])
         sgn = rnd.choice((-1, 1))
         road = nearest_road(T, (c + d * f).to_3d())
         q = road + side * sgn * rnd.uniform(112, 190)
@@ -936,11 +999,11 @@ def dress_greenery(T, houses, walk_lines, place, gz, rnd, c, d, side):
             place('Foliage', rnd.choice(FLOWERS_HUB), q.x, q.y, gz(q), rnd.uniform(0, TAU), rnd.uniform(1.6, 2.4))
         n += 1
     # 3. flowers, grass and planters lining both road edges through the village
-    pts = next(pts for nm, kk, w, pts in T.paths if nm == 'Entrance_Road')
+    pts = next(pts for nm, kk, w, pts in T.paths if nm == SITE['road'])
     for a, b in zip(pts, pts[1:]):
         A, B = Vector(a), Vector(b)
         dist = (B.xy - c.xy).length
-        if dist < PLAZA_R + 12 or dist > 400:
+        if dist < (PLAZA_R + 12 if SITE['key'] == 'entrance' else 20) or dist > SITE['road_r'][1]:
             continue
         t = (B - A).xy.normalized()
         nrm = Vector((-t.y, t.x))
@@ -952,7 +1015,7 @@ def dress_greenery(T, houses, walk_lines, place, gz, rnd, c, d, side):
                     place('Foliage', kind, q.x, q.y, gz(q), rnd.uniform(0, TAU), rnd.uniform(1.2, 1.8)); n += 1
     # 4. flower meadows: small mixed clusters on the open grass between the houses, the plaza and the lake
     for k in range(90):
-        f = rnd.uniform(-120, 330); r = rnd.uniform(-220, 230)
+        f = rnd.uniform(*SITE['fr2']); r = rnd.uniform(-220, 230)
         o = c + d * f + side * r
         if not free(o, house_r=30.0, path_m=6.0):
             continue
@@ -962,3 +1025,225 @@ def dress_greenery(T, houses, walk_lines, place, gz, rnd, c, d, side):
                 kind = rnd.choice(FLOWERS_HUB) if j % 3 else rnd.choice(('Grass_Tuft', 'Fern', 'Bush_02'))
                 place('Foliage', kind, q.x, q.y, gz(q), rnd.uniform(0, TAU), rnd.uniform(1.1, 1.7)); n += 1
     return n
+
+
+# ---------------------------------------------------------------- the village heart (concept sheet)
+def build_village_heart(T, place, gz, rnd, c, d, side):
+    """central plaza with the Verdant fountain, the wooden village arch on the road, the lake islet with its big
+    tree, an arched footbridge, shore railings, and lanterns / banners along the new lanes"""
+    from floor1_entrance import leaf_emblem, verdant_banner
+    from floor1_detail import grid_index
+    W = lambda f, r: c + d * f + side * r
+    pc = W(*F.VILLAGE_PLAZA)
+    z = gz(pc)
+    pc.z = z
+    R_ = F.VILLAGE_PLAZA_R
+    lanes = {n: [Vector(q) for q in pts] for n, k, w, pts in T.paths
+             if n in ('Village_Plaza_Lane', 'Village_Lake_Lane', 'Village_Forest_Lane')}
+    openings = []                                               # where the lanes meet the rim
+    for n, pts in lanes.items():
+        q = min(pts, key=lambda v: abs((v.xy - pc.xy).length - (R_ + 30)))
+        openings.append(math.atan2(q.y - pc.y, q.x - pc.x))
+    stall_dirs = [math.atan2(*(Vector(F.px(*F.village_px(f, r))) - pc.xy).yx) for n, f, r in F.VILLAGE_STALLS[2:]]
+    # (the heart only exists at Verdant Village proper)
+    gap = 0.42
+
+    def in_gap(a, extra=0.0):
+        return any(abs((a - o + math.pi) % TAU - math.pi) < gap + extra for o in openings)
+
+    # --- paving, inner green, low stone border with openings
+    p = Part('Village_Plaza', C)
+    p.cyl((pc.x, pc.y, z - 1.2), R_ + 3.0, 2.6, 'Castle_Stone_Dark', 64)
+    rings = ((0.0, 13.0, 'Castle_Trim'), (13.0, 21.0, None), (21.0, 22.2, 'Gold'), (22.2, 30.0, None),
+             (30.0, R_, 'Castle_Trim'))
+    for r0, r1, mat in rings:
+        n = max(8, int(TAU * r1 / 7))
+        for k in range(n):
+            a0, a1 = TAU * k / n + 0.004, TAU * (k + 1) / n - 0.004
+            p.ring_sector(r0 + 0.12, r1 - 0.12, a0, a1, z + 0.1, z + 0.32 + rnd.uniform(0, 0.08),
+                          mat or rnd.choice(('Castle_Stone_Light', 'Castle_Stone_Light', 'Castle_Stone')), 2,
+                          (pc.x, pc.y))
+    nb = 48
+    for k in range(nb):                                         # border: low wall + coping, broken by the openings
+        a0, a1 = TAU * k / nb, TAU * (k + 1) / nb
+        if in_gap((a0 + a1) / 2):
+            continue
+        p.ring_sector(R_, R_ + 2.4, a0 + 0.01, a1 - 0.01, z, z + 1.6, rnd.choice(castle.STONES), 2, (pc.x, pc.y))
+        p.ring_sector(R_ - 0.2, R_ + 2.6, a0, a1, z + 1.6, z + 2.1, 'Castle_Trim', 2, (pc.x, pc.y))
+    # --- the Verdant fountain: stone basin, water, pillar, upper bowl, golden leaf crown
+    zf = z + 0.3
+    p.cyl((pc.x, pc.y, zf + 1.4), 12.0, 2.8, 'Castle_Stone_Light', 40)
+    p.ring_sector(11.0, 12.6, 0, TAU, zf + 2.8, zf + 3.5, 'Castle_Trim', 40, (pc.x, pc.y))
+    p.cyl((pc.x, pc.y, zf + 2.45), 11.0, 0.3, 'F1_Water', 40)
+    for k in range(8):                                          # carved panels round the basin
+        a = TAU * k / 8
+        Mk = Matrix.Translation((pc.x + math.cos(a) * 12.1, pc.y + math.sin(a) * 12.1, zf + 1.4)) @ \
+            Matrix.Rotation(a + math.pi / 2, 4, 'Z')
+        bevel_box(p, Mk, (0, 0, 0), (4.2, 0.4, 1.6), 'Banner_Green', 0.05)
+    p.cyl((pc.x, pc.y, zf + 5.5), 2.0, 6.0, 'Castle_Stone', 12)
+    p.cyl((pc.x, pc.y, zf + 8.6), 2.4, 1.6, 'Castle_Trim', 16, r2=5.6)
+    p.cyl((pc.x, pc.y, zf + 9.5), 5.4, 0.25, 'F1_Water', 24)
+    p.ring_sector(5.2, 6.0, 0, TAU, zf + 9.1, zf + 9.8, 'Castle_Trim', 24, (pc.x, pc.y))
+    for k in range(4):                                          # four gold leaves back to back
+        a = TAU * k / 4
+        M = Matrix.Translation((pc.x, pc.y, zf + 13.6)) @ Matrix.Rotation(a, 4, 'Z')
+        leaf_emblem(p, M, 7.0, 0.5)
+    p.ico((pc.x, pc.y, zf + 17.6), 0.9, 'Gold', 1)
+    for k in range(6):                                          # water spilling from the bowl
+        a = TAU * k / 6 + 0.3
+        q = (pc.x + math.cos(a) * 5.6, pc.y + math.sin(a) * 5.6)
+        p.cyl((q[0], q[1], zf + 6.2), 0.45, 6.4, 'F1_Water', 6)
+    p.finish()
+    # benches, planters, pots, lanterns, banners, a few barrels / crates
+    for k in range(10):
+        a = TAU * k / 10
+        if in_gap(a, 0.2):
+            continue
+        u = Vector((math.cos(a), math.sin(a), 0))
+        q = pc + u * (R_ - 4.5)
+        if k % 2 == 0:
+            place('Props', 'Bench', q.x, q.y, z + 0.3, a - math.pi / 2, 1.3)
+        q = pc + u * (R_ + 8.5)
+        place('Props', 'Flower_Bed', q.x, q.y, gz(q), a, 1.4)
+        q = pc + u * (R_ + 4.0)
+        place('Foliage', rnd.choice(('Bush_01', 'Bush_02', 'Flower_Cluster_Pink', 'Flower_Cluster_Yellow')),
+              q.x, q.y, gz(q), rnd.uniform(0, TAU), 1.6)
+    for o in openings:
+        for s_ in (-1, 1):
+            a = o + s_ * (gap + 0.06)
+            q = pc + Vector((math.cos(a), math.sin(a), 0)) * (R_ + 1.2)
+            place('Props', 'Lantern_Wood', q.x, q.y, z + 2.1, a, 1.3)
+            L = bpy.data.lights.new('Village_Plaza_Lamp', 'POINT')
+            L.color = (1.0, 0.7, 0.38); L.energy = 1500; L.shadow_soft_size = 1.0
+            lo = bpy.data.objects.new(L.name, L); lo.location = (q.x, q.y, z + 9)
+            bpy.data.collections[LIGHTS].objects.link(lo)
+        q = pc + Vector((math.cos(o), math.sin(o), 0)) * (R_ + 18) + \
+            Vector((-math.sin(o), math.cos(o), 0)) * 34
+        place('Props', 'Verdant_Banner_Pole', q.x, q.y, gz(q), o + math.pi / 2, 1.2)
+    for a in stall_dirs:
+        for k, kind in enumerate(('Barrel', 'Crate', 'Basket')):
+            q = pc + Vector((math.cos(a + 0.28 + k * 0.07), math.sin(a + 0.28 + k * 0.07), 0)) * (R_ + 20)
+            place('Props', kind, q.x, q.y, gz(q), rnd.uniform(0, TAU), 1.1)
+    # --- the village arch over the road from the Floor Entrance
+    vr = [Vector(q) for n, k, w, pts in T.paths if n == 'Village_Road' for q in pts]
+    cand = [k for k, q in enumerate(vr) if (q - c).xy.dot(d.xy) < 0]          # the Floor Entrance side of the village
+    ka = min(cand, key=lambda k: abs((vr[k] - c).xy.length - abs(F.VILLAGE_ARCH_F)))
+    ra = vr[ka]
+    rd = (vr[min(ka + 1, len(vr) - 1)] - vr[max(ka - 1, 0)]).xy.normalized()
+    za = gz(ra)
+    r3 = Vector((rd.x, rd.y, 0))
+    toward = r3 if (ra + r3 - c).xy.length < (ra - c).xy.length else -r3      # into the village
+    rg = Vector((ra.x, ra.y, 0))
+    F.ARCH_VIEW = (tuple(rg - toward * 130 + Vector((0, 0, za + 9))), tuple(rg + toward * 60 + Vector((0, 0, za + 14))))
+    Ma = Matrix.Translation((ra.x, ra.y, za)) @ Matrix.Rotation(math.atan2(rd.y, rd.x) - math.pi / 2, 4, 'Z')
+    a_ = Part('Village_Arch', C)
+    span = 38.0
+    for s_ in (-1, 1):
+        bevel_box(a_, Ma, (s_ * span, 0, 1.4), (6.0, 6.0, 2.8), 'Castle_Stone_Light', 0.3)
+        bevel_box(a_, Ma, (s_ * span, 0, 14.0), (2.8, 2.8, 23.0), 'Wood_Timber', 0.2)
+        for zz in (6.0, 18.0):
+            bevel_box(a_, Ma, (s_ * span, 0, zz), (3.4, 3.4, 0.8), 'Wood_Dark', 0.1)
+        a_.beam(Ma @ Vector((s_ * span, 0, 19.0)), Ma @ Vector((s_ * (span - 7), 0, 24.6)), 1.2, 1.2, 'Wood_Dark')
+    bevel_box(a_, Ma, (0, 0, 25.6), (2 * span + 8, 3.2, 2.2), 'Wood_Timber', 0.2)
+    a_.prism([(-span - 6, 26.6), (span + 6, 26.6), (span + 4, 28.4), (0, 31.0), (-span - 4, 28.4)], -3.2, 3.2,
+             'Roof_Green', Ma @ FLIP)
+    bevel_box(a_, Ma, (0, -1.8, 22.4), (26.0, 0.8, 5.0), 'Sign_Wood', 0.2)
+    leaf_emblem(a_, Ma @ Matrix.Translation((0, -2.3, 22.4)), 4.2, 0.4)
+    for s_ in (-1, 1):
+        verdant_banner(a_, Ma @ Matrix.Translation((s_ * (span - 8), -1.8, 24.4)), 6.0, 9.0, rod=False)
+    a_.finish()
+    for s_ in (-1, 1):
+        q = Ma @ Vector((s_ * (span + 6), -4, 0))
+        place('Props', 'Lantern_Wood', q.x, q.y, gz(q), 0, 1.3)
+        place('Props', 'Flower_Bed', *(Ma @ Vector((s_ * (span + 6), 6, 0))).xy, gz(Ma @ Vector((s_ * (span + 6), 6, 0))),
+              0, 1.3)
+    # --- lake: islet tree, arched footbridge from the lake lane, shore railings
+    lc = W(*F.VILLAGE_LAKE_C)
+    li = next(k for k, l in enumerate(F.LAKES) if l[0] == 'Verdant_Village_Lake')
+    zw = F.LAKES[li][2]
+    zi = gz(lc)
+    for o in [o for o in bpy.data.objects if o.name.startswith(('Mist_Puff', 'Foam_Ring'))
+              and (o.location.xy - lc.xy).length < 45]:            # keep the falls' mist off the islet
+        bpy.data.objects.remove(o)
+    place('Trees', 'Tree_Large_High', lc.x, lc.y, zi - 0.5, rnd.uniform(0, TAU), 2.4)
+    for k in range(14):
+        a = TAU * k / 14
+        q = lc + Vector((math.cos(a), math.sin(a), 0)) * rnd.uniform(15, 22)
+        place('Rocks' if k % 2 else 'Foliage', 'Rock_Medium' if k % 2 else rnd.choice(('Flower_Cluster_Pink',
+              'Flower_Cluster_White', 'Bush_02')), q.x, q.y, zw - (0.8 if k % 2 else -0.4), rnd.uniform(0, TAU),
+              rnd.uniform(1.4, 2.2))
+    u = (pc - lc).xy.normalized().to_3d()
+    r = 24.0
+    while r < 300:
+        i, j = grid_index(T, *(lc + u * r).xy)
+        if T.lake_f[i, j] >= 1.0:
+            break
+        r += 2.0
+    A = lc + u * 18.0
+    B = lc + u * (r + 8.0)
+    br = Part('Village_Lake_Bridge', C)
+    L_ = (B - A).xy.length
+    n = max(8, int(L_ / 2.2))
+    yaw = math.atan2(u.y, u.x)
+    zb0, zb1 = zi + 0.4, gz(B) + 0.4
+    for k in range(n):
+        t = (k + 0.5) / n
+        q = A.lerp(B, t)
+        zq = zb0 + (zb1 - zb0) * t + 5.0 * math.sin(math.pi * t)
+        Mq = Matrix.Translation((q.x, q.y, zq)) @ Matrix.Rotation(yaw, 4, 'Z')
+        bevel_box(br, Mq, (0, 0, 0), (L_ / n - 0.25, 13.0, 0.7), rnd.choice(('Wood_Plank', 'Wood_Plank', 'Wood_Timber')),
+                  0.08)
+        if k % 2 == 0:
+            for s_ in (-1, 1):
+                bevel_box(br, Mq, (0, s_ * 6.6, 2.4), (0.8, 0.8, 4.4), 'Wood_Dark', 0.1)
+    for s_ in (-1, 1):                                          # hand rails following the arch
+        for k in range(n - 1):
+            t0, t1 = (k + 0.5) / n, (k + 1.5) / n
+            q0, q1 = A.lerp(B, t0), A.lerp(B, t1)
+            z0 = zb0 + (zb1 - zb0) * t0 + 5.0 * math.sin(math.pi * t0) + 4.4
+            z1 = zb0 + (zb1 - zb0) * t1 + 5.0 * math.sin(math.pi * t1) + 4.4
+            off = Vector((-u.y, u.x, 0)) * s_ * 6.6
+            br.beam(Vector((q0.x, q0.y, z0)) + off, Vector((q1.x, q1.y, z1)) + off, 0.7, 0.7, 'Wood_Timber')
+    for k in range(n):                                          # support posts into the water
+        if k % 3 == 1:
+            t = (k + 0.5) / n
+            q = A.lerp(B, t)
+            zq = zb0 + (zb1 - zb0) * t + 5.0 * math.sin(math.pi * t)
+            for s_ in (-1, 1):
+                off = Vector((-u.y, u.x, 0)) * s_ * 5.5
+                br.cyl((q.x + off.x, q.y + off.y, (zq + zw - 3) / 2), 0.7, zq - zw + 3, 'Wood_Dark', 8)
+    br.finish()
+    for t in (0.0, 1.0):
+        q = A.lerp(B, t) + Vector((-u.y, u.x, 0)) * 8.5
+        place('Props', 'Lantern_Wood', q.x, q.y, gz(q), yaw, 1.2)
+    # railings on the steep far shore (the village side stays open to the water)
+    for k in range(40):
+        a = TAU * k / 40
+        v = Vector((math.cos(a), math.sin(a), 0))
+        if v.dot(u) > -0.15:
+            continue
+        rr = 24.0
+        while rr < 300:
+            i, j = grid_index(T, *(lc + v * rr).xy)
+            if T.lake_f[i, j] >= 1.0:
+                break
+            rr += 2.0
+        q = lc + v * (rr + 3.0)
+        if T.path_e[grid_index(T, q.x, q.y)] > 4:
+            place('Props', 'Wood_Fence', q.x, q.y, gz(q), a + math.pi / 2, 1.2)
+    # lanterns along the new lanes, alternate sides
+    for n_, pts in lanes.items():
+        acc, sgn = 0.0, 1
+        for a0, b0 in zip(pts, pts[1:]):
+            acc += (b0 - a0).xy.length
+            if acc < 70 or (b0.xy - pc.xy).length < R_ + 20:
+                continue
+            acc = 0.0
+            t = (b0 - a0).xy.normalized()
+            w = 31 if n_ == 'Village_Plaza_Lane' else 23
+            q = b0.xy + Vector((-t.y, t.x)) * sgn * w
+            q3 = Vector((q.x, q.y, 0))
+            place('Props', 'Lantern_Wood', q.x, q.y, gz(q3), math.atan2(t.y, t.x), 1.25)
+            sgn = -sgn
+    return dict(centre=(pc.x, pc.y, z), radius=R_, fountain=(pc.x, pc.y, z), arch=(ra.x, ra.y, za),
+                bridge=((A.x, A.y), (B.x, B.y)))

@@ -427,6 +427,33 @@ the lake directly behind the Hatchery.
 - **Collision:** porches, steps and walks (`Village_Walk_*`) get exact collision.
 - **Cameras:** `CAM_F1_Village_Aerial`, `_Street`, `_Lakeside` and `_Lake`.
 
+**Verdant Village proper** (`floor1_village.py` `build_village_heart`, built from the Verdant Village concept sheet)
+
+The settlement above is the hamlet round the Floor Entrance, kept exactly as it was. Verdant Village itself stands
+on its own spot from the map sheet (`VILLAGE_CENTER_PX`), on the Village Road between the entrance and Riverfall /
+the Lotus Swamp, on the same mainland - no new island, nothing else on the map moved.
+- **Village arch** on the road from the Floor Entrance: timber posts on stone bases, a green roof beam, a sign with
+  the gold Verdant leaf, two green banners, lanterns and flower beds.
+- **Eleven houses:** eight along both sides of the Village Road (the same eight styles as the entrance hamlet, under
+  their own names: Mayor, Tailor, Carpenter, Brewer, Florist, Librarian, Apothecary, Angler) plus three new styles
+  round the plaza - Potter (orange gable, lean-to), Cooper (two storeys, brown bell-cast roof, balcony, dormer) and
+  Miller (dark green steep gable, herb beds). Roofs lean to the concept's warm orange, brown and dark green.
+- **Central plaza** between the road and the lake (`VILLAGE_PLAZA`, 36-stud radius, kept open for riders):
+  ring paving with a gold ring, a low stone border broken for each lane, the **Verdant fountain** (carved basin with
+  green panels, water, pillar, upper bowl, four gold leaves), benches, flower beds, bushes, lanterns and banner poles
+  at every opening, and barrels / crates / baskets by two plaza market stalls (Bread, Cloth).
+- **Lanes** (rideable): `Village_Plaza_Lane` (road -> plaza, 56 wide), `Village_Lake_Lane` (plaza -> lake shore) and
+  `Village_Forest_Lane` (plaza -> the meadow path north toward the forest), lit with lanterns on alternate sides.
+- **Village lake** beside the plaza (`Verdant_Village_Lake`): irregular shore, rocks, reeds, flowers, lily pads, a
+  jetty, a **rocky islet with a large tree**, an **arched wooden footbridge** from the lake lane to the islet, two
+  small waterfalls from a mossy cliff behind it, and wooden railings only on the steep far shore - the village side
+  stays open to the water.
+- Two more market stalls on the road, props, greenery, house lamps and stepping-stone walks as in the hamlet.
+- **Cameras:** `CAM_F1_Verdant_Village_Aerial`, `CAM_F1_Village_Plaza`, `CAM_F1_Village_Bridge`,
+  `CAM_F1_Village_Arch` (the four `CAM_F1_Village_*` cameras above still frame the entrance hamlet).
+- NPC spots for all 19 houses and 6 stalls are in `Floor1_Village.lua` / `floor1_layout.json` (`site` = `entrance` or
+  `village`); the plaza centre, arch and bridge are under `village.plaza`.
+
 **Roblox delivery** (`exports/TowerOfPets/Floor1/`, see `IMPORT.md` there)
 - Terrain, water, bridges and landmarks are one FBX per group, about 2,900 MeshParts and 1.56M triangles. Each part
   has at most 6,000 triangles and is no wider than 1,900 studs.

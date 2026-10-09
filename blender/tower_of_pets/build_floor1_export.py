@@ -26,6 +26,7 @@ GROUPS = (
     ('Floor1_Shop', ('TOWER_OF_PETS_SHOP',), 'Shop_Root'),
     ('Floor1_Hatchery', ('TOWER_OF_PETS_HATCHERY',), 'Hatchery_Root'),
     ('Floor1_Village', ('F1_VILLAGE',), None),
+    ('Floor1_Fortress', ('F1_FORTRESS',), None),
     ('Floor1_Water', ('WATER',), None),
     ('Floor1_Landmark_Blockouts', ('LANDMARK_BLOCKOUTS',), None),
     ('Floor1_Clouds', ('CLOUDS',), None),
@@ -35,7 +36,7 @@ if __name__ == '__main__':
     sx, sy = floor1.px(*floor1.SPAWN)
     export_fbx.main(blend=os.path.join(os.path.dirname(HERE), 'TowerOfPets_Floor1.blend'), groups=GROUPS, exclude={},
                     out=os.path.join(ROOT_DIR, 'exports', 'TowerOfPets', 'Floor1'), tri_limit=6000, prefix='Floor1', max_extent=1900,
-                    spawn=(sx, sy, 12.0 * floor1.ZL), precise=('_Top__', '_Cliffs__', 'Natural_Bridges', '_Deck__', 'Entrance_Walk', 'Village_Walk'))
+                    spawn=(sx, sy, 12.0 * floor1.ZL), precise=('_Top__', '_Cliffs__', 'Natural_Bridges', '_Deck__', 'Entrance_Walk', 'Village_Walk', 'Fortress_Walk'))
     out = os.path.join(ROOT_DIR, 'exports', 'TowerOfPets', 'Floor1')
     floor1_roblox.export_assets(os.path.join(os.path.dirname(HERE), 'TowerOfPets_Floor1.blend'), out)
     floor1_roblox.write_rbxmx(out)                  # every Floor 1 ModuleScript in one Studio file

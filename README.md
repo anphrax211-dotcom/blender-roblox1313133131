@@ -280,7 +280,7 @@ Roblox scatter and lighting scripts from `floor1_roblox.py`.
   - markers, and checkpoint and mini-boss pads;
   - climbs, at 25° or less.
 - **Heights:** region base heights are flattened by `LEVEL = 0.5`, so the islands sit closer in height. They run
-  from about −120 (Lotus Swamp) to 1,200 (Fortress Heights). Peaks, crags and spires keep 75% of their height
+  from about −120 (Lotus Swamp) to about 700 (the Jungle Fortress castle terrace). Peaks, crags and spires keep 75% of their height
   (`FEATURE_LEVEL`), with the Cloudridge summit at about 2,650. Inside a landmass, neighbours within 460 studs of
   each other slope into each other and can be ridden; larger differences become cliffs.
 - **Four landmasses:** inside a landmass the regions are merged; between landmasses there's a channel of open sky,
@@ -453,6 +453,115 @@ the Lotus Swamp, on the same mainland - no new island, nothing else on the map m
   `CAM_F1_Village_Arch` (the four `CAM_F1_Village_*` cameras above still frame the entrance hamlet).
 - NPC spots for all 19 houses and 6 stalls are in `Floor1_Village.lua` / `floor1_layout.json` (`site` = `entrance` or
   `village`); the plaza centre, arch and bridge are under `village.plaza`.
+
+**Jungle Fortress island redesign** (reference: the flat tropical fortress island sheet)
+
+The fortress landmass is now one broad, mostly flat tropical island instead of a jungle ring round a cliff-walled
+plateau. The rest of Floor 1 and the island's outline are unchanged.
+- **Terrain:** `Jungle_Fortress` is gentle rolling jungle (base 640 studs, ±20); `Fortress_Heights` is no longer an
+  `inner` cliff plateau but a low castle terrace in the north, only about 40 studs above the jungle and blended in
+  by slopes. The five rim spires are gone, and the Beast Cave crags and jungle knolls are cut down to low rocky
+  knolls and ridges. Sandy beaches run along parts of the rim; the perimeter cliffs and the floating underside stay.
+- **Fortress Lagoon** (`Fortress_Lagoon`): one broad turquoise lagoon in the lower middle, with rocks, reeds, lily
+  pads, palms, flowering plants, a small rock outcrop with a palm, a wooden pier, two small streams falling into it
+  over low ledges, and an outflow that drops off the south rim. More small falls drop off the west and south-west rim.
+- **Paths:** the Grand Ramp now runs from the Beast Cave road down the west side to the plaza in front of the castle;
+  the canyon trail from Mossy Caverns follows the lagoon's north shore; new `Lagoon_East_Trail` and
+  `Lagoon_West_Trail` loop round the water to the south cliff trail. No climbing challenges, all rideable.
+- **Boss plaza:** the main boss arena moved to the foot of the castle stairs: a circular paved plaza with a gold ring
+  and the fortress crest, ringed by ancient pillars.
+- **Ruins:** arches, pillars, obelisks, broken walls, statues and buried blocks along the island's paths.
+- **Castle:** scaled up to 6.5× (about 1,200 × 990 studs; stairs still 1.6-stud risers), rebuilt in warm sandstone,
+  and every roof replaced by a **tropical temple roof**: stacked, broad, flared terracotta tiers with timber drums,
+  tile courses, upturned gold-tipped corners and gold finials (no more European spires).
+- **Density:** fewer trees on the island and the terrace, more plants and flowers, so paths, ruins and the lagoon
+  read from above.
+- **Camera:** `CAM_F1_Fortress_Island` matches the reference's elevated full-island view; `_Gate`, `_Keep` and
+  `_View` were re-aimed at the lower castle.
+
+**Jungle Fortress castle** (`floor1_fortress.py`, `Floor1_Fortress.fbx`)
+
+The ruler's castle on the existing Fortress Heights keep pad. It replaces the old massing blockout; the island,
+plateau, cliffs, boss arena and roads are unchanged, apart from a short paved approach (`Fortress_Keep_Approach`)
+that joins the Fortress Grand Ramp. It's built with the hub's castle helpers at 5× (one design unit = 5 studs), so
+the stairs have 1.6-stud risers. It's about 920 × 760 studs and about 790 studs to the keep's finial, facing south.
+
+- **Podium and approach:** a masonry podium with a monumental front staircase, braziers, and a paved approach lined
+  with carved pillars, planters and braziers.
+- **Curtain wall:** thick masonry walls of different heights with buttresses, cornices, merlons, an inner parapet and
+  a walkable wall walk.
+- **Towers:** ten towers, all different in width, height and roof (four corner towers, side and rear towers, and the
+  twin gatehouse towers). Each has a block plinth, a banded masonry shaft with reinforced corners, arrow slits and
+  glowing windows, a corbelled gallery with merlons, and a tall tiered copper roof with tile courses, hip ridges and a
+  gold finial.
+- **Gatehouse:** a voussoir arch, a raised iron portcullis and a banner.
+- **Courtyard:** paving, statues on pedestals, planters, and guard platforms with braziers.
+- **Inner terrace:** a balustraded platform with its own staircase.
+- **Keep, in three levels:**
+  - base: heavy banded masonry, recessed panels, slits, and four corner turrets with round roofs;
+  - middle: arcaded arched windows between pilasters, a gold-lined cornice, red banners and a copper pent roof;
+  - upper: a tall tower with glowing narrow windows, corner columns, roof brackets, the tallest roof with corner
+    pinnacles, and a front dormer.
+
+  Side wings with gabled copper roofs complete it.
+- **Entrance:** three concentric voussoir arches with one gold inlay, flanking pillars with banners, torches, a
+  balcony above, and half-open doors with a controlled warm glow inside.
+- **Identity:** deep red banners with a gold jungle-crown emblem on the gate, towers, walls and keep. Torches and
+  braziers, with 16 real lamps in `Floor1_Lights.lua`. Vines and moss on selected walls only, and roots round the
+  podium.
+- **Jungle:** the Fortress Heights plateau is now dense jungle, and the region's trees mix in new low-poly palms
+  (`Palm_Tree`) and broad-leaf `Tropical_Plant`s. The castle grounds get clusters of trees, palms and tropical
+  plants, keeping the approach and the view of the gate open.
+- **Cameras:** `CAM_F1_Fortress_Aerial`, `_Gate` and `_Keep`, and the existing `CAM_F1_Fortress_View`.
+
+**Jungle Fortress upgrade** (`floor1_fortress.py`, `floor1_jungle.py`)
+
+The same castle, made into an ancient jungle stronghold.
+
+- **Castle:**
+  - **Stone:** a weathered mix of warm grey, tan and mossy stone, with mossier feet on the podium.
+  - **Accents and roofs:** jade bands under the tower trim and terracotta-copper roofs.
+  - **Entrance:** jade-and-gold leaf pillars, carved leaf ornaments beside the arch, and the jungle crest (a jade
+    shield with a gold leaf crown) above the arch, on the gatehouse and near the top of the keep.
+  - **Towers:** carved guardian masks on the front towers.
+  - **Guardians:** two big stone jungle guardians (tiger and lizard temple beasts with glowing eyes, gold collars,
+    jade plates and moss) on plinths beside the keep stairs.
+  - **Braziers and stairs:** gold brazier bowls, and moss in selected step joints.
+- **Collections:**
+  - The castle is split into `Castle_Main`, `Castle_Towers`, `Castle_Roofs`, `Castle_Walls`, `Castle_Entrance`,
+    `Castle_Guardian_Statues`, `Castle_Banners` and `Jungle_Vines`, with the lamps in `Environmental_Lighting`.
+  - The asset library has `Jungle_Trees`, `Jungle_Plants`, `Jungle_Vines`, `Jungle_Rocks`, `Jungle_Cliffs`,
+    `Ancient_Ruins` and `Waterfalls_And_Water`.
+- **Reusable jungle assets.** Each one is a single mesh, placed only as linked duplicates (the Roblox scatter):
+  - **Trees:** Jungle Canopy, Ancient Jungle, Tropical Palm, Banana and Flowering Jungle trees.
+  - **Plants:** Monstera, Jungle Bush, Red, Pink and Purple accent plants, Leafy Shrub, Ground Cover, Jungle Grass,
+    Bamboo Cluster and Jungle Roots.
+  - **Vines:** Vine Cluster and Creeping Vines.
+  - **Rocks and cliffs:** Jungle Rock Large, Mossy Boulder, Rock Formation, Flat Rock, Root Rock, Cliff Segment and
+    Cliff Edge.
+  - **Ruins:** Ancient and Broken Pillars, Overgrown Arch, Jungle Statue, Ruin Wall, Obelisk, Mossy Stairs, Jungle
+    Gate, Buried Blocks, Broken Ruin Rock and Jungle Brazier.
+  - **Water:** Water Plant.
+
+  `CAM_F1_Jungle_Assets` renders them all on a showcase stage (off the map; not exported).
+- **On the castle:**
+  - tropical plants in the stair and courtyard planters;
+  - creeping vines on corners and selected walls and towers, kept clear of the windows, banners and entrance;
+  - hanging vine clusters from wall tops and ledges, and plants on the wall walks and balcony;
+  - palms on the keep's lower roof.
+- **Jungle region:**
+  - the jungle scatter uses the new trees, plants, flowers and mossy rocks;
+  - an older civilisation lines the fortress roads: pillar pairs, obelisks, statues and braziers beside the road,
+    and ruined walls, arches and buried blocks back in the trees;
+  - Jungle Gates where the roads reach and leave the plateau;
+  - vine clusters, cliff edges and cliff segments on the jungle rims, plants, mossy stones and water plants on the
+    river banks, and bamboo and root clusters in the clearings.
+- **Ground and water:** jungle grass, dark jungle floor, leaf-covered ground, rocky ground on slopes and mud by
+  rivers. The fortress roads get mossy stone paving, and the jungle rivers are turquoise.
+- **Roblox:**
+  - the new trees get trunk colliders;
+  - the gate, arch and stairs ruins get exact collision so riders pass through and over them;
+  - the Jungle Brazier gets a light.
 
 **Roblox delivery** (`exports/TowerOfPets/Floor1/`, see `IMPORT.md` there)
 - Terrain, water, bridges and landmarks are one FBX per group, about 2,900 MeshParts and 1.56M triangles. Each part

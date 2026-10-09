@@ -166,16 +166,17 @@ AREAS = (
     Area('Mossy_Caverns', MW, 72, ('crags', 16.0, 90), 0.6, 15, False, 'Lv 25-40', (905, 690),
          [(762, 522), (820, 502), (900, 498), (980, 508), (1042, 532), (1050, 600), (1040, 670), (1000, 720),
           (940, 746), (860, 752), (790, 736), (762, 690), (752, 600)], 'land', 22),
-    Area('Beast_Cave', MW, 150, ('crags', 30.0, 80), 0.7, 16, True, 'Lv 30-45', (1250, 250),
+    Area('Beast_Cave', MW, 140, ('hills', 9.0, 110), 0.6, 16, True, 'Lv 30-45', (1250, 250),
          [(1088, 262), (1130, 232), (1200, 226), (1270, 236), (1322, 270), (1336, 332), (1322, 400), (1282, 440),
           (1200, 452), (1122, 446), (1090, 420), (1082, 340)], 'land', 22),
-    # --- Jungle Fortress: the largest region - a jungle ring round a cliff-walled inner plateau
-    Area('Jungle_Fortress', JF, 128, ('hills', 18.0, 130), 0.6, 17, True, 'Lv 55-70', (1340, 760),
+    # --- Jungle Fortress: one broad, mostly flat tropical island - the castle on a low terrace in the north, a
+    # turquoise lagoon in the lower middle, gentle jungle all round (no central plateau, no spires)
+    Area('Jungle_Fortress', JF, 128, ('rolling', 4.0, 170), 0.6, 17, True, 'Lv 55-70', (1340, 760),
          [(1050, 470), (1130, 420), (1230, 410), (1330, 425), (1410, 470), (1445, 560), (1430, 660), (1380, 735),
           (1290, 775), (1190, 780), (1110, 755), (1065, 700), (1050, 610)], 'land', 22),
-    Area('Fortress_Heights', JF, 240, ('hills', 5.0, 100), 0.4, 18, True, 'Lv 60-70', (1230, 470),
-         [(1110, 480), (1200, 455), (1290, 462), (1350, 505), (1365, 590), (1325, 665), (1240, 695), (1160, 688),
-          (1112, 640), (1098, 560)], 'inner', 0),
+    Area('Fortress_Heights', JF, 136, ('flat', 1.5, 100), 0.4, 18, True, 'Lv 60-70', (1230, 470),
+         [(1205, 470), (1260, 452), (1340, 455), (1392, 485), (1402, 540), (1385, 600), (1335, 628), (1260, 630),
+          (1212, 605), (1196, 540)], 'land', 0),
     Area('Sky_Temple', JF, 310, ('flat', 2.0, 90), 0.3, 19, False, 'Lv 50-70', (1240, 60),
          [(1126, 115), (1170, 85), (1240, 75), (1310, 83), (1350, 113), (1346, 157), (1312, 181), (1240, 187),
           (1166, 175), (1126, 147)], 'float', 0),
@@ -223,11 +224,11 @@ FEATURES = (
     (430, 112, 95, 170, 1.2), (500, 65, 115, 240, 1.1), (585, 95, 85, 175, 1.2), (375, 175, 55, 80, 1.4),
     (635, 80, 55, 110, 1.3), (535, 160, 50, 60, 1.5),                           # Cloudridge Peaks (summit ~380)
     (905, 598, 70, 55, 0.6),                                                    # Mossy Caverns cavern hill
-    (1250, 255, 40, 90, 1.0), (1300, 300, 34, 75, 1.0), (1175, 262, 30, 60, 1.0), (1295, 390, 30, 55, 1.0),
-    (1150, 405, 26, 40, 1.0),                                                   # Beast Cave crags
-    (1112, 520, 26, 70, 0.5), (1360, 525, 28, 80, 0.5), (1330, 655, 26, 70, 0.5), (1125, 665, 24, 60, 0.5),
-    (1245, 700, 22, 55, 0.5),                                                   # Fortress Heights rim spires
-    (1425, 690, 45, 40, 1.0), (1075, 735, 40, 35, 1.0), (1330, 445, 40, 30, 1.0),   # jungle knolls
+    (1250, 255, 40, 30, 1.0), (1300, 300, 34, 24, 1.0), (1175, 262, 30, 20, 1.0), (1295, 390, 26, 14, 1.0),
+    (1150, 405, 22, 12, 1.0),                                                   # Beast Cave rocky knolls (low)
+    (1425, 690, 40, 8, 1.0), (1075, 735, 36, 7, 1.0),                           # low jungle knolls
+    (1100, 560, 22, 7, 0.45), (1395, 650, 20, 6, 0.45), (1160, 470, 18, 6, 0.45),   # low rocky ridges / ledges
+    (1270, 655, 14, 6, 0.35), (1150, 650, 14, 5, 0.35),                         # lagoon ledges (small falls)
     (520, 645, 40, 26, 0.25), (655, 545, 34, 36, 0.25),                         # valley ledges
     (690, 70, 40, 30, 1.0), (925, 70, 36, 26, 1.0),                             # World Tree highland knolls
     (*entrance_px(290), 24, 17, 1.1), (*entrance_px(240, -160), 15, 11, 1.2),   # rocky ridge behind the portal
@@ -249,6 +250,8 @@ LAKES = (
     ('Emerald_Lake_Water', [(842, 282), (900, 256), (980, 256), (1040, 285), (1058, 340), (1042, 410),
                             (1000, 450), (930, 462), (868, 446), (842, 400), (858, 350), (832, 312)], 97.0, 18.0),
     ('Ruins_Pond', [(705, 288), (745, 282), (770, 300), (752, 322), (712, 322)], 117.0, 4.0),
+    ('Fortress_Lagoon', [(1118, 668), (1150, 646), (1205, 640), (1262, 646), (1300, 664), (1312, 690), (1296, 712),
+                         (1250, 722), (1190, 720), (1140, 708), (1112, 690)], 126.0, 5.0),
     ('Village_Lake', [entrance_village_px(ENTRANCE_LAKE_C[0] + ENTRANCE_LAKE_R * k * math.cos(a), ENTRANCE_LAKE_C[1]
                                          + ENTRANCE_LAKE_R * k * math.sin(a)) for a, k in ((TAU * i / 11, (1.0, 0.86,
                       1.08, 0.92, 1.12, 0.84, 1.0, 1.1, 0.88, 1.04, 0.94)[i]) for i in range(11))], 11.6, 2.6),
@@ -275,9 +278,10 @@ RIVERS = (
     ('Riverfall_River', [(470, 575), (560, 605), (640, 640), (700, 680)], -11.0, 18),
     ('Lotus_Drain', [(995, 935), (1005, 995)], -25.0, 16),
     ('World_Tree_Falls', [(880, 215), (888, 245)], 157.0, 14),
-    ('Beast_Stream', [(1150, 280), (1095, 278)], 146.0, 10),
-    ('Fortress_Heights_Falls', [(1150, 565), (1100, 565)], 238.0, 14),
-    ('Fortress_South_Falls', [(1245, 720), (1250, 790)], 124.0, 14),
+    ('Beast_Stream', [(1150, 280), (1095, 278)], 141.0, 10),
+    ('Fortress_Castle_Stream', [(1232, 612), (1258, 640)], 133.0, 10),
+    ('Fortress_West_Stream', [(1120, 610), (1142, 640)], 130.5, 9),
+    ('Fortress_South_Falls', [(1230, 720), (1240, 792)], 125.5, 14),
 )
 # waterfalls without a river: start px, direction (deg, world), water z (None = ground at the start), width
 SPRINGS = (
@@ -286,6 +290,8 @@ SPRINGS = (
     ('Beast_East_Falls', (1300, 330), 0, None, 10),
     ('Whispering_West_Falls', (170, 560), 200, None, 12),
     ('Fortress_East_Falls', (1420, 600), 0, None, 14),
+    ('Fortress_West_Falls', (1070, 600), 180, None, 12),
+    ('Fortress_SouthWest_Falls', (1100, 740), 215, None, 10),
     ('Village_Lake_Falls_A', entrance_village_px(ENTRANCE_MESA[0] + 40, ENTRANCE_MESA[1] - 48),
      entrance_village_ang(1, -0.8), None, 4),
     ('Village_Lake_Falls_B', entrance_village_px(ENTRANCE_MESA[0] + 58, ENTRANCE_MESA[1] - 8),
@@ -299,7 +305,7 @@ PADS = (
     ('Spawn', 215, 860, 64, 12, 1), ('Entrance_Portal', *entrance_px(84), 52, 12, 1),
     ('Entrance_Hatchery', *entrance_px(0, -104), 74, 12, 1), ('Entrance_Shop', *entrance_px(0, 104), 70, 12, 1), ('Ruins_Plaza', 650, 380, 60, 118, WORLD),
     ('World_Tree_Pad', 800, 150, 80, 172, WORLD), ('Sky_Temple_Pad', 1240, 130, 56, 310, WORLD),
-    ('Fortress_Arena', 1190, 600, 70, 240, 2), ('Fortress_Keep', 1300, 520, 58, 240, WORLD),
+    ('Fortress_Arena', 1300, 612, 70, 134, 2), ('Fortress_Keep', 1300, 520, 82, 136, WORLD),
     ('Meadow_Riding_Field', 130, 690, 95, None, WORLD), ('Jungle_Clearing', 1380, 690, 48, None, WORLD),
     ('MiniBoss_1', 440, 430, 36, None, 2), ('MiniBoss_2', 970, 690, 36, None, 2), ('MiniBoss_3', 1170, 140, 28, 310, 2),
     ('Lake_Islet', 960, 330, 22, 101, WORLD),
@@ -332,8 +338,8 @@ PATHS = (
     ('Mossy_Road', 'main', [(815, 455, None), (860, 520, None), (840, 640, None), (880, 700, None), (970, 690, None)]),
     ('Beast_Road', 'main', [(1055, 330, None), (1108, 292, None), (1150, 262, None), (1200, 320, None)]),
     ('Fortress_North_Road', 'main', [(1200, 320, None), (1215, 385, None), (1200, 440, None)]),
-    ('Fortress_Grand_Ramp', 'main', [(1200, 440, None), (1300, 435, None), (1390, 480, None), (1412, 560, None),
-                                     (1392, 632, 240), (1330, 622, 240), (1190, 600, 240)]),
+    ('Fortress_Grand_Ramp', 'main', [(1200, 440, None), (1180, 500, None), (1188, 570, None), (1235, 612, None),
+                                     (1300, 612, 134)]),
     # secondary trails, shortcuts and alternate routes
     ('Village_Plaza_Lane', 'main', [(*village_px(146, 8), None), (*village_px(105, 120), None),
                                     (*village_px(*VILLAGE_PLAZA), None)]),
@@ -348,8 +354,11 @@ PATHS = (
     ('World_Tree_East_Trail', 'secondary', [(800, 150, 172), (880, 190, None), (960, 245, None)]),
     ('Mossy_Valley_Switchback', 'secondary', [(700, 650, None), (745, 600, None), (790, 640, None), (840, 640, None)]),
     ('Mossy_Swamp_Trail', 'secondary', [(970, 690, None), (1000, 770, None), (960, 840, None), (880, 880, None)]),
-    ('Fortress_Canyon', 'secondary', [(970, 690, None), (1020, 650, None), (1085, 640, None), (1150, 700, None),
-                                      (1240, 712, None), (1262, 660, None), (1190, 600, 240)]),
+    ('Fortress_Keep_Approach', 'main', [(1300, 580, 134), (1300, 596, 134), (1300, 612, 134)]),
+    ('Fortress_Canyon', 'secondary', [(970, 690, None), (1020, 650, None), (1085, 638, None), (1140, 628, None),
+                                      (1188, 570, None)]),
+    ('Lagoon_East_Trail', 'secondary', [(1300, 612, 134), (1345, 655, None), (1335, 715, None), (1300, 730, None)]),
+    ('Lagoon_West_Trail', 'secondary', [(1085, 638, None), (1098, 700, None), (1150, 760, None), (1215, 748, None)]),
     ('Swamp_Cliff_Trail', 'secondary', [(880, 880, None), (1000, 900, None), (1110, 850, None), (1165, 800, None),
                                         (1215, 745, None), (1300, 730, None), (1385, 715, None)]),
     ('Meadow_West_Trail', 'secondary', [(235, 660, None), (110, 650, None), (60, 590, None), (130, 540, None),
@@ -374,7 +383,7 @@ GENTLE_RIVERS = {'Entrance_Brook'}
 GRASSY_SHORES = {'Village_Lake', 'Verdant_Village_Lake', 'Entrance_Spring_Pool'}
 # pads that carry built floors (plaza, stairs, buildings): flattened again after every path / river so nothing pokes
 # through, and set a hair under the floor meshes
-HARD_PADS = ('Spawn', 'Entrance_Portal', 'Entrance_Hatchery', 'Entrance_Shop')
+HARD_PADS = ('Spawn', 'Entrance_Portal', 'Entrance_Hatchery', 'Entrance_Shop', 'Fortress_Keep')
 
 
 def bridge_type(name, kind):
@@ -393,7 +402,7 @@ CHECKPOINTS = (('Checkpoint_1_Meadows', 400, 676), ('Checkpoint_2_Riverfall', 56
                ('Checkpoint_5_Sky_Temple', 1305, 160), ('Checkpoint_6_Mossy', 880, 700))
 MINIBOSSES = (('MiniBoss_1_Forest_Guardian', 440, 430), ('MiniBoss_2_Ancient_Beast', 970, 690),
               ('MiniBoss_3_Sky_Guardian', 1170, 140))
-MAIN_BOSS = ('Main_Boss_Jungle_Overlord', 1190, 600)
+MAIN_BOSS = ('Main_Boss_Jungle_Overlord', 1300, 612)
 SPAWN = (215, 860)
 EGGS = (('World_Egg_1_Beast_Crags', 1250, 405), ('World_Egg_2_Lake_Islet', 960, 330),
         ('World_Egg_3_Whispering_Ravine', 335, 465), ('World_Egg_4_Cloudridge', 560, 125),
@@ -401,7 +410,7 @@ EGGS = (('World_Egg_1_Beast_Crags', 1250, 405), ('World_Egg_2_Lake_Islet', 960, 
 # caves: name, start px (inside the higher ground), direction (deg, world), mouth width
 CAVES = (('Cave_Beast_Main', (1190, 330), 205, 200), ('Cave_Mossy_South', (905, 600), -80, 80),
          ('Cave_Mossy_West', (905, 600), 190, 80), ('Cave_Whispering_Hollow', (250, 330), -55, 70),
-         ('Cave_Cloudridge_Ice', (500, 65), -90, 80), ('Cave_Fortress_Undergate', (1190, 600), 200, 100),
+         ('Cave_Cloudridge_Ice', (500, 65), -90, 80), ('Cave_Fortress_Undergate', (1395, 650), 20, 80),
          ('Cave_World_Tree_Roots', (800, 150), -100, 90), ('Cave_Ruins_Undercroft', (615, 440), -90, 70),
          ('Cave_Entrance_Hollow', entrance_px(260), 235, 40))
 # cave pairs to be joined by interior tunnels later (the heightfield has no overhangs)
@@ -415,8 +424,8 @@ RESERVED = (('Reserved_Verdant_Village', 520, 765, 'rect', 230 * W_, 150 * W_),
             ('Reserved_Ruins_West', 560, 340, 'circle', 40 * W_, 0), ('Reserved_Ruins_East', 760, 330, 'circle', 34 * W_, 0),
             ('Reserved_Ruins_Undercroft', 615, 470, 'circle', 60, 0),
             ('Reserved_World_Tree', 800, 150, 'circle', 80 * W_, 0), ('Reserved_Sky_Temple', 1240, 130, 'rect', 170 * W_, 90 * W_),
-            ('Reserved_Fortress_Arena', 1190, 600, 'circle', 140, 0),
-            ('Reserved_Fortress_Keep', 1300, 520, 'rect', 110 * W_, 110 * W_),
+            ('Reserved_Fortress_Arena', 1300, 612, 'circle', 140, 0),
+            ('Reserved_Fortress_Keep', 1300, 520, 'rect', 120 * W_, 120 * W_),
             ('Reserved_Entrance_Gate', 215, 860, 'circle', 60, 0))
 
 # ---- blow the 1x layout up to world scale (player-scale sizes above stay as they are) ----
@@ -456,7 +465,12 @@ def build_floor1_materials():
     N('F1_Grass_Valley', (0.18, 0.66, 0.30), (0.24, 0.74, 0.34), 0.85, 0.02, 0.05, 1.0)
     N('F1_Grass_Ruins', (0.52, 0.68, 0.22), (0.60, 0.74, 0.28), 0.85, 0.02, 0.05, 1.0)
     N('F1_Grass_Mystic', (0.08, 0.40, 0.20), (0.12, 0.46, 0.24), 0.85, 0.02, 0.05, 1.0)
-    N('F1_Grass_Jungle', (0.06, 0.46, 0.10), (0.10, 0.54, 0.14), 0.85, 0.02, 0.05, 1.0)
+    N('F1_Grass_Jungle', (0.16, 0.56, 0.08), (0.22, 0.64, 0.10), 0.85, 0.02, 0.05, 1.0)
+    N('F1_Jungle_Floor', (0.06, 0.34, 0.08), (0.09, 0.40, 0.10), 0.9, 0.02, 0.05, 1.0)
+    N('F1_Leafy_Ground', (0.34, 0.46, 0.12), (0.42, 0.50, 0.16), 0.9, 0.03, 0.08, 1.0)
+    N('F1_Rocky_Ground', (0.44, 0.42, 0.36), (0.52, 0.50, 0.42), 0.9, 0.05, 0.12, 0.8)
+    N('F1_Mossy_Stone', (0.40, 0.48, 0.30), (0.48, 0.54, 0.36), 0.85, 0.08, 0.15, 0.4)
+    P('F1_Water_Jungle', (0.04, 0.78, 0.74), 0.06, emit=0.18)
     N('F1_Swamp', (0.28, 0.42, 0.16), (0.34, 0.48, 0.20), 0.9, 0.02, 0.05, 1.0)
     P('F1_Path', (0.78, 0.60, 0.36), 0.9)
     P('F1_Sand', (0.92, 0.82, 0.55), 0.9)
@@ -903,7 +917,7 @@ class Terrain:
                 return 'F1_Path_Stone'
             stony = a is not None and (a.biome in (AR, JF) or a.name == 'Verdant_Village')
             if stony and v > (0.05 if a.biome in (AR, JF) else 0.35):
-                return 'F1_Path_Stone'
+                return 'F1_Mossy_Stone' if a.biome == JF and v > 0.45 else 'F1_Path_Stone'
             return 'F1_Path_Light' if v > 0.4 else 'F1_Path_Dark' if v < -0.45 else 'F1_Path'
         if bridge:
             return 'F1_Rock'
@@ -923,6 +937,17 @@ class Terrain:
             return 'F1_Rock_Dark' if dark else 'F1_Rock_Light'
         if swampy:
             return 'F1_Swamp'
+        if a.name == 'Jungle_Fortress' and self.edge_d[i, j] < (70 + 60 * v) * 1.0 and v > -0.15:
+            return 'F1_Sand'                                    # sandy beaches along parts of the island's rim
+        if a.biome == JF and a.name != 'Sky_Temple':        # jungle ground: grass, dark floor, leaf litter, mud
+            if self.river_d[i, j] < 40 * (1 + v):
+                return 'F1_Mud' if v < 0.0 else 'F1_Jungle_Floor'
+            if slope > 0.4:
+                return 'F1_Rocky_Ground'
+            if v > 0.42:
+                return 'F1_Leafy_Ground'
+            if v < -0.3:
+                return 'F1_Jungle_Floor'
         return GRASS[a.biome]
 
 
@@ -1138,7 +1163,7 @@ def build_water(T):
     wf = Part('F1_Waterfalls', coll('Waterfalls', 'WATER').name)
     for name, pts, zw, w in RIVERS:
         wp = [(*px(x, y), zw) for x, y in pts]
-        ribbon(rv, densify(wp, 24.0), w + 1.0, 'F1_Water')
+        ribbon(rv, densify(wp, 24.0), w + 1.0, 'F1_Water_Jungle' if name.startswith(('Fortress', 'Beast')) else 'F1_Water')
         (ax, ay, _), (bx, by, _) = wp[-2], wp[-1]
         ang = math.degrees(math.atan2(by - ay, bx - ax))
         waterfall(wf, T, (bx, by), ang, zw, w, name + '_Falls', falls)
@@ -1160,7 +1185,8 @@ def build_water(T):
         return vmap[(i, j, z)]
     for i, j in np.argwhere(q):
         li = int(T.lake_i[i, j]); zw = LAKES[li][2]
-        mat = 'F1_Water_Swamp' if LAKES[li][0].startswith('Lotus') else 'F1_Water'
+        mat = 'F1_Water_Swamp' if LAKES[li][0].startswith('Lotus') else \
+            'F1_Water_Jungle' if LAKES[li][0] == 'Fortress_Lagoon' else 'F1_Water'
         f = lk.bm.faces.new([LV(i, j, zw), LV(i + 1, j, zw), LV(i + 1, j + 1, zw), LV(i, j + 1, zw)])
         f.material_index = lk.mi(mat)
     lk.finish()
@@ -1191,48 +1217,7 @@ def build_landmarks(T):
         tip = Vector((tx + math.cos(a) * 120 * W_, ty + math.sin(a) * 120 * W_, z0 + (290 + rnd.uniform(-20, 20)) * W_))
         p.beam(Vector((tx, ty, z0 + (200 + k * 7) * W_)), tip, 16 * W_, 16 * W_, 'Trunk')
     p.finish()
-    # Jungle Fortress: a distant silhouette in the reserved keep footprint - curtain walls, corner towers and a
-    # stepped keep with glowing windows (massing only; the real fortress comes in its own pass)
-    kx, ky = px(1300, 520)
-    kz = ground(T, 1300, 520)
-    P = lambda x, y, z: (kx + x * W_, ky + y * W_, kz + z * W_)
-
-    def merlons(p, half, z, step=6.0):
-        n = int(2 * half / step)
-        for m in range(n + 1):
-            t = -half + 2 * half * m / n
-            for x, y in ((t, -half), (t, half), (-half, t), (half, t)):
-                if m % 2 == 0:
-                    p.box(P(x, y, z + 1.5), (2.6 * W_, 2.6 * W_, 3 * W_), 'Fortress_Stone')
-    for k, (half, z0_, h) in enumerate(((35, 0, 22), (25, 22, 20), (15, 42, 20))):
-        p = Part(f'Landmark_Fortress_Keep_Tier_{k + 1}', c)
-        p.box(P(0, 0, z0_ + h / 2), (2 * half * W_, 2 * half * W_, h * W_), 'Fortress_Stone')
-        merlons(p, half, z0_ + h)
-        for sd in (-1, 1):                                     # glowing window slits
-            for m in range(-2, 3):
-                p.box(P(m * half / 3, sd * (half + 0.2), z0_ + h * 0.55), (2 * W_, 0.6 * W_, h * 0.4 * W_), 'Fortress_Glow')
-                p.box(P(sd * (half + 0.2), m * half / 3, z0_ + h * 0.55), (0.6 * W_, 2 * W_, h * 0.4 * W_), 'Fortress_Glow')
-        if k == 2:
-            p.cone(P(0, 0, z0_ + h), 13 * W_, 26 * W_, 'Fortress_Roof', 4)
-        p.finish()
-    for sx in (-1, 1):
-        for sy in (-1, 1):
-            p = Part(f'Landmark_Fortress_Tower_{"WE"[sx > 0]}{"SN"[sy > 0]}', c)
-            p.cyl(P(sx * 50, sy * 50, 30), 9 * W_, 60 * W_, 'Fortress_Stone', 12)
-            p.cyl(P(sx * 50, sy * 50, 61), 10.5 * W_, 2 * W_, 'Fortress_Stone', 12)
-            p.cone(P(sx * 50, sy * 50, 62), 11 * W_, 24 * W_, 'Fortress_Roof', 12)
-            p.box(P(sx * 50, sy * 50 - 9.1 * sy, 40), (2 * W_, 0.6 * W_, 6 * W_), 'Fortress_Glow')
-            p.finish()
-    for k, (x0, y0, x1, y1) in enumerate(((-50, -50, -6, -50), (6, -50, 50, -50), (-50, 50, 50, 50),
-                                          (-50, -50, -50, 50), (50, -50, 50, 50))):
-        p = Part(f'Landmark_Fortress_Wall_{k + 1}', c)                 # (gate gap on the south side)
-        a, b = Vector(P(x0, y0, 9)), Vector(P(x1, y1, 9))
-        p.beam(a, b, 5 * W_, 18 * W_, 'Fortress_Stone')
-        L = (b - a).length / W_
-        for m in range(int(L / 6) + 1):
-            q = a.lerp(b, m * 6 / max(L, 1)) + Vector((0, 0, 10.5 * W_))
-            p.box(q, (2.6 * W_, 6 * W_, 3 * W_), 'Fortress_Stone')
-        p.finish()
+    # (the Jungle Fortress castle itself is built in floor1_fortress.py)
     # Ancient Ruins: ring of colossal broken pillars round the plaza
     rx, ry = px(650, 380)
     rz = ground(T, 650, 380)
@@ -1428,9 +1413,13 @@ def build_floor1_cameras(coll_name='CAMERAS'):
              ('CAM_F1_Village_Arch', *globals().get('ARCH_VIEW', ((*px(*village_px(-345, -6)), 26 * ZL + 10),
                                                                  (*px(*village_px(-150, 0)), 26 * ZL + 14))),
               'PERSP', 24),
+             ('CAM_F1_Fortress_Island', P3(1250, 1010, 880), P3(1250, 585, 128), 'PERSP', 30),
+             ('CAM_F1_Fortress_Aerial', P3(1262, 790, 560), P3(1290, 545, 200), 'PERSP', 26),
+             ('CAM_F1_Fortress_Gate', P3(1300, 655, 150), P3(1300, 540, 172), 'PERSP', 22),
+             ('CAM_F1_Fortress_Keep', P3(1300, 590, 146), P3(1300, 528, 168), 'PERSP', 20),
              ('CAM_F1_Valley_View', P3(470, 660, 14), P3(700, 470, 60), 'PERSP', 22),
              ('CAM_F1_World_Tree_View', P3(1010, 470, 135), P3(800, 150, 250), 'PERSP', 24),
-             ('CAM_F1_Fortress_View', P3(880, 720, 120), P3(1240, 560, 250), 'PERSP', 24),
+             ('CAM_F1_Fortress_View', P3(1040, 760, 175), P3(1270, 560, 140), 'PERSP', 24),
              ('CAM_F1_Side_Elevation', (60 * W_, -2500 * W_, 220 * W_), (60 * W_, 0, 80 * W_), 'PERSP', 32))
     for name, loc, tgt, kind, lens in specs:
         cam = bpy.data.cameras.new(name)
@@ -1467,10 +1456,11 @@ def build_floor1():
     build_clouds()
     build_guides(T, falls, marks)
     build_scale_refs(T)
-    import floor1_detail, floor1_entrance, floor1_village
+    import floor1_detail, floor1_entrance, floor1_village, floor1_fortress
     detail = floor1_detail.build_detail(T, falls)
     entrance = floor1_entrance.build_entrance(T)
     village = floor1_village.build_villages(T)
+    fortress = floor1_fortress.build_fortress(T)
     # layout data for Roblox scripting (Roblox coordinates: X, Y up, Z = -Blender Y)
     areas = []
     for a in AREAS:
@@ -1498,6 +1488,9 @@ def build_floor1():
         entrance=dict(plaza=to_roblox(*entrance['plaza']), portal=to_roblox(*entrance['portal']),
                       stairs_bottom=to_roblox(*entrance['stairs_bottom']), hatchery=to_roblox(*entrance['hatchery']),
                       shop=to_roblox(*entrance['shop'])),
+        fortress=dict(keep_centre=to_roblox(*fortress['keep']), approach_start=to_roblox(*fortress['gate']),
+                      keep_door=to_roblox(*fortress['keep_door']), height_studs=round(fortress['height']),
+                      footprint_studs=[round(v) for v in fortress['footprint']]),
         village=dict(
             houses=[dict(name=h['name'], role=h['role'], position=to_roblox(*h['pos']), npc_spot=to_roblox(*h['npc']),
                          facing=[round(h['facing'][0], 3), 0.0, round(-h['facing'][1], 3)]) for h in village['houses']],

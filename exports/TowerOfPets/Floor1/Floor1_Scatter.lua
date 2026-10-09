@@ -24,13 +24,20 @@ M.Rules = {
 
 -- asset -> offset (studs, Roblox axes) from the asset's ground origin to its mesh centre, at scale 1
 M.Offsets = {
+	Ancient_Jungle_Tree = Vector3.new(-0.136, 9.478, 0.648),
+	Ancient_Pillar = Vector3.new(0.053, 5.166, -0.000),
+	Bamboo_Cluster = Vector3.new(0.149, 6.919, 0.353),
+	Banana_Tree = Vector3.new(1.168, 6.766, 0.362),
 	Barrel = Vector3.new(0.000, 1.200, -0.000),
 	Basket = Vector3.new(0.000, 0.810, -0.000),
 	Bench = Vector3.new(0.000, 1.175, -0.050),
 	Bridge_Long = Vector3.new(0.000, -0.029, -35.000),
 	Broken_Column_A = Vector3.new(1.055, 4.082, -0.228),
 	Broken_Column_B = Vector3.new(1.055, 6.649, -0.228),
+	Broken_Pillar = Vector3.new(1.162, 2.289, -0.000),
+	Broken_Ruin_Rock = Vector3.new(0.716, 1.537, 0.044),
 	Broken_Wall = Vector3.new(0.558, 2.862, -1.360),
+	Buried_Blocks = Vector3.new(0.392, 0.300, -0.161),
 	Bush_01 = Vector3.new(-0.111, 1.127, -0.038),
 	Bush_01_Mystic = Vector3.new(-0.111, 1.127, -0.038),
 	Bush_02 = Vector3.new(-0.008, 1.342, -0.127),
@@ -38,29 +45,43 @@ M.Offsets = {
 	Bush_03_Mystic = Vector3.new(0.254, 1.711, -0.009),
 	Cart = Vector3.new(1.930, 2.050, -0.000),
 	Castle_Lantern = Vector3.new(0.000, 5.500, -0.000),
+	Cliff_Edge = Vector3.new(-0.077, -2.002, 0.146),
+	Cliff_Segment = Vector3.new(-0.111, 7.003, 0.152),
 	Clothesline = Vector3.new(0.000, 3.500, -0.000),
 	Cloud_A = Vector3.new(0.052, 0.316, 0.091),
 	Cloud_B = Vector3.new(0.375, 0.307, -0.027),
 	Cloud_C = Vector3.new(0.006, 0.322, 0.141),
 	Cloud_D = Vector3.new(-0.041, 0.299, -0.017),
 	Crate = Vector3.new(0.000, 1.000, -0.000),
+	Creeping_Vines = Vector3.new(-0.143, 6.323, 0.339),
 	Crystal_Island = Vector3.new(1.141, -29.295, -0.721),
 	Fern = Vector3.new(0.011, 0.953, 0.015),
 	Firewood_Stack = Vector3.new(0.000, 1.340, -0.000),
 	Fishing_Jetty = Vector3.new(0.000, 0.000, -9.000),
+	Flat_Rock = Vector3.new(0.003, 0.661, 0.193),
 	Flower_Bed = Vector3.new(0.000, 0.994, -0.000),
 	Flower_Cluster_Pink = Vector3.new(0.006, 0.758, 0.011),
 	Flower_Cluster_Purple = Vector3.new(0.002, 0.756, 0.001),
 	Flower_Cluster_White = Vector3.new(-0.011, 0.812, 0.006),
 	Flower_Cluster_Yellow = Vector3.new(0.002, 0.756, 0.001),
 	Flower_Pot = Vector3.new(0.000, 1.055, -0.000),
+	Flowering_Jungle_Tree = Vector3.new(0.118, 7.564, 0.811),
 	Foam_Ring = Vector3.new(0.152, 0.150, -0.000),
 	Garden_Patch = Vector3.new(0.000, 0.636, -0.000),
 	Grass_Patch = Vector3.new(-0.128, 0.884, -0.174),
 	Grass_Tuft = Vector3.new(0.322, 0.778, -0.255),
+	Ground_Cover = Vector3.new(0.102, 0.161, 0.125),
 	Ground_Plant_01 = Vector3.new(-0.051, 0.988, 0.026),
 	Ground_Plant_02 = Vector3.new(0.028, 0.512, 0.036),
 	Hay_Bale = Vector3.new(0.000, 1.000, -0.000),
+	Jungle_Brazier = Vector3.new(0.000, 3.900, -0.000),
+	Jungle_Bush = Vector3.new(-0.076, 1.584, 0.085),
+	Jungle_Canopy_Tree = Vector3.new(0.292, 11.288, -0.064),
+	Jungle_Gate = Vector3.new(0.000, 6.400, 0.113),
+	Jungle_Grass = Vector3.new(0.187, 1.505, -0.193),
+	Jungle_Rock_Large = Vector3.new(0.516, 2.752, 0.192),
+	Jungle_Roots = Vector3.new(0.389, 1.111, 0.186),
+	Jungle_Statue = Vector3.new(0.000, 3.800, -0.000),
 	Lantern_Post = Vector3.new(0.000, 5.925, -0.000),
 	Lantern_Wood = Vector3.new(0.000, 4.800, -0.000),
 	Large_Island = Vector3.new(-0.518, -55.170, 0.174),
@@ -68,15 +89,25 @@ M.Offsets = {
 	Leaf_Cluster_B = Vector3.new(-0.010, 0.005, 0.062),
 	Leaf_Cluster_C = Vector3.new(0.123, -0.132, -0.099),
 	Leaf_Cluster_Low = Vector3.new(-0.971, -0.294, 0.141),
+	Leafy_Shrub = Vector3.new(0.006, 1.168, -0.050),
 	Lily_Pads = Vector3.new(-0.332, 0.050, 0.041),
 	Lily_Pads_Flower = Vector3.new(0.355, 0.265, -0.873),
 	Log = Vector3.new(0.000, 1.543, -0.509),
 	Medium_Island = Vector3.new(0.844, -36.195, -0.631),
 	Mist_Puff = Vector3.new(-0.243, 0.802, -1.712),
+	Monstera_Plant = Vector3.new(-0.032, 1.251, 0.008),
 	Moss_Drape_A = Vector3.new(0.000, -1.775, -0.250),
 	Moss_Drape_B = Vector3.new(0.000, -3.204, -0.250),
+	Mossy_Boulder = Vector3.new(0.036, 2.136, -0.000),
+	Mossy_Stairs = Vector3.new(0.000, 2.100, -3.500),
 	Mushrooms = Vector3.new(-0.148, 0.853, -0.125),
 	Mushrooms_Glow = Vector3.new(-0.059, 0.892, 0.107),
+	Obelisk = Vector3.new(-0.005, 7.900, -0.000),
+	Overgrown_Arch = Vector3.new(0.000, 9.410, -0.071),
+	Palm_Tree = Vector3.new(0.997, 7.423, -0.060),
+	Pink_Jungle_Plant = Vector3.new(0.043, 0.985, 0.125),
+	Purple_Accent_Plant = Vector3.new(-0.020, 0.986, -0.091),
+	Red_Jungle_Plant = Vector3.new(-0.075, 1.079, -0.030),
 	Reeds = Vector3.new(0.104, 2.652, 0.541),
 	Rock_A = Vector3.new(-0.018, -0.117, -0.103),
 	Rock_B = Vector3.new(-0.058, 0.043, -0.002),
@@ -85,9 +116,11 @@ M.Offsets = {
 	Rock_Large = Vector3.new(0.043, -3.600, -0.626),
 	Rock_Medium = Vector3.new(-0.129, -2.000, 0.168),
 	Rock_Small = Vector3.new(0.195, -0.960, -0.085),
+	Root_Rock = Vector3.new(0.016, 2.075, -0.317),
 	Root_Single = Vector3.new(1.697, 0.785, 0.062),
 	Rope_Barrier = Vector3.new(0.000, 1.600, -0.000),
 	Ruin_Arch = Vector3.new(0.000, 7.350, -0.000),
+	Ruin_Wall_Jungle = Vector3.new(1.007, 3.600, 0.028),
 	Signpost = Vector3.new(1.321, 3.200, -0.683),
 	Small_Island = Vector3.new(0.249, -19.635, 0.177),
 	Stone_Fragments = Vector3.new(1.252, 0.400, -0.167),
@@ -105,9 +138,13 @@ M.Offsets = {
 	Tree_Small_Low = Vector3.new(-0.033, 6.211, 0.582),
 	Tree_Tall_Thin_Low = Vector3.new(-0.519, 10.788, -0.848),
 	Tree_Tall_Thin_Mystic = Vector3.new(-0.519, 10.788, -0.848),
+	Tropical_Palm = Vector3.new(0.865, 10.062, 0.092),
+	Tropical_Plant = Vector3.new(-0.146, 1.129, -0.042),
 	Verdant_Banner_Pole = Vector3.new(0.000, 9.700, -0.000),
 	Village_Well = Vector3.new(0.000, 4.800, -0.000),
+	Vine_Cluster = Vector3.new(0.000, -5.072, 0.073),
 	Vine_Long = Vector3.new(-0.088, -3.674, 0.036),
+	Water_Plant = Vector3.new(0.002, 0.786, -0.011),
 	Waterfall_Large = Vector3.new(-0.775, -61.346, 0.919),
 	Waterfall_Medium = Vector3.new(-0.222, -30.627, -0.460),
 	Wood_Fence = Vector3.new(0.000, 1.500, -0.000),
@@ -126,10 +163,17 @@ M.Trunks = {
 	Tree_Large_High = {2.3, 9},
 	Tree_Medium_High = {1.4, 8},
 	Tree_Small = {1.2, 6},
+	Palm_Tree = {0.8, 12},
+	Jungle_Canopy_Tree = {1.8, 14},
+	Ancient_Jungle_Tree = {3.0, 10},
+	Tropical_Palm = {0.85, 18},
+	Banana_Tree = {1.6, 6},
+	Flowering_Jungle_Tree = {1.1, 8},
 }
 
 M.Transparency = {Mist_Puff = 0.45}
-M.Lights = {Lantern_Wood = {7.4, 22, 1.4}, Castle_Lantern = {7.6, 24, 1.5}, Lantern_Post = {9.5, 26, 1.5}}
+M.Lights = {Jungle_Brazier = {6.0, 26, 1.6}, Lantern_Wood = {7.4, 22, 1.4}, Castle_Lantern = {7.6, 24, 1.5}, Lantern_Post = {9.5, 26, 1.5}}
+M.Precise = {Jungle_Gate = true, Overgrown_Arch = true, Mossy_Stairs = true}
 
 local function findAsset(assets, name)
 	local a = assets:FindFirstChild(name, true)
@@ -184,7 +228,9 @@ function M.place(opts)
 				p.CanCollide = rule.collide == true and not small
 				p.CanQuery, p.CanTouch = p.CanCollide, false
 				p.CastShadow = rule.shadow == true
-				if p.CanCollide and rule.fidelity then
+				if p.CanCollide and M.Precise[name] then
+					pcall(function() p.CollisionFidelity = Enum.CollisionFidelity.PreciseConvexDecomposition end)
+				elseif p.CanCollide and rule.fidelity then
 					pcall(function() p.CollisionFidelity = Enum.CollisionFidelity[rule.fidelity] end)
 				else
 					pcall(function() p.CollisionFidelity = Enum.CollisionFidelity.Box end)

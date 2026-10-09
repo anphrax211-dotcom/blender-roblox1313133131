@@ -19,7 +19,7 @@ with open sky between them, crossed by bridges:
 
 The Sky Temple, four secret isles and two optional islets float on their own.
 
-**Heights.** Region base heights run from about −120 (Lotus Swamp) to 1,200 (Fortress Heights, the boss plateau).
+**Heights.** Region base heights run from about −120 (Lotus Swamp) to about 700 (the Jungle Fortress castle terrace; the fortress island is now mostly flat).
 The Cloudridge summit is about 2,650 and the World Tree canopy about 4,800. Height differences between regions
 are deliberately moderate, set by `LEVEL` in `floor1.py`.
 
@@ -39,18 +39,19 @@ folder). In Studio: right-click ServerStorage → Insert from File. Then paste t
 | `Floor1_Waterfall_Valley.fbx` | Riverfall Valley, Emerald Lake, Lotus Swamp, Lotus Grotto secret |
 | `Floor1_Ancient_Ruins.fbx` | Ancient Ruins, Cloudridge Peaks, Cloud Perch secret |
 | `Floor1_Mystic_Wilds.fbx` | World Tree Grove, Mossy Caverns, Beast Cave |
-| `Floor1_Jungle_Fortress.fbx` | jungle ring, Fortress Heights (boss plateau), Sky Temple island, Overlook secret, rare-pet islet |
+| `Floor1_Jungle_Fortress.fbx` | the flat jungle island with the castle terrace and the Fortress Lagoon basin, Beast Cave, Sky Temple island, Overlook secret, rare-pet islet |
 | `Floor1_Entrance.fbx` | the Floor 1 entrance:<br>• the portal: masonry arch, pillars, Verdant banners, vines and the swirling portal<br>• `Floor1_Portal_TeleportTrigger`, an invisible touch box inside the portal for the return-to-hub teleport<br>• the dais and wide staircase<br>• the emblem plaza (the spawn)<br>• the paved start of the forest road<br><br>Walkable parts (`Entrance_Walk_*`) get exact collision. |
 | `Floor1_Shop.fbx`, `Floor1_Hatchery.fbx` | the hub's Shop and Hatchery (Eggs), copied 1:1 and set either side of the entrance plaza, facing it, with paved walkways. Each is a Model with its `Shop_Root` / `Hatchery_Root` pivot. Their lamps are in `Floor1_Lights.lua` |
 | `Floor1_Village.fbx` | the Verdant Village round the entrance: eight different timber-frame placeholder houses (Elder, Baker, Smith, Weaver, Gardener, Scholar, Herbalist, Fisher), two market stalls and stepping-stone walks. Porches, steps and walks (`Village_Walk_*`) get exact collision. The house lamps are in `Floor1_Lights.lua` |
+| `Floor1_Fortress.fbx` | the Jungle Fortress temple-castle on its low terrace in the north of the island:<br>• a masonry podium with a monumental staircase and a paved approach with carved pillars and braziers<br>• curtain walls with battlements and wall walks, ten towers of different heights with layered terracotta temple roofs, and an arched gatehouse<br>• a courtyard with statues and planters, an inner terrace with its own stairs<br>• the three-level keep with corner turrets, arcaded windows, a balcony, side wings and the monumental entrance<br>• red and gold banners with the jungle crest, jade-and-gold pillars, guardian masks, two stone jungle guardian statues, gold braziers, torches, vines and moss<br><br>Walkable floors (`Fortress_Walk_*`) get exact collision; the torch and brazier lamps are in `Floor1_Lights.lua` |
 | `Floor1_Village.lua` | ModuleScript: house, stall and NPC-spot positions (Roblox coordinates) for quest NPCs; `buildSpots(folder)` makes invisible marker parts |
 | `Floor1_Bridges.fbx` | 11 built bridges where paths cross open sky: wood truss, stone and rope (decks get exact collision) |
 | `Floor1_Natural_Bridges.fbx` | the rock spans of the Sky Stair, the Fortress Grand Ramp and the Cloud Perch path |
 | `Floor1_Water.fbx` | rivers, lakes, ponds, waterfalls (including small cliff cascades) |
-| `Floor1_Landmark_Blockouts.fbx` | the markers below, plus the landmark pieces (`Landmark_World_Tree_Trunk/Limbs`, `Landmark_Fortress_*`, `Landmark_Ruins_Pillars`) |
+| `Floor1_Landmark_Blockouts.fbx` | the markers below, plus the landmark pieces (`Landmark_World_Tree_Trunk/Limbs`, `Landmark_Ruins_Pillars`) |
 | `Floor1_Clouds.fbx` | flat cloud sea far below the islands (optional; Studio's Terrain clouds can replace it) |
 | `Floor1_Materials.lua` | ModuleScript: colours and materials for the terrain FBX files, exact collision on the walkable surfaces (`apply(model)`) |
-| `Floor1_Assets.fbx` + `Floor1_Palette.png` | the environment asset library: 87 assets (hub trees, hub stone lanterns and lantern posts, Verdant banner poles, Mystic Wilds trees, bushes, plants, flowers, rocks, lanterns, props, ruin pieces, reeds, lily pads, village props such as carts, hay bales, clotheslines, garden patches, a well and a fishing jetty, clouds, background islands ...). Each asset is **one MeshPart** coloured by the small palette texture |
+| `Floor1_Assets.fbx` + `Floor1_Palette.png` | the environment asset library: 124 assets (hub trees, hub stone lanterns and lantern posts, Verdant banner poles, Mystic Wilds trees, bushes, plants, flowers, rocks, lanterns, props, ruin pieces, reeds, lily pads, the jungle set (canopy, ancient, palm, banana and flowering trees, monstera and other jungle plants, bamboo, vines, mossy rocks, cliff pieces, ancient pillars, obelisks, statues, gates, arches, braziers), village props such as carts, hay bales, clotheslines, garden patches, a well and a fishing jetty, clouds, background islands ...). Each asset is **one MeshPart** coloured by the small palette texture |
 | `Floor1_Scatter.lua` | ModuleScript that places every scattered piece by cloning `Floor1_Assets` |
 | `Scatter/Floor1_Scatter_*.lua` | placement data ModuleScripts (position, yaw and scale per piece), one or more per category |
 | `Floor1_Lighting.lua` | ModuleScript: bright fantasy daylight, soft shadows, haze, subtle bloom, terrain clouds |
@@ -69,7 +70,7 @@ Each terrain area has `<Area>_Top` (walkable ground and paths), `<Area>_Cliffs` 
 `<Area>_Underside` (the floating rock below, thinned out because it's only seen from afar). Parts are named
 `<Object>__<Material>`. Every part has at most 6,000 triangles and is no bigger than 1,900 studs on any side
 (Roblox's MeshPart limit is 2,048). The terrain, water, bridges and landmark files together come to about 2,900
-parts and 1.56M triangles; the entrance, Shop, Hatchery and village add about 970 parts.
+parts and 1.56M triangles; the entrance, Shop, Hatchery, village and fortress add about 1,300 parts.
 
 ## 1. Terrain, water, bridges and landmarks
 
@@ -93,7 +94,7 @@ parts and 1.56M triangles; the entrance, Shop, Hatchery and village add about 97
 ## 2. Environment scatter (trees, plants, rocks, props ...)
 
 1. Import `Floor1_Assets.fbx` with the same settings. Rename the imported model **`Floor1_Assets`** and move it
-   to **ServerStorage**. The 87 assets all sit at the origin; that's expected.
+   to **ServerStorage**. The 124 assets all sit at the origin; that's expected.
 2. In ServerStorage, create a Folder **`Floor1_ScatterData`**. Add every `Scatter/Floor1_Scatter_*.lua` to it as
    a ModuleScript, keeping the file names.
 3. Add `Floor1_Scatter.lua` as a ModuleScript in ServerStorage named `Floor1_Scatter`, then run:
@@ -120,7 +121,7 @@ parts and 1.56M triangles; the entrance, Shop, Hatchery and village add about 97
 | Foliage | bushes, ground plants, ferns, flowers, grass, mushrooms | none, no shadows |
 | Rocks | boulders, rock formations, river rocks, pebbles | Hull; small pebbles non-colliding |
 | Props | lanterns, signposts, benches, fences, rope barriers, barrels, crates, logs, stumps | Box |
-| Ruins | broken columns and walls, ruin arches, stone fragments, temple platforms | Hull |
+| Ruins | broken columns and walls, ruin arches, stone fragments, temple platforms; jungle pillars, obelisks, statues, walls, gates, arches, braziers | Hull; `Jungle_Gate`, `Overgrown_Arch` and `Mossy_Stairs` get exact collision so riders pass through / climb them |
 | Water | reeds, lily pads, waterfall mist and foam | none |
 | Cliffs | moss drapes, vines, roots, boulders set into cliff walls | none |
 | Landmarks | World Tree canopy (hub leaf clusters) and giant roots | none; **streams persistently** |
@@ -146,5 +147,5 @@ parts and 1.56M triangles; the entrance, Shop, Hatchery and village add about 97
 ## Key positions (Roblox coordinates)
 
 - Spawn (Floor Entrance): (-5225, 60, 3850)
-- Main boss (Fortress Heights arena): (5500, 1200, 990)
+- Main boss (the emblem plaza at the foot of the castle stairs): (6710, 668, 1122)
 - Everything else is in `floor1_layout.json`.

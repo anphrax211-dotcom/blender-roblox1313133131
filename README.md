@@ -427,6 +427,41 @@ the lake directly behind the Hatchery.
 - **Collision:** porches, steps and walks (`Village_Walk_*`) get exact collision.
 - **Cameras:** `CAM_F1_Village_Aerial`, `_Street`, `_Lakeside` and `_Lake`.
 
+**Jungle Fortress castle** (`floor1_fortress.py`, `Floor1_Fortress.fbx`)
+
+The ruler's castle on the existing Fortress Heights keep pad. It replaces the old massing blockout; the island,
+plateau, cliffs, boss arena and roads are unchanged, apart from a short paved approach (`Fortress_Keep_Approach`)
+that joins the Fortress Grand Ramp. It's built with the hub's castle helpers at 5× (one design unit = 5 studs), so
+the stairs have 1.6-stud risers. It's about 920 × 760 studs and about 790 studs to the keep's finial, facing south.
+
+- **Podium and approach:** a masonry podium with a monumental front staircase, braziers, and a paved approach lined
+  with carved pillars, planters and braziers.
+- **Curtain wall:** thick masonry walls of different heights with buttresses, cornices, merlons, an inner parapet and
+  a walkable wall walk.
+- **Towers:** ten towers, all different in width, height and roof (four corner towers, side and rear towers, and the
+  twin gatehouse towers). Each has a block plinth, a banded masonry shaft with reinforced corners, arrow slits and
+  glowing windows, a corbelled gallery with merlons, and a tall tiered copper roof with tile courses, hip ridges and a
+  gold finial.
+- **Gatehouse:** a voussoir arch, a raised iron portcullis and a banner.
+- **Courtyard:** paving, statues on pedestals, planters, and guard platforms with braziers.
+- **Inner terrace:** a balustraded platform with its own staircase.
+- **Keep, in three levels:**
+  - base: heavy banded masonry, recessed panels, slits, and four corner turrets with round roofs;
+  - middle: arcaded arched windows between pilasters, a gold-lined cornice, red banners and a copper pent roof;
+  - upper: a tall tower with glowing narrow windows, corner columns, roof brackets, the tallest roof with corner
+    pinnacles, and a front dormer.
+
+  Side wings with gabled copper roofs complete it.
+- **Entrance:** three concentric voussoir arches with one gold inlay, flanking pillars with banners, torches, a
+  balcony above, and half-open doors with a controlled warm glow inside.
+- **Identity:** deep red banners with a gold jungle-crown emblem on the gate, towers, walls and keep. Torches and
+  braziers, with 16 real lamps in `Floor1_Lights.lua`. Vines and moss on selected walls only, and roots round the
+  podium.
+- **Jungle:** the Fortress Heights plateau is now dense jungle, and the region's trees mix in new low-poly palms
+  (`Palm_Tree`) and broad-leaf `Tropical_Plant`s. The castle grounds get clusters of trees, palms and tropical
+  plants, keeping the approach and the view of the gate open.
+- **Cameras:** `CAM_F1_Fortress_Aerial`, `_Gate` and `_Keep`, and the existing `CAM_F1_Fortress_View`.
+
 **Roblox delivery** (`exports/TowerOfPets/Floor1/`, see `IMPORT.md` there)
 - Terrain, water, bridges and landmarks are one FBX per group, about 2,900 MeshParts and 1.56M triangles. Each part
   has at most 6,000 triangles and is no wider than 1,900 studs.

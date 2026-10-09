@@ -94,7 +94,7 @@ M.Materials = {
 	["F1_Water_Swamp"] = {Color = Color3.fromRGB(111, 184, 162), Material = Enum.Material.SmoothPlastic, Transparency = 0.0},
 	["F1_Waterfall"] = {Color = Color3.fromRGB(221, 243, 255), Material = Enum.Material.Neon, Transparency = 0.0},
 	["Fern_Green"] = {Color = Color3.fromRGB(89, 196, 97), Material = Enum.Material.SmoothPlastic, Transparency = 0.0},
-	["Fire_Core"] = {Color = Color3.fromRGB(255, 237, 160), Material = Enum.Material.Neon, Transparency = 0.0},
+	["Fire_Core.001"] = {Color = Color3.fromRGB(255, 237, 160), Material = Enum.Material.Neon, Transparency = 0.0},
 	["Flower_Center"] = {Color = Color3.fromRGB(255, 218, 80), Material = Enum.Material.SmoothPlastic, Transparency = 0.0},
 	["Flower_Pink"] = {Color = Color3.fromRGB(255, 149, 206), Material = Enum.Material.SmoothPlastic, Transparency = 0.0},
 	["Flower_Purple"] = {Color = Color3.fromRGB(206, 149, 255), Material = Enum.Material.SmoothPlastic, Transparency = 0.0},
@@ -102,10 +102,7 @@ M.Materials = {
 	["Flower_Yellow"] = {Color = Color3.fromRGB(255, 234, 89), Material = Enum.Material.SmoothPlastic, Transparency = 0.0},
 	["Foam.001"] = {Color = Color3.fromRGB(249, 254, 255), Material = Enum.Material.Neon, Transparency = 0.0},
 	["Foliage_Rock"] = {Color = Color3.fromRGB(192, 188, 189), Material = Enum.Material.SmoothPlastic, Transparency = 0.0},
-	["Forge_Glow"] = {Color = Color3.fromRGB(255, 173, 69), Material = Enum.Material.Neon, Transparency = 0.0},
-	["Fortress_Glow"] = {Color = Color3.fromRGB(255, 179, 80), Material = Enum.Material.Neon, Transparency = 0.0},
-	["Fortress_Roof"] = {Color = Color3.fromRGB(231, 149, 89), Material = Enum.Material.SmoothPlastic, Transparency = 0.0},
-	["Fortress_Stone"] = {Color = Color3.fromRGB(191, 142, 118), Material = Enum.Material.SmoothPlastic, Transparency = 0.0},
+	["Forge_Glow.001"] = {Color = Color3.fromRGB(255, 173, 69), Material = Enum.Material.Neon, Transparency = 0.0},
 	["Gift_Blue"] = {Color = Color3.fromRGB(108, 196, 255), Material = Enum.Material.SmoothPlastic, Transparency = 0.0},
 	["Gift_Pink"] = {Color = Color3.fromRGB(255, 160, 218), Material = Enum.Material.SmoothPlastic, Transparency = 0.0},
 	["Glass"] = {Color = Color3.fromRGB(237, 249, 255), Material = Enum.Material.Glass, Transparency = 0.55},
@@ -132,6 +129,15 @@ M.Materials = {
 	["Island_Rock"] = {Color = Color3.fromRGB(214, 201, 189), Material = Enum.Material.SmoothPlastic, Transparency = 0.0},
 	["Island_Rock_Dark"] = {Color = Color3.fromRGB(187, 172, 163), Material = Enum.Material.SmoothPlastic, Transparency = 0.0},
 	["Island_Rock_Light"] = {Color = Color3.fromRGB(232, 221, 208), Material = Enum.Material.SmoothPlastic, Transparency = 0.0},
+	["JF_Banner_Red"] = {Color = Color3.fromRGB(206, 63, 63), Material = Enum.Material.SmoothPlastic, Transparency = 0.0},
+	["JF_Door_Wood"] = {Color = Color3.fromRGB(134, 97, 69), Material = Enum.Material.Wood, Transparency = 0.0},
+	["JF_Gate_Glow"] = {Color = Color3.fromRGB(237, 149, 80), Material = Enum.Material.Neon, Transparency = 0.0},
+	["JF_Iron"] = {Color = Color3.fromRGB(111, 108, 108), Material = Enum.Material.Metal, Transparency = 0.0},
+	["JF_Recess"] = {Color = Color3.fromRGB(63, 53, 48), Material = Enum.Material.SmoothPlastic, Transparency = 0.0},
+	["JF_Roof_Copper"] = {Color = Color3.fromRGB(231, 181, 111), Material = Enum.Material.SmoothPlastic, Transparency = 0.0},
+	["JF_Roof_Copper_Dark"] = {Color = Color3.fromRGB(188, 139, 89), Material = Enum.Material.SmoothPlastic, Transparency = 0.0},
+	["JF_Roof_Underside"] = {Color = Color3.fromRGB(124, 93, 69), Material = Enum.Material.SmoothPlastic, Transparency = 0.0},
+	["JF_Window_Glow"] = {Color = Color3.fromRGB(255, 196, 124), Material = Enum.Material.Neon, Transparency = 0.0},
 	["Lantern_Glow"] = {Color = Color3.fromRGB(255, 206, 129), Material = Enum.Material.Neon, Transparency = 0.0},
 	["Lantern_Metal"] = {Color = Color3.fromRGB(105, 93, 97), Material = Enum.Material.Metal, Transparency = 0.0},
 	["Leaves_Dark"] = {Color = Color3.fromRGB(56, 153, 56), Material = Enum.Material.SmoothPlastic, Transparency = 0.0},
@@ -149,6 +155,8 @@ M.Materials = {
 	["Mushroom_Glow"] = {Color = Color3.fromRGB(89, 237, 255), Material = Enum.Material.Neon, Transparency = 0.0},
 	["Mushroom_Red"] = {Color = Color3.fromRGB(246, 111, 97), Material = Enum.Material.SmoothPlastic, Transparency = 0.0},
 	["Mushroom_Stem"] = {Color = Color3.fromRGB(249, 243, 231), Material = Enum.Material.SmoothPlastic, Transparency = 0.0},
+	["Palm_Leaf"] = {Color = Color3.fromRGB(124, 196, 105), Material = Enum.Material.SmoothPlastic, Transparency = 0.0},
+	["Palm_Trunk"] = {Color = Color3.fromRGB(196, 170, 134), Material = Enum.Material.Wood, Transparency = 0.0},
 	["Planter_Stone"] = {Color = Color3.fromRGB(229, 223, 234), Material = Enum.Material.SmoothPlastic, Transparency = 0.0},
 	["Planter_Stone_Dark"] = {Color = Color3.fromRGB(206, 200, 212), Material = Enum.Material.SmoothPlastic, Transparency = 0.0},
 	["Plaster_Cream"] = {Color = Color3.fromRGB(247, 239, 215), Material = Enum.Material.SmoothPlastic, Transparency = 0.0},
@@ -199,6 +207,8 @@ M.Materials = {
 	["Temple_Stone"] = {Color = Color3.fromRGB(243, 241, 236), Material = Enum.Material.SmoothPlastic, Transparency = 0.0},
 	["Thatch"] = {Color = Color3.fromRGB(231, 206, 149), Material = Enum.Material.SmoothPlastic, Transparency = 0.0},
 	["Thatch_Dark"] = {Color = Color3.fromRGB(195, 174, 125), Material = Enum.Material.SmoothPlastic, Transparency = 0.0},
+	["Tropical_Leaf"] = {Color = Color3.fromRGB(89, 184, 111), Material = Enum.Material.SmoothPlastic, Transparency = 0.0},
+	["Tropical_Leaf_Light"] = {Color = Color3.fromRGB(149, 212, 124), Material = Enum.Material.SmoothPlastic, Transparency = 0.0},
 	["Trunk"] = {Color = Color3.fromRGB(197, 142, 82), Material = Enum.Material.Wood, Transparency = 0.0},
 	["Trunk_Dark"] = {Color = Color3.fromRGB(124, 85, 48), Material = Enum.Material.Wood, Transparency = 0.0},
 	["Verdant_Emblem"] = {Color = Color3.fromRGB(80, 188, 111), Material = Enum.Material.SmoothPlastic, Transparency = 0.0},
@@ -220,7 +230,7 @@ M.NoCollide = {"Particles", "Energy", "EnergyRing", "Sparkle", "Cloud", "Leaf", 
 	"Waterfall", "Mist", "Glow", "Grass_Tuft", "Ground_Plant", "Flower", "Rivers", "Lakes"}
 
 -- walkable terrain: exact collision (needs Studio / command bar permission, ignored in game scripts)
-M.PreciseCollision = {"_Top__", "_Cliffs__", "Natural_Bridges", "_Deck__", "Entrance_Walk", "Village_Walk"}
+M.PreciseCollision = {"_Top__", "_Cliffs__", "Natural_Bridges", "_Deck__", "Entrance_Walk", "Village_Walk", "Fortress_Walk"}
 
 function M.apply(root)
 	for _, part in ipairs(root:GetDescendants()) do

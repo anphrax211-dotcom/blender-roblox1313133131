@@ -255,7 +255,7 @@ PADS = (
     ('Spawn', 215, 860, 64, 12, 1), ('Entrance_Portal', *entrance_px(84), 52, 12, 1),
     ('Entrance_Hatchery', *entrance_px(0, -104), 74, 12, 1), ('Entrance_Shop', *entrance_px(0, 104), 70, 12, 1), ('Village_Square', 520, 765, 70, 26, WORLD), ('Ruins_Plaza', 650, 380, 60, 118, WORLD),
     ('World_Tree_Pad', 800, 150, 80, 172, WORLD), ('Sky_Temple_Pad', 1240, 130, 56, 310, WORLD),
-    ('Fortress_Arena', 1190, 600, 70, 240, 2), ('Fortress_Keep', 1300, 520, 58, 240, WORLD),
+    ('Fortress_Arena', 1190, 600, 70, 240, 2), ('Fortress_Keep', 1300, 520, 66, 240, WORLD),
     ('Meadow_Riding_Field', 130, 690, 95, None, WORLD), ('Jungle_Clearing', 1380, 690, 48, None, WORLD),
     ('MiniBoss_1', 440, 430, 36, None, 2), ('MiniBoss_2', 970, 690, 36, None, 2), ('MiniBoss_3', 1170, 140, 28, 310, 2),
     ('Lake_Islet', 960, 330, 22, 101, WORLD),
@@ -294,6 +294,7 @@ PATHS = (
     ('World_Tree_East_Trail', 'secondary', [(800, 150, 172), (880, 190, None), (960, 245, None)]),
     ('Mossy_Valley_Switchback', 'secondary', [(700, 650, None), (745, 600, None), (790, 640, None), (840, 640, None)]),
     ('Mossy_Swamp_Trail', 'secondary', [(970, 690, None), (1000, 770, None), (960, 840, None), (880, 880, None)]),
+    ('Fortress_Keep_Approach', 'main', [(1300, 574, 240), (1303, 592, None), (1318, 621, 240)]),
     ('Fortress_Canyon', 'secondary', [(970, 690, None), (1020, 650, None), (1085, 640, None), (1150, 700, None),
                                       (1240, 712, None), (1262, 660, None), (1190, 600, 240)]),
     ('Swamp_Cliff_Trail', 'secondary', [(880, 880, None), (1000, 900, None), (1110, 850, None), (1165, 800, None),
@@ -320,7 +321,7 @@ GENTLE_RIVERS = {'Entrance_Brook'}
 GRASSY_SHORES = {'Village_Lake', 'Entrance_Spring_Pool'}
 # pads that carry built floors (plaza, stairs, buildings): flattened again after every path / river so nothing pokes
 # through, and set a hair under the floor meshes
-HARD_PADS = ('Spawn', 'Entrance_Portal', 'Entrance_Hatchery', 'Entrance_Shop')
+HARD_PADS = ('Spawn', 'Entrance_Portal', 'Entrance_Hatchery', 'Entrance_Shop', 'Fortress_Keep')
 
 
 def bridge_type(name, kind):
@@ -362,7 +363,7 @@ RESERVED = (('Reserved_Verdant_Village', 520, 765, 'rect', 230 * W_, 150 * W_),
             ('Reserved_Ruins_Undercroft', 615, 470, 'circle', 60, 0),
             ('Reserved_World_Tree', 800, 150, 'circle', 80 * W_, 0), ('Reserved_Sky_Temple', 1240, 130, 'rect', 170 * W_, 90 * W_),
             ('Reserved_Fortress_Arena', 1190, 600, 'circle', 140, 0),
-            ('Reserved_Fortress_Keep', 1300, 520, 'rect', 110 * W_, 110 * W_),
+            ('Reserved_Fortress_Keep', 1300, 520, 'rect', 120 * W_, 120 * W_),
             ('Reserved_Entrance_Gate', 215, 860, 'circle', 60, 0))
 
 # ---- blow the 1x layout up to world scale (player-scale sizes above stay as they are) ----
@@ -1137,48 +1138,7 @@ def build_landmarks(T):
         tip = Vector((tx + math.cos(a) * 120 * W_, ty + math.sin(a) * 120 * W_, z0 + (290 + rnd.uniform(-20, 20)) * W_))
         p.beam(Vector((tx, ty, z0 + (200 + k * 7) * W_)), tip, 16 * W_, 16 * W_, 'Trunk')
     p.finish()
-    # Jungle Fortress: a distant silhouette in the reserved keep footprint - curtain walls, corner towers and a
-    # stepped keep with glowing windows (massing only; the real fortress comes in its own pass)
-    kx, ky = px(1300, 520)
-    kz = ground(T, 1300, 520)
-    P = lambda x, y, z: (kx + x * W_, ky + y * W_, kz + z * W_)
-
-    def merlons(p, half, z, step=6.0):
-        n = int(2 * half / step)
-        for m in range(n + 1):
-            t = -half + 2 * half * m / n
-            for x, y in ((t, -half), (t, half), (-half, t), (half, t)):
-                if m % 2 == 0:
-                    p.box(P(x, y, z + 1.5), (2.6 * W_, 2.6 * W_, 3 * W_), 'Fortress_Stone')
-    for k, (half, z0_, h) in enumerate(((35, 0, 22), (25, 22, 20), (15, 42, 20))):
-        p = Part(f'Landmark_Fortress_Keep_Tier_{k + 1}', c)
-        p.box(P(0, 0, z0_ + h / 2), (2 * half * W_, 2 * half * W_, h * W_), 'Fortress_Stone')
-        merlons(p, half, z0_ + h)
-        for sd in (-1, 1):                                     # glowing window slits
-            for m in range(-2, 3):
-                p.box(P(m * half / 3, sd * (half + 0.2), z0_ + h * 0.55), (2 * W_, 0.6 * W_, h * 0.4 * W_), 'Fortress_Glow')
-                p.box(P(sd * (half + 0.2), m * half / 3, z0_ + h * 0.55), (0.6 * W_, 2 * W_, h * 0.4 * W_), 'Fortress_Glow')
-        if k == 2:
-            p.cone(P(0, 0, z0_ + h), 13 * W_, 26 * W_, 'Fortress_Roof', 4)
-        p.finish()
-    for sx in (-1, 1):
-        for sy in (-1, 1):
-            p = Part(f'Landmark_Fortress_Tower_{"WE"[sx > 0]}{"SN"[sy > 0]}', c)
-            p.cyl(P(sx * 50, sy * 50, 30), 9 * W_, 60 * W_, 'Fortress_Stone', 12)
-            p.cyl(P(sx * 50, sy * 50, 61), 10.5 * W_, 2 * W_, 'Fortress_Stone', 12)
-            p.cone(P(sx * 50, sy * 50, 62), 11 * W_, 24 * W_, 'Fortress_Roof', 12)
-            p.box(P(sx * 50, sy * 50 - 9.1 * sy, 40), (2 * W_, 0.6 * W_, 6 * W_), 'Fortress_Glow')
-            p.finish()
-    for k, (x0, y0, x1, y1) in enumerate(((-50, -50, -6, -50), (6, -50, 50, -50), (-50, 50, 50, 50),
-                                          (-50, -50, -50, 50), (50, -50, 50, 50))):
-        p = Part(f'Landmark_Fortress_Wall_{k + 1}', c)                 # (gate gap on the south side)
-        a, b = Vector(P(x0, y0, 9)), Vector(P(x1, y1, 9))
-        p.beam(a, b, 5 * W_, 18 * W_, 'Fortress_Stone')
-        L = (b - a).length / W_
-        for m in range(int(L / 6) + 1):
-            q = a.lerp(b, m * 6 / max(L, 1)) + Vector((0, 0, 10.5 * W_))
-            p.box(q, (2.6 * W_, 6 * W_, 3 * W_), 'Fortress_Stone')
-        p.finish()
+    # (the Jungle Fortress castle itself is built in floor1_fortress.py)
     # Ancient Ruins: ring of colossal broken pillars round the plaza
     rx, ry = px(650, 380)
     rz = ground(T, 650, 380)
@@ -1365,6 +1325,9 @@ def build_floor1_cameras(coll_name='CAMERAS'):
               'PERSP', 22),
              ('CAM_F1_Village_Lakeside', (*px(*village_px(300, 60)), 12 * ZL + 22), (*px(*village_px(-40, 170)), 12 * ZL + 12),
               'PERSP', 22),
+             ('CAM_F1_Fortress_Aerial', P3(1262, 790, 560), P3(1290, 545, 200), 'PERSP', 26),
+             ('CAM_F1_Fortress_Gate', P3(1307, 622, 256), P3(1300, 528, 300), 'PERSP', 22),
+             ('CAM_F1_Fortress_Keep', P3(1302, 542, 252), P3(1300, 517, 278), 'PERSP', 18),
              ('CAM_F1_Valley_View', P3(470, 660, 14), P3(700, 470, 60), 'PERSP', 22),
              ('CAM_F1_World_Tree_View', P3(1010, 470, 135), P3(800, 150, 250), 'PERSP', 24),
              ('CAM_F1_Fortress_View', P3(880, 720, 120), P3(1240, 560, 250), 'PERSP', 24),
@@ -1404,10 +1367,11 @@ def build_floor1():
     build_clouds()
     build_guides(T, falls, marks)
     build_scale_refs(T)
-    import floor1_detail, floor1_entrance, floor1_village
+    import floor1_detail, floor1_entrance, floor1_village, floor1_fortress
     detail = floor1_detail.build_detail(T, falls)
     entrance = floor1_entrance.build_entrance(T)
     village = floor1_village.build_village(T)
+    fortress = floor1_fortress.build_fortress(T)
     # layout data for Roblox scripting (Roblox coordinates: X, Y up, Z = -Blender Y)
     areas = []
     for a in AREAS:
@@ -1435,6 +1399,9 @@ def build_floor1():
         entrance=dict(plaza=to_roblox(*entrance['plaza']), portal=to_roblox(*entrance['portal']),
                       stairs_bottom=to_roblox(*entrance['stairs_bottom']), hatchery=to_roblox(*entrance['hatchery']),
                       shop=to_roblox(*entrance['shop'])),
+        fortress=dict(keep_centre=to_roblox(*fortress['keep']), approach_start=to_roblox(*fortress['gate']),
+                      keep_door=to_roblox(*fortress['keep_door']), height_studs=round(fortress['height']),
+                      footprint_studs=[round(v) for v in fortress['footprint']]),
         village=dict(
             houses=[dict(name=h['name'], role=h['role'], position=to_roblox(*h['pos']), npc_spot=to_roblox(*h['npc']),
                          facing=[round(h['facing'][0], 3), 0.0, round(-h['facing'][1], 3)]) for h in village['houses']],

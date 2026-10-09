@@ -77,6 +77,7 @@ M.Offsets = {
 	Moss_Drape_B = Vector3.new(0.000, -3.204, -0.250),
 	Mushrooms = Vector3.new(-0.148, 0.853, -0.125),
 	Mushrooms_Glow = Vector3.new(-0.059, 0.892, 0.107),
+	Palm_Tree = Vector3.new(0.997, 7.423, -0.060),
 	Reeds = Vector3.new(0.104, 2.652, 0.541),
 	Rock_A = Vector3.new(-0.018, -0.117, -0.103),
 	Rock_B = Vector3.new(-0.058, 0.043, -0.002),
@@ -105,6 +106,7 @@ M.Offsets = {
 	Tree_Small_Low = Vector3.new(-0.033, 6.211, 0.582),
 	Tree_Tall_Thin_Low = Vector3.new(-0.519, 10.788, -0.848),
 	Tree_Tall_Thin_Mystic = Vector3.new(-0.519, 10.788, -0.848),
+	Tropical_Plant = Vector3.new(-0.146, 1.129, -0.042),
 	Verdant_Banner_Pole = Vector3.new(0.000, 9.700, -0.000),
 	Village_Well = Vector3.new(0.000, 4.800, -0.000),
 	Vine_Long = Vector3.new(-0.088, -3.674, 0.036),
@@ -126,6 +128,7 @@ M.Trunks = {
 	Tree_Large_High = {2.3, 9},
 	Tree_Medium_High = {1.4, 8},
 	Tree_Small = {1.2, 6},
+	Palm_Tree = {0.8, 12},
 }
 
 M.Transparency = {Mist_Puff = 0.45}

@@ -3,6 +3,16 @@
 local M = {}
 
 M.Lights = {
+	{Name = "Fortress_Approach_Brazier", Position = Vector3.new(6820.0, 1246.5, 734.8), Color = Color3.fromRGB(255, 196, 129), Brightness = 3.0, Range = 60},
+	{Name = "Fortress_Keep_Door_Glow", Position = Vector3.new(6710.0, 1295.75, 60.0), Color = Color3.fromRGB(255, 196, 129), Brightness = 3.0, Range = 60},
+	{Name = "Fortress_Keep_Door_Torch_0", Position = Vector3.new(6650.0, 1332.25, 78.0), Color = Color3.fromRGB(255, 196, 129), Brightness = 3.0, Range = 60},
+	{Name = "Fortress_Keep_Door_Torch_2", Position = Vector3.new(6770.0, 1332.25, 78.0), Color = Color3.fromRGB(255, 196, 129), Brightness = 3.0, Range = 60},
+	{Name = "Fortress_Stair_Brazier_0", Position = Vector3.new(6607.5, 1255.0, 564.8), Color = Color3.fromRGB(255, 196, 129), Brightness = 3.0, Range = 60},
+	{Name = "Fortress_Stair_Brazier_2", Position = Vector3.new(6812.5, 1255.0, 564.8), Color = Color3.fromRGB(255, 196, 129), Brightness = 3.0, Range = 60},
+	{Name = "Fortress_Terrace_Brazier", Position = Vector3.new(6797.5, 1302.25, 127.5), Color = Color3.fromRGB(255, 196, 129), Brightness = 3.0, Range = 60},
+	{Name = "Fortress_Torch_Gate_E", Position = Vector3.new(6763.25, 1309.55, 488.0), Color = Color3.fromRGB(255, 196, 129), Brightness = 3.0, Range = 60},
+	{Name = "Fortress_Torch_Gate_W", Position = Vector3.new(6618.25, 1309.55, 488.0), Color = Color3.fromRGB(255, 196, 129), Brightness = 3.0, Range = 60},
+	{Name = "Fortress_Yard_Brazier", Position = Vector3.new(6380.0, 1312.25, 310.0), Color = Color3.fromRGB(255, 196, 129), Brightness = 3.0, Range = 60},
 	{Name = "Hatchery_Light_0", Position = Vector3.new(-5279.331, 74.75, 3759.449), Color = Color3.fromRGB(231, 179, 255), Brightness = 2.93, Range = 50.9},
 	{Name = "Hatchery_Light_1", Position = Vector3.new(-5276.758, 65.75, 3763.736), Color = Color3.fromRGB(255, 179, 249), Brightness = 1.6, Range = 31.2},
 	{Name = "Hatchery_Light_2", Position = Vector3.new(-5288.249, 69.75, 3760.135), Color = Color3.fromRGB(149, 231, 255), Brightness = 1.4, Range = 27.0},

@@ -25,7 +25,7 @@ TRUNKS = {  # asset -> (trunk radius, collider height) at scale 1, studs
     'Tree_Large_Low': (2.3, 9), 'Tree_Medium_Low': (1.4, 8), 'Tree_Small_Low': (1.2, 6), 'Tree_Tall_Thin_Low': (1.0, 10),
     'Tree_Large_Mystic': (2.3, 9), 'Tree_Medium_Mystic': (1.4, 8), 'Tree_Small_Mystic': (1.2, 6),
     'Tree_Tall_Thin_Mystic': (1.0, 10),
-    'Tree_Large_High': (2.3, 9), 'Tree_Medium_High': (1.4, 8), 'Tree_Small': (1.2, 6),
+    'Tree_Large_High': (2.3, 9), 'Tree_Medium_High': (1.4, 8), 'Tree_Small': (1.2, 6), 'Palm_Tree': (0.8, 12),
 }
 TRANSPARENT = {'Mist_Puff': 0.45}
 LIGHTS = {'Lantern_Wood': (7.4, 22, 1.4), 'Castle_Lantern': (7.6, 24, 1.5), 'Lantern_Post': (9.5, 26, 1.5)}      # asset -> (light height at scale 1, range, brightness)

@@ -300,8 +300,9 @@ def build_detail_assets():
     shop.build_shop_materials(); hatchery.build_hatchery_materials()
     shop.build_shop_kit(None); hatchery.build_hatchery_kit(None)   # the hub Shop / Hatchery kits (entrance)
     floor1_entrance.build_entrance_assets()
-    import floor1_village
+    import floor1_village, floor1_fortress
     floor1_village.build_village_assets()
+    floor1_fortress.build_fortress_assets()
     mystic = {'Leaves_Light': 'Leaves_Mystic_Light', 'Leaves_Mid': 'Leaves_Mystic_Mid',
               'Leaves_Dark': 'Leaves_Mystic_Dark', 'Leaves_Highlight': 'Leaves_Mystic_Highlight'}
     for t in ('Tree_Large_Low', 'Tree_Medium_Low', 'Tree_Small_Low', 'Tree_Tall_Thin_Low', 'Bush_01', 'Bush_03'):
@@ -400,7 +401,7 @@ DRESS = {
                                mystic=True, mushrooms=20),
     'Jungle_Fortress':    dict(trees=256, bushes=170, plants=94, flowers=12, rocks=30, grass=24, scale=(3.0, 6.0),
                                jungle=True, logs=10),
-    'Fortress_Heights':   dict(trees=46, bushes=60, plants=28, flowers=4, rocks=26, grass=18, scale=(2.4, 4.2),
+    'Fortress_Heights':   dict(trees=130, bushes=150, plants=80, flowers=14, rocks=26, grass=30, scale=(2.6, 4.6),
                                jungle=True, ruins=10),
     'Sky_Temple':         dict(trees=19, bushes=50, plants=22, flowers=36, rocks=10, grass=36, scale=(2.0, 3.2),
                                temple=True),
@@ -416,6 +417,9 @@ def tree_kind(rng, d):
     r = rng.random()
     if d.get('alpine'):
         return 'Tree_Tall_Thin_Low' if r < 0.8 else 'Tree_Medium_Low'
+    if d.get('jungle'):                                        # broad canopies, palms, tall thin trees
+        return ('Tree_Large_Low', 'Tree_Medium_Low', 'Palm_Tree', 'Tree_Tall_Thin_Low', 'Tree_Large_High')[
+            0 if r < 0.34 else 1 if r < 0.56 else 2 if r < 0.8 else 3 if r < 0.92 else 4]
     if d.get('mystic'):
         return ('Tree_Large_Mystic', 'Tree_Medium_Mystic', 'Tree_Tall_Thin_Mystic', 'Tree_Large_Low')[
             0 if r < 0.45 else 1 if r < 0.75 else 2 if r < 0.92 else 3]
@@ -471,7 +475,7 @@ def scatter(T):
     for x, y, o in zip(xs, ys, own):
         d = dress_of(F.AREAS[o])
         k = rng.choice(('Bush_01_Mystic', 'Bush_03_Mystic', 'Bush_02') if d.get('mystic') else
-                       ('Bush_03', 'Bush_03', 'Bush_01', 'Bush_02') if d.get('jungle') else
+                       ('Bush_03', 'Tropical_Plant', 'Bush_01', 'Tropical_Plant') if d.get('jungle') else
                        ('Bush_01', 'Bush_02', 'Bush_03'))
         s = rng.uniform(1.6, 3.2) * (1.3 if d.get('jungle') else 1.0)
         place('Foliage', k, float(x), float(y), float(ground_z(T, x, y)) - 0.2, rng.uniform(0, TAU), s)
@@ -480,8 +484,8 @@ def scatter(T):
     xs, ys, own, rng = pick(30.0, 3, lambda a: dress_of(a)['plants'], 'plants', 0.7, 4.0, 10.0, 4.0)
     for x, y, o in zip(xs, ys, own):
         d = dress_of(F.AREAS[o])
-        k = rng.choice(('Fern', 'Fern', 'Ground_Plant_01', 'Ground_Plant_02') if d.get('mystic') or d.get('jungle')
-                       else ('Ground_Plant_01', 'Ground_Plant_02', 'Fern'))
+        k = rng.choice(('Fern', 'Tropical_Plant', 'Fern', 'Ground_Plant_02') if d.get('jungle') else
+                       ('Fern', 'Fern', 'Ground_Plant_01', 'Ground_Plant_02') if d.get('mystic') else ('Ground_Plant_01', 'Ground_Plant_02', 'Fern'))
         place('Foliage', k, float(x), float(y), float(ground_z(T, x, y)), rng.uniform(0, TAU), rng.uniform(1.4, 2.6))
         counts[k] = counts.get(k, 0) + 1
     xs, ys, own, rng = pick(26.0, 4, lambda a: dress_of(a)['flowers'], 'flowers', 0.6, 3.0, 10.0, 4.0, use_grove=-0.6)

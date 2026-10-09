@@ -66,6 +66,8 @@ def main(path=OUT):
     common.coll('F1_LIGHTING', floor1.ROOT).objects.link(sun)
     haze(sc)
     cams = floor1.build_floor1_cameras()
+    import floor1_jungle
+    floor1_jungle.build_showcase()
     sc.camera = cams['CAM_F1_Overview']
     bpy.ops.wm.save_as_mainfile(filepath=path, compress=True)
     os.makedirs(JSON_DIR, exist_ok=True)

@@ -43,7 +43,7 @@ folder). In Studio: right-click ServerStorage → Insert from File. Then paste t
 | `Floor1_Entrance.fbx` | the Floor 1 entrance:<br>• the portal: masonry arch, pillars, Verdant banners, vines and the swirling portal<br>• `Floor1_Portal_TeleportTrigger`, an invisible touch box inside the portal for the return-to-hub teleport<br>• the dais and wide staircase<br>• the emblem plaza (the spawn)<br>• the paved start of the forest road<br><br>Walkable parts (`Entrance_Walk_*`) get exact collision. |
 | `Floor1_Shop.fbx`, `Floor1_Hatchery.fbx` | the hub's Shop and Hatchery (Eggs), copied 1:1 and set either side of the entrance plaza, facing it, with paved walkways. Each is a Model with its `Shop_Root` / `Hatchery_Root` pivot. Their lamps are in `Floor1_Lights.lua` |
 | `Floor1_Village.fbx` | the Verdant Village round the entrance: eight different timber-frame placeholder houses (Elder, Baker, Smith, Weaver, Gardener, Scholar, Herbalist, Fisher), two market stalls and stepping-stone walks. Porches, steps and walks (`Village_Walk_*`) get exact collision. The house lamps are in `Floor1_Lights.lua` |
-| `Floor1_Fortress.fbx` | the Jungle Fortress castle on the Fortress Heights plateau (replaces the old massing blockout):<br>• a masonry podium with a monumental staircase and a paved approach with carved pillars and braziers<br>• curtain walls with battlements and wall walks, ten towers of different heights with tall tiered copper roofs, and an arched gatehouse<br>• a courtyard with statues and planters, an inner terrace with its own stairs<br>• the three-level keep with corner turrets, arcaded windows, a balcony, side wings and the monumental entrance<br>• red and gold banners, torches, vines<br><br>Walkable floors (`Fortress_Walk_*`) get exact collision; the torch and brazier lamps are in `Floor1_Lights.lua` |
+| `Floor1_Fortress.fbx` | the Jungle Fortress castle on the Fortress Heights plateau (replaces the old massing blockout):<br>• a masonry podium with a monumental staircase and a paved approach with carved pillars and braziers<br>• curtain walls with battlements and wall walks, ten towers of different heights with tall tiered copper roofs, and an arched gatehouse<br>• a courtyard with statues and planters, an inner terrace with its own stairs<br>• the three-level keep with corner turrets, arcaded windows, a balcony, side wings and the monumental entrance<br>• red and gold banners with the jungle crest, jade-and-gold pillars, guardian masks, two stone jungle guardian statues, gold braziers, torches, vines and moss<br><br>Walkable floors (`Fortress_Walk_*`) get exact collision; the torch and brazier lamps are in `Floor1_Lights.lua` |
 | `Floor1_Village.lua` | ModuleScript: house, stall and NPC-spot positions (Roblox coordinates) for quest NPCs; `buildSpots(folder)` makes invisible marker parts |
 | `Floor1_Bridges.fbx` | 11 built bridges where paths cross open sky: wood truss, stone and rope (decks get exact collision) |
 | `Floor1_Natural_Bridges.fbx` | the rock spans of the Sky Stair, the Fortress Grand Ramp and the Cloud Perch path |
@@ -51,7 +51,7 @@ folder). In Studio: right-click ServerStorage → Insert from File. Then paste t
 | `Floor1_Landmark_Blockouts.fbx` | the markers below, plus the landmark pieces (`Landmark_World_Tree_Trunk/Limbs`, `Landmark_Ruins_Pillars`) |
 | `Floor1_Clouds.fbx` | flat cloud sea far below the islands (optional; Studio's Terrain clouds can replace it) |
 | `Floor1_Materials.lua` | ModuleScript: colours and materials for the terrain FBX files, exact collision on the walkable surfaces (`apply(model)`) |
-| `Floor1_Assets.fbx` + `Floor1_Palette.png` | the environment asset library: 89 assets (hub trees, hub stone lanterns and lantern posts, Verdant banner poles, Mystic Wilds trees, bushes, plants, flowers, rocks, lanterns, props, ruin pieces, reeds, lily pads, jungle palms and tropical plants, village props such as carts, hay bales, clotheslines, garden patches, a well and a fishing jetty, clouds, background islands ...). Each asset is **one MeshPart** coloured by the small palette texture |
+| `Floor1_Assets.fbx` + `Floor1_Palette.png` | the environment asset library: 124 assets (hub trees, hub stone lanterns and lantern posts, Verdant banner poles, Mystic Wilds trees, bushes, plants, flowers, rocks, lanterns, props, ruin pieces, reeds, lily pads, the jungle set (canopy, ancient, palm, banana and flowering trees, monstera and other jungle plants, bamboo, vines, mossy rocks, cliff pieces, ancient pillars, obelisks, statues, gates, arches, braziers), village props such as carts, hay bales, clotheslines, garden patches, a well and a fishing jetty, clouds, background islands ...). Each asset is **one MeshPart** coloured by the small palette texture |
 | `Floor1_Scatter.lua` | ModuleScript that places every scattered piece by cloning `Floor1_Assets` |
 | `Scatter/Floor1_Scatter_*.lua` | placement data ModuleScripts (position, yaw and scale per piece), one or more per category |
 | `Floor1_Lighting.lua` | ModuleScript: bright fantasy daylight, soft shadows, haze, subtle bloom, terrain clouds |
@@ -94,7 +94,7 @@ parts and 1.56M triangles; the entrance, Shop, Hatchery, village and fortress ad
 ## 2. Environment scatter (trees, plants, rocks, props ...)
 
 1. Import `Floor1_Assets.fbx` with the same settings. Rename the imported model **`Floor1_Assets`** and move it
-   to **ServerStorage**. The 89 assets all sit at the origin; that's expected.
+   to **ServerStorage**. The 124 assets all sit at the origin; that's expected.
 2. In ServerStorage, create a Folder **`Floor1_ScatterData`**. Add every `Scatter/Floor1_Scatter_*.lua` to it as
    a ModuleScript, keeping the file names.
 3. Add `Floor1_Scatter.lua` as a ModuleScript in ServerStorage named `Floor1_Scatter`, then run:
@@ -121,7 +121,7 @@ parts and 1.56M triangles; the entrance, Shop, Hatchery, village and fortress ad
 | Foliage | bushes, ground plants, ferns, flowers, grass, mushrooms | none, no shadows |
 | Rocks | boulders, rock formations, river rocks, pebbles | Hull; small pebbles non-colliding |
 | Props | lanterns, signposts, benches, fences, rope barriers, barrels, crates, logs, stumps | Box |
-| Ruins | broken columns and walls, ruin arches, stone fragments, temple platforms | Hull |
+| Ruins | broken columns and walls, ruin arches, stone fragments, temple platforms; jungle pillars, obelisks, statues, walls, gates, arches, braziers | Hull; `Jungle_Gate`, `Overgrown_Arch` and `Mossy_Stairs` get exact collision so riders pass through / climb them |
 | Water | reeds, lily pads, waterfall mist and foam | none |
 | Cliffs | moss drapes, vines, roots, boulders set into cliff walls | none |
 | Landmarks | World Tree canopy (hub leaf clusters) and giant roots | none; **streams persistently** |

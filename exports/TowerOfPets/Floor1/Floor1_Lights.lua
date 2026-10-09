@@ -9,7 +9,7 @@ M.Lights = {
 	{Name = "Fortress_Keep_Door_Torch_2", Position = Vector3.new(6770.0, 1332.25, 78.0), Color = Color3.fromRGB(255, 196, 129), Brightness = 3.0, Range = 60},
 	{Name = "Fortress_Stair_Brazier_0", Position = Vector3.new(6607.5, 1255.0, 564.8), Color = Color3.fromRGB(255, 196, 129), Brightness = 3.0, Range = 60},
 	{Name = "Fortress_Stair_Brazier_2", Position = Vector3.new(6812.5, 1255.0, 564.8), Color = Color3.fromRGB(255, 196, 129), Brightness = 3.0, Range = 60},
-	{Name = "Fortress_Terrace_Brazier", Position = Vector3.new(6797.5, 1302.25, 127.5), Color = Color3.fromRGB(255, 196, 129), Brightness = 3.0, Range = 60},
+	{Name = "Fortress_Terrace_Brazier", Position = Vector3.new(6870.0, 1310.75, 125.0), Color = Color3.fromRGB(255, 196, 129), Brightness = 3.0, Range = 60},
 	{Name = "Fortress_Torch_Gate_E", Position = Vector3.new(6763.25, 1309.55, 488.0), Color = Color3.fromRGB(255, 196, 129), Brightness = 3.0, Range = 60},
 	{Name = "Fortress_Torch_Gate_W", Position = Vector3.new(6618.25, 1309.55, 488.0), Color = Color3.fromRGB(255, 196, 129), Brightness = 3.0, Range = 60},
 	{Name = "Fortress_Yard_Brazier", Position = Vector3.new(6380.0, 1312.25, 310.0), Color = Color3.fromRGB(255, 196, 129), Brightness = 3.0, Range = 60},

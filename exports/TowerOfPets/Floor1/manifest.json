@@ -53,9 +53,9 @@
       "size_mb": 9.14
     },
     "Floor1_Jungle_Fortress": {
-      "parts": 225,
+      "parts": 283,
       "triangles": 221328,
-      "largest_part": 6000,
+      "largest_part": 4757,
       "largest_extent": 1795.7,
       "root": "Floor1_Jungle_Fortress",
       "root_position_roblox": [
@@ -63,7 +63,7 @@
         0.0,
         -0.0
       ],
-      "size_mb": 7.13
+      "size_mb": 7.48
     },
     "Floor1_Natural_Bridges": {
       "parts": 148,
@@ -144,9 +144,9 @@
       "size_mb": 2.43
     },
     "Floor1_Fortress": {
-      "parts": 247,
-      "triangles": 292154,
-      "largest_part": 5996,
+      "parts": 266,
+      "triangles": 291352,
+      "largest_part": 5998,
       "largest_extent": 1020.7,
       "root": "Floor1_Fortress",
       "root_position_roblox": [
@@ -154,7 +154,7 @@
         0.0,
         -0.0
       ],
-      "size_mb": 4.99
+      "size_mb": 4.91
     },
     "Floor1_Water": {
       "parts": 153,
@@ -196,7 +196,7 @@
       "size_mb": 1.44
     }
   },
-  "materials": 220,
+  "materials": 243,
   "lights": 34,
   "spawn_roblox": [
     -5225.0,

@@ -26,9 +26,12 @@ TRUNKS = {  # asset -> (trunk radius, collider height) at scale 1, studs
     'Tree_Large_Mystic': (2.3, 9), 'Tree_Medium_Mystic': (1.4, 8), 'Tree_Small_Mystic': (1.2, 6),
     'Tree_Tall_Thin_Mystic': (1.0, 10),
     'Tree_Large_High': (2.3, 9), 'Tree_Medium_High': (1.4, 8), 'Tree_Small': (1.2, 6), 'Palm_Tree': (0.8, 12),
+    'Jungle_Canopy_Tree': (1.8, 14), 'Ancient_Jungle_Tree': (3.0, 10), 'Tropical_Palm': (0.85, 18), 'Banana_Tree': (1.6, 6),
+    'Flowering_Jungle_Tree': (1.1, 8),
 }
 TRANSPARENT = {'Mist_Puff': 0.45}
-LIGHTS = {'Lantern_Wood': (7.4, 22, 1.4), 'Castle_Lantern': (7.6, 24, 1.5), 'Lantern_Post': (9.5, 26, 1.5)}      # asset -> (light height at scale 1, range, brightness)
+PRECISE = ('Jungle_Gate', 'Overgrown_Arch', 'Mossy_Stairs')   # walk-through / walk-on ruins: exact collision
+LIGHTS = {'Jungle_Brazier': (6.0, 26, 1.6), 'Lantern_Wood': (7.4, 22, 1.4), 'Castle_Lantern': (7.6, 24, 1.5), 'Lantern_Post': (9.5, 26, 1.5)}      # asset -> (light height at scale 1, range, brightness)
 
 
 def to_roblox(x, y, z):
@@ -99,7 +102,8 @@ def write_placer(out_dir, offsets):
     for name, (r, h) in TRUNKS.items():
         L.append(f'\t{name} = {{{r}, {h}}},')
     L += ['}', '', 'M.Transparency = {' + ', '.join(f'{k} = {v}' for k, v in TRANSPARENT.items()) + '}',
-          'M.Lights = {' + ', '.join(f'{k} = {{{h}, {r}, {b}}}' for k, (h, r, b) in LIGHTS.items()) + '}', '',
+          'M.Lights = {' + ', '.join(f'{k} = {{{h}, {r}, {b}}}' for k, (h, r, b) in LIGHTS.items()) + '}',
+          'M.Precise = {' + ', '.join(f'{k} = true' for k in PRECISE) + '}', '',
           'local function findAsset(assets, name)',
           '\tlocal a = assets:FindFirstChild(name, true)',
           '\tif a and a:IsA("Model") then a = a:FindFirstChildWhichIsA("MeshPart", true) end',
@@ -152,7 +156,9 @@ def write_placer(out_dir, offsets):
           '\t\t\t\tp.CanCollide = rule.collide == true and not small',
           '\t\t\t\tp.CanQuery, p.CanTouch = p.CanCollide, false',
           '\t\t\t\tp.CastShadow = rule.shadow == true',
-          '\t\t\t\tif p.CanCollide and rule.fidelity then',
+          '\t\t\t\tif p.CanCollide and M.Precise[name] then',
+          '\t\t\t\t\tpcall(function() p.CollisionFidelity = Enum.CollisionFidelity.PreciseConvexDecomposition end)',
+          '\t\t\t\telseif p.CanCollide and rule.fidelity then',
           '\t\t\t\t\tpcall(function() p.CollisionFidelity = Enum.CollisionFidelity[rule.fidelity] end)',
           '\t\t\t\telse',
           '\t\t\t\t\tpcall(function() p.CollisionFidelity = Enum.CollisionFidelity.Box end)',

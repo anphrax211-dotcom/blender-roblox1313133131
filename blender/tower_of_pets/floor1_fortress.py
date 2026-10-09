@@ -25,16 +25,26 @@ import bpy, bmesh
 from mathutils import Vector, Matrix
 from common import Part, mat_plain, coll, round_arch, TAU
 import castle
-from castle import bevel_box, masonry, voussoirs, frame_strip, rect_minus_arch, balustrade
+from castle import bevel_box, voussoirs, frame_strip, rect_minus_arch, balustrade
 import floor1 as F
 
 C = 'F1_FORTRESS'
-LIGHTS = 'F1_FORTRESS_LIGHTS'
+LIGHTS = 'Environmental_Lighting'
+SUBS = ('Castle_Main', 'Castle_Towers', 'Castle_Roofs', 'Castle_Walls', 'Castle_Entrance', 'Castle_Guardian_Statues',
+        'Castle_Banners', 'Jungle_Vines')
+ROOF, BAN = [None], [None]                     # the shared roof / banner Parts (Castle_Roofs, Castle_Banners)
 SCALE = 5.0
 KEEP_PX = (1300, 520)
 FLIP = Matrix(((1, 0, 0, 0), (0, 0, 1, 0), (0, 1, 0, 0), (0, 0, 0, 1)))       # prism in local XZ, extruded along y
 I4 = Matrix.Identity(4)
-STONES = castle.STONES
+STONES = ('Castle_Stone', 'Castle_Stone_Warm', 'Castle_Stone_Warm', 'Castle_Stone_Light', 'Castle_Stone', 'JF_Stone_Moss')
+STONES_LOW = ('Castle_Stone_Warm', 'JF_Stone_Moss', 'Castle_Stone', 'JF_Stone_Moss', 'Castle_Stone_Dark')   # damp feet
+
+
+def masonry(*a, **kw):
+    """castle.masonry in the weathered jungle stone mix (warm grey, tan, moss)"""
+    kw.setdefault('mats', STONES)
+    return castle.masonry(*a, **kw)
 
 # layout (design units): podium, curtain wall, towers, inner terrace, keep
 POD_X, POD_Y, POD_H = 92.0, 76.0, 6.0          # podium half sizes and top height
@@ -46,8 +56,9 @@ KEEP_Y = 30.0
 
 def build_fortress_materials():
     P = mat_plain
-    P('JF_Roof_Copper', (0.80, 0.46, 0.16), 0.5, metal=0.3)
-    P('JF_Roof_Copper_Dark', (0.50, 0.26, 0.10), 0.6, metal=0.3)
+    P('JF_Roof_Copper', (0.76, 0.38, 0.17), 0.55, metal=0.2)
+    P('JF_Roof_Copper_Dark', (0.48, 0.22, 0.10), 0.6, metal=0.2)
+    P('JF_Eye_Glow', (1.0, 0.70, 0.15), 0.4, emit=1.8)
     P('JF_Roof_Underside', (0.20, 0.11, 0.06), 0.8)
     P('JF_Banner_Red', (0.62, 0.05, 0.05), 0.7)
     P('JF_Recess', (0.05, 0.035, 0.03), 0.9)
@@ -152,7 +163,8 @@ def brazier(p, M, x, y, z0, lights=None, light_name=None, big=1.0):
     bevel_box(p, Mb, (0, 0, 0.7), (3.4, 3.4, 1.4), 'Castle_Trim', 0.2)
     bevel_box(p, Mb, (0, 0, 2.6), (2.0, 2.0, 2.6), 'Castle_Stone', 0.2)
     bevel_box(p, Mb, (0, 0, 4.1), (3.0, 3.0, 0.5), 'Castle_Trim', 0.15)
-    p.cyl(Mb @ Vector((0, 0, 4.9)), 1.4, 1.1, 'JF_Iron', 8, r2=2.0)
+    p.cyl(Mb @ Vector((0, 0, 4.9)), 1.5, 1.2, 'JF_Brazier_Gold', 10, r2=2.3)
+    p.torus(Mb @ Vector((0, 0, 5.5)), 2.3, 0.18, 'JF_Brazier_Gold', 12, 4)
     p.cone(Mb @ Vector((0, 0, 5.3)), 1.3, 2.6, 'Forge_Glow', 6)
     p.cone(Mb @ Vector((0, 0, 5.6)), 0.7, 2.8, 'Fire_Core', 5)
     if lights is not None:
@@ -197,7 +209,7 @@ def tower(name, cx, cy, half, top, rnd, roof_h, slits=True, glow=(), banner=None
           lights=None, torch=False, roof_tiers=3):
     """square tower: block foundation, banded masonry shaft with corner pilasters, slits / windows, corbelled gallery
     with merlons, tall tiered roof"""
-    p = Part(f'Fortress_Tower_{name}', C)
+    p = Part(f'Fortress_Tower_{name}', 'Castle_Towers')
     bevel_box(p, I4, (cx, cy, (z0 + top) / 2 - 2), (2 * half - 0.6, 2 * half - 0.6, top - z0 + 4), 'Castle_Stone_Dark', 0.0)
     bevel_box(p, I4, (cx, cy, z0 + 1.5), (2 * half + 2.4, 2 * half + 2.4, 3.0), 'Castle_Stone_Dark', 0.3)   # plinth
     bevel_box(p, I4, (cx, cy, z0 + 3.4), (2 * half + 1.4, 2 * half + 1.4, 0.9), 'Castle_Trim', 0.2)
@@ -209,6 +221,7 @@ def tower(name, cx, cy, half, top, rnd, roof_h, slits=True, glow=(), banner=None
                       'Castle_Stone_Light', 0.2)
         for zb in bands:
             bevel_box(p, Mf, (0, -0.2, zb), (span + 1.0, 1.4, 1.1), 'Castle_Trim', 0.15)
+            bevel_box(p, Mf, (0, -0.95, zb - 0.9), (span - 1.0, 0.3, 0.5), 'JF_Jade', 0.05)
         if slits:
             for zb in bands:
                 g = (k, zb) in glow or (k == 0 and zb == bands[1] and 'front' in glow)
@@ -229,18 +242,19 @@ def tower(name, cx, cy, half, top, rnd, roof_h, slits=True, glow=(), banner=None
     else:
         bevel_box(p, I4, (cx, cy, top + 0.5), (2 * half + 2.0, 2 * half + 2.0, 1.0), 'Castle_Trim', 0.2)
         rz = top + 1.0
-    tiered_roof(p, cx, cy, rz + (2.6 if gallery else 0.0), half + (0.6 if gallery else 0.2), roof_h, rnd,
+    tiered_roof(ROOF[0], cx, cy, rz + (2.6 if gallery else 0.0), half + (0.6 if gallery else 0.2), roof_h, rnd,
                 tiers=roof_tiers)
     if banner:
         Mf = faces4(cx, cy, half, half)[0][0]
-        red_banner(p, Mf @ Matrix.Translation((0, -1.2, banner[0])), banner[1], banner[2])
+        mask(p, Mf @ Matrix.Translation((0, -1.0, banner[0] + 6.5)), half * 0.75)
+        red_banner(BAN[0], Mf @ Matrix.Translation((0, -1.2, banner[0])), banner[1], banner[2])
     return p
 
 
 def wall(name, A, B, z0, z1, rnd, thick=WALL_T, walk=None):
     """curtain wall segment A -> B (perimeter counter-clockwise, outside = right of travel): core, masonry outside,
     buttresses, wall walk with parapet merlons; returns the walkway Part"""
-    p = Part(f'Fortress_Wall_{name}', C)
+    p = Part(f'Fortress_Wall_{name}', 'Castle_Walls')
     A, B = Vector(A), Vector(B)
     L = (B - A).length
     u = (B - A) / L
@@ -256,7 +270,7 @@ def wall(name, A, B, z0, z1, rnd, thick=WALL_T, walk=None):
     bevel_box(p, M, (L / 2, -0.25, z1 - 1.0), (L, 1.2, 1.2), 'Castle_Trim', 0.15)        # cornice
     crenels(p, M, 0.4, L - 0.4, z1, 1.4, rnd)
     bevel_box(p, M, (L / 2, thick - 0.5, z1 + 0.6), (L, 1.0, 1.2), 'Castle_Trim', 0.12)   # inner parapet
-    w = walk or Part(f'Fortress_Walk_Wall_{name}', C)
+    w = walk or Part(f'Fortress_Walk_Wall_{name}', 'Castle_Walls')
     bevel_box(w, M, (L / 2, thick / 2 + 0.2, z1 - 0.15), (L, thick - 2.4, 0.5), 'Castle_Stone_Light', 0.1)
     return p, w, M, L
 
@@ -272,6 +286,12 @@ def flight(w, M, x, y_top, z_top, z_bot, width, rnd, cheeks=True, p=None):
             ww = width / max(1, int(width / 8))
             bevel_box(w, M, (x - width / 2 + ww * (i + 0.5), y, z_bot + h / 2 - 0.3), (ww - 0.12, TREAD - 0.08, h + 0.6),
                       'Castle_Trim' if (i + k) % 3 else 'Castle_Stone_Light', 0.12)
+    if p is not None:                                          # moss in a few step joints near the edges
+        for k in range(1, n, 2):
+            for s in (-1, 1):
+                if rnd.random() < 0.55:
+                    p.box(M @ Vector((x + s * (width / 2 - rnd.uniform(0.6, 3.0)), y_top - k * TREAD,
+                                      z_top - k * rise + 0.05)), (rnd.uniform(1.0, 2.6), 0.35, 0.2), 'JF_Moss')
     if cheeks and p is not None:
         for s in (-1, 1):
             xx = x + s * (width / 2 + 1.6)
@@ -301,10 +321,105 @@ def paving(w, x0, x1, y0, y1, z, rnd, tile=(7.5, 7.5), mats=('Castle_Trim', 'Cas
         row += 1
 
 
+def leaf_relief(p, M, size, s=1):
+    """carved stone leaf with a gold vein on a face frame"""
+    from floor1_entrance import leaf_pts
+    R = Matrix.Rotation(0.5 * s, 4, 'Y')
+    p.prism(leaf_pts(size, size * 0.55), -0.5, 0.0, 'Castle_Trim', M @ R @ FLIP)
+    p.prism([(-0.08 * size, -size * 0.42), (0.08 * size, -size * 0.42), (0.03 * size, size * 0.42),
+             (-0.03 * size, size * 0.42)], -0.65, -0.45, 'Gold', M @ R @ FLIP)
+
+
+def crest(p, M, size):
+    """the fortress crest: jade shield, gold border and the gold jungle leaf-crown (front at y = 0)"""
+    sh = [(-size / 2, size * 0.45), (size / 2, size * 0.45), (size / 2, -size * 0.1), (0, -size * 0.6),
+          (-size / 2, -size * 0.1)]
+    p.prism([(x * 1.16, z * 1.12 + 0.05) for x, z in sh], 0.0, 0.5, 'Gold', M @ FLIP)
+    p.prism(sh, -0.25, 0.0, 'JF_Jade', M @ FLIP)
+    from floor1_entrance import leaf_pts
+    for a in (-0.55, 0.0, 0.55):
+        Ml = M @ Matrix.Translation((math.sin(a) * size * 0.1, 0, size * 0.02)) @ Matrix.Rotation(-a, 4, 'Y')
+        p.prism(leaf_pts(size * 0.62, size * 0.24), -0.45, -0.25, 'Gold', Ml @ FLIP)
+
+
+def mask(p, M, size):
+    """carved guardian mask relief: stone face, dark eye slots, gold brow, jade cheeks"""
+    face = [(-size / 2, size * 0.5), (size / 2, size * 0.5), (size * 0.42, -size * 0.2), (0, -size * 0.62),
+            (-size * 0.42, -size * 0.2)]
+    p.prism(face, -0.7, 0.0, 'Castle_Trim', M @ FLIP)
+    p.prism([(-size * 0.48, size * 0.5), (size * 0.48, size * 0.5), (size * 0.4, size * 0.3),
+             (-size * 0.4, size * 0.3)], -1.0, -0.6, 'Gold', M @ FLIP)
+    for s in (-1, 1):
+        p.prism([(s * size * 0.08, size * 0.18), (s * size * 0.34, size * 0.22), (s * size * 0.3, size * 0.06),
+                 (s * size * 0.1, size * 0.06)][::s], -0.9, -0.6, 'JF_Recess', M @ FLIP)
+        p.prism([(s * size * 0.36, -size * 0.02), (s * size * 0.42, -size * 0.18), (s * size * 0.22, -size * 0.3),
+                 (s * size * 0.18, -size * 0.1)][::s], -0.85, -0.6, 'JF_Jade', M @ FLIP)
+    p.prism([(-size * 0.07, size * 0.04), (size * 0.07, size * 0.04), (size * 0.1, -size * 0.2), (-size * 0.1, -size * 0.2)],
+            -1.1, -0.6, 'Castle_Stone_Light', M @ FLIP)
+    p.prism([(-size * 0.22, -size * 0.3), (size * 0.22, -size * 0.3), (size * 0.12, -size * 0.42), (-size * 0.12, -size * 0.42)],
+            -0.9, -0.6, 'JF_Recess', M @ FLIP)
+
+
+def jungle_pillar(p, M, w, h, rnd):
+    """entrance pillar: stone base and capital, jade shaft panels with gold leaf, stone bands"""
+    bevel_box(p, M, (0, 0, 0.9), (w + 2.6, w + 2.6, 1.8), 'Castle_Trim', 0.25)
+    bevel_box(p, M, (0, 0, 2.3), (w + 1.4, w + 1.4, 1.0), 'Castle_Stone_Light', 0.2)
+    bevel_box(p, M, (0, 0, h / 2 + 1.4), (w, w, h - 2.8), 'Castle_Stone_Warm', 0.25)
+    for k, (z0, z1) in enumerate(((3.6, h * 0.48), (h * 0.55, h - 3.6))):
+        for a in range(4):
+            Mf = M @ Matrix.Rotation(a * math.pi / 2, 4, 'Z') @ Matrix.Translation((0, -w / 2, 0))
+            bevel_box(p, Mf, (0, -0.1, (z0 + z1) / 2), (w - 1.2, 0.5, z1 - z0), 'JF_Jade', 0.08)
+            for s in (-1, 1):
+                bevel_box(p, Mf, (s * (w / 2 - 0.45), -0.2, (z0 + z1) / 2), (0.3, 0.4, z1 - z0), 'Gold', 0.05)
+            if a == 0:
+                leaf_relief(p, Mf @ Matrix.Translation((0, -0.2, (z0 + z1) / 2)), min(z1 - z0, w) * 0.7, 1 - 2 * k)
+    bevel_box(p, M, (0, 0, h * 0.515), (w + 0.8, w + 0.8, 1.0), 'Castle_Trim', 0.2)
+    bevel_box(p, M, (0, 0, h - 1.6), (w + 1.4, w + 1.4, 1.2), 'Castle_Trim', 0.2)
+    bevel_box(p, M, (0, 0, h - 0.5), (w + 2.4, w + 2.4, 1.0), 'Castle_Stone_Light', 0.25)
+    p.cone(M @ Vector((0, 0, h)), w * 0.45, w * 0.6, 'JF_Brazier_Gold', 6)
+
+
+def guardian(p, M, rnd, side=1):
+    """stylised stone jungle beast (tiger / lizard temple guardian) sitting on a plinth, facing -y"""
+    B = lambda c, s_, mat, bev=0.35: bevel_box(p, M, c, s_, mat, bev)
+    B((0, 0, 1.1), (8.0, 10.0, 2.2), 'Castle_Trim')                     # plinth
+    B((0, 0, 2.6), (7.0, 9.0, 0.8), 'JF_Jade', 0.15)
+    B((0, -4.55, 2.6), (6.0, 0.2, 0.4), 'Gold', 0.05)
+    B((0, 0, 3.4), (7.4, 9.4, 0.8), 'Castle_Stone_Light', 0.2)
+    S = 'JF_Rock_Dark'
+    B((0, 2.0, 6.0), (5.6, 5.6, 4.6), S)                               # haunches
+    B((0, -0.4, 8.6), (4.8, 4.8, 6.2), S)                              # chest, upright
+    for s in (-1, 1):
+        B((s * 1.6, -2.6, 5.6), (1.6, 1.8, 4.4), S)                     # front legs
+        B((s * 1.6, -3.3, 4.0), (2.0, 2.6, 1.0), 'Castle_Stone')        # paws
+        for t in (-0.6, 0.0, 0.6):
+            p.cone(M @ Vector((s * 1.6 + t, -4.7, 3.8)), 0.25, -0.0 + 0.5, 'Gold', 4)
+        B((s * 2.9, 2.6, 6.2), (0.9, 3.6, 3.4), 'JF_Jade', 0.15)       # armour plates on the flanks
+    B((0, -1.6, 12.6), (4.6, 4.2, 3.6), S)                              # head
+    B((0, -4.4, 12.0), (3.2, 2.6, 1.8), S)                              # snout / upper jaw
+    p.box(M @ Vector((0, -4.0, 10.6)), (2.8, 2.4, 0.8), S,
+          M.to_3x3().normalized() @ Matrix.Rotation(-0.35, 3, 'X'))                       # open lower jaw
+    p.box(M @ Vector((0, -4.2, 11.2)), (2.4, 1.6, 0.6), 'JF_Recess')                      # mouth
+    for t in (-0.9, 0.9):
+        p.cone(M @ Vector((t, -5.4, 11.2)), 0.25, -0.9, 'Castle_Trim', 4)                  # fangs
+    for s in (-1, 1):
+        p.box(M @ Vector((s * 1.2, -3.75, 13.2)), (0.9, 0.3, 0.5), 'JF_Eye_Glow')         # eyes
+        B((s * 1.25, -3.6, 13.75), (1.4, 0.8, 0.45), 'Gold', 0.08)                      # brow
+        p.cone(M @ Vector((s * 1.8, -1.0, 14.3)), 0.8, 2.0, S, 4)                         # ears
+    B((0, -1.4, 10.5), (5.2, 4.8, 0.7), 'JF_Brazier_Gold', 0.15)                       # collar
+    p.cyl(M @ Vector((0, -3.85, 10.3)), 0.8, 0.4, 'JF_Jade', 8, axis='Y', rot=M.to_3x3().normalized())
+    p.cone(M @ Vector((0, 4.6, 4.6)), 0.9, 4.0, S, 5)                  # tail stump
+    for c, r in (((0, -1.6, 14.4), 1.6), ((0, 2.0, 8.3), 1.8), ((0, -0.4, 11.7), 1.1)):   # moss on the tops
+        p.ico(M @ Vector(c), r, 'JF_Moss', 1, (1.3, 1.2, 0.3), smooth=False)
+    from foliage import vine
+    for t in (-3.2, 3.4):
+        vine(p, M @ Vector((t, -4.2, 3.6)), 2.6, rnd, 0.9)
+
+
 # ---------------------------------------------------------------- the fortress
 def build_keep(rnd, lights, vines):
     """three stacked levels, corner turrets, side wings, the monumental entrance"""
-    p = Part('Fortress_Keep', C)
+    p = Part('Fortress_Keep', 'Castle_Main')
     z0 = TER_H
     bx, by = 30.0, 21.0                                        # base half sizes
     zb1 = z0 + 28.0
@@ -346,7 +461,7 @@ def build_keep(rnd, lights, vines):
                             zb1 + 4.5))
                 p.box(q, (0.5, 0.5, 2.6), 'JF_Window_Glow' if a == 0 else 'JF_Recess',
                       Matrix.Rotation(a * math.pi / 2 + 0.4, 3, 'Z'))
-            tiered_roof(p, tx, ty, zb1 + 8.8, 3.6, 9.0, rnd, tiers=2, flare=1.0, square=False, finial=0.6)
+            tiered_roof(ROOF[0], tx, ty, zb1 + 8.8, 3.6, 9.0, rnd, tiers=2, flare=1.0, square=False, finial=0.6)
     # --- middle level: arcaded arched windows between pilasters, balcony, banners
     bevel_box(p, I4, (0, cy, (zb1 + zm1) / 2), (2 * mx - 0.6, 2 * my - 0.6, zm1 - zb1), 'Castle_Stone_Dark', 0.0)
     for k, (Mf, span) in enumerate(faces4(0, cy, mx, my)):
@@ -364,7 +479,7 @@ def build_keep(rnd, lights, vines):
         bevel_box(p, Mf, (0, -0.95, zm1 - 0.5), (span + 1.0, 0.3, 0.45), 'Gold', 0.05)
         if k == 0:
             for s in (-1, 1):
-                red_banner(p, Mf @ Matrix.Translation((s * span * 0.5 - s * 0.2, -1.6, zm1 - 2.0)), 4.6, 16.0)
+                red_banner(BAN[0], Mf @ Matrix.Translation((s * span * 0.5 - s * 0.2, -1.6, zm1 - 2.0)), 4.6, 16.0)
     # pent roof skirt round the middle level, then the upper tower
     p.cyl(Vector((0, cy, zm1 + 1.6)), (mx + 2.6) * math.sqrt(2), 3.2, 'JF_Roof_Copper', 4, r2=(mx - 4.0) * math.sqrt(2),
           rot=Matrix.Rotation(math.pi / 4, 3, 'Z'))
@@ -385,10 +500,10 @@ def build_keep(rnd, lights, vines):
             x = -span / 2 + 1.5 + (span - 3) * i / 4
             bevel_box(p, Mf, (x, -1.0, zu1 - 0.2), (1.0, 2.6, 1.6), 'Castle_Trim', 0.12)
     # the most elaborate roof: main spire, four corner pinnacles, front dormer
-    tiered_roof(p, 0, cy, zu1 + 0.6, ux + 1.2, 46.0, rnd, tiers=4, flare=3.0, finial=2.0)
+    tiered_roof(ROOF[0], 0, cy, zu1 + 0.6, ux + 1.2, 46.0, rnd, tiers=4, flare=3.0, finial=2.0)
     for sx in (-1, 1):
         for sy in (-1, 1):
-            tiered_roof(p, sx * (ux + 0.3), cy + sy * (uy + 0.3), zu1 + 0.6, 1.6, 9.0, rnd, tiers=2, flare=0.6, finial=0.5)
+            tiered_roof(ROOF[0], sx * (ux + 0.3), cy + sy * (uy + 0.3), zu1 + 0.6, 1.6, 9.0, rnd, tiers=2, flare=0.6, finial=0.5)
     Mf = faces4(0, cy, ux, uy)[0][0]
     bevel_box(p, Mf, (0, -3.0, zu1 + 4.5), (6.0, 6.0, 7.0), 'Castle_Stone_Light', 0.2)
     arch_window(p, Mf @ Matrix.Translation((0, -6.0, 0)), 0, zu1 + 2.2, 2.6, 2.8, True, rnd, depth=0.8)
@@ -405,6 +520,8 @@ def build_keep(rnd, lights, vines):
         balustrade(p, Mf0 @ Mt(s * 10.8, -3.0, 0, s * math.pi / 2), -2.8, 2.8, zbal + 0.6, rnd, 3.2, 6.0, 'Castle_Trim')
     arch_window(p, Mf0, 0, zbal + 0.6, 5.0, 6.5, True, rnd)
     # --- monumental entrance: concentric arches, pillars, banners, braziers, dark doorway with a warm glow
+    pk, p = p, Part('Fortress_Keep_Entrance', 'Castle_Entrance')
+    ent = p
     Md = Mf0 @ Matrix.Translation((0, 0, z0))
     inner = round_arch(door_w, door_hs, 12)
     p.prism(inner, -0.3, 0.45, 'JF_Recess', Md @ FLIP)
@@ -425,11 +542,15 @@ def build_keep(rnd, lights, vines):
     for s in (-1, 1):                                          # jambs
         bevel_box(p, Md, (s * (door_w / 2 + 3.4), -1.4, door_hs / 2), (6.8, 2.8, door_hs), 'Castle_Stone_Light', 0.25)
     for s in (-1, 1):                                          # flanking pillars + banners
-        castle.pillar(p, Md @ Matrix.Translation((s * (door_w / 2 + 10.0), -2.6, 0)), 4.2, 0, door_top + 6.0, rnd,
-                      cap='ball')
-        red_banner(p, Md @ Matrix.Translation((s * (door_w / 2 + 10.0), -5.4, door_top + 1.0)), 4.4, 15.0)
+        jungle_pillar(p, Md @ Matrix.Translation((s * (door_w / 2 + 10.0), -2.6, 0)), 4.2, door_top + 6.0, rnd)
+        red_banner(BAN[0], Md @ Matrix.Translation((s * (door_w / 2 + 10.0), -5.4, door_top + 1.0)), 4.4, 15.0)
         wall_torch(p, Md, s * (door_w / 2 + 5.5), door_hs + 1.0, lights, f'Fortress_Keep_Door_Torch_{s + 1}')
     lights.append(('Fortress_Keep_Door_Glow', Md @ Vector((0, 1.0, door_hs * 0.6)), 2500))
+    crest(p, Md @ Matrix.Translation((0, -3.9, door_top + 3.4)), 5.0)          # jungle crest above the arch
+    for s in (-1, 1):                                          # carved leaf ornaments either side of the arch
+        leaf_relief(p, Md @ Matrix.Translation((s * (door_w / 2 + 5.0), -3.0, door_top - 1.0)), 3.0, s)
+    p = pk
+    crest(p, faces4(0, cy, ux, uy)[0][0] @ Matrix.Translation((0, -1.4, zu1 - 7.0)), 4.0)   # crest near the top
     # --- side wings with gabled roofs
     for s in (-1, 1):
         wx0, wx1 = s * bx, s * (bx + 22.0)
@@ -466,20 +587,24 @@ def build_keep(rnd, lights, vines):
                                  (-bx + 0.5, cy - by - 1.0, z0 + 22, 14), (bx - 0.5, cy - by - 1.0, z0 + 20, 11),
                                  (-mx + 0.5, cy + my + 1.0, zm1 - 2, 16), (mx - 4, cy + my + 1.0, zm1 - 2, 12)):
         vines.append((Vector((x, side_y, top_z)), ln))
-    return p, zu1 + 46 + 5
+    return p, ent, zu1 + 46 + 5
 
 
 def build_fortress(T):
     coll(C, F.ROOT)
     coll(LIGHTS, F.ROOT)
+    for sub in SUBS:
+        coll(sub, C)
+    ROOF[0] = Part('Fortress_Roofs', 'Castle_Roofs')
+    BAN[0] = Part('Fortress_Banners', 'Castle_Banners')
     rnd = random.Random(1300)
     kx, ky = F.px(*KEEP_PX)
     kz = T.sample(kx, ky)[0]
     Mw = Matrix.Translation((kx, ky, kz)) @ Matrix.Diagonal((SCALE, SCALE, SCALE, 1.0))
     lights, vines, parts = [], [], []
     # --- podium with a masonry face, the front staircase and the paved approach
-    walk = Part('Fortress_Walk_Podium', C)
-    pod = Part('Fortress_Podium', C)
+    walk = Part('Fortress_Walk_Podium', 'Castle_Main')
+    pod = Part('Fortress_Podium', 'Castle_Main')
     bevel_box(pod, I4, (0, 0, (POD_H - 4) / 2), (2 * POD_X - 0.8, 2 * POD_Y - 0.8, POD_H + 4), 'Castle_Stone_Dark', 0.0)
     for k, (Mf, span) in enumerate(faces4(0, 0, POD_X, POD_Y)):
         masonry(pod, Mf, -span / 2, span / 2, -2.5, POD_H - 0.6, rnd, 2.8, (5.0, 9.0), 1.2, backing=False,
@@ -511,12 +636,12 @@ def build_fortress(T):
             ((WALL_X - 9.5, WALL_Y), (36.5, WALL_Y), 30.0, 'North_E'), ((29.5, WALL_Y), (-29.5, WALL_Y), 32.0, 'North_C'),
             ((-36.5, WALL_Y), (-WALL_X + 9.5, WALL_Y), 30.0, 'North_W'),
             ((-WALL_X, WALL_Y - 9.5), (-WALL_X, 6.5), 28.0, 'West_N'), ((-WALL_X, -6.5), (-WALL_X, -WALL_Y + 9.5), 26.0, 'West_S')]
-    wwalk = Part('Fortress_Walk_Walls', C)
+    wwalk = Part('Fortress_Walk_Walls', 'Castle_Walls')
     for A, B, h, nm in segs:
         wp, _, Mwl, L = wall(nm, A, B, POD_H, POD_H + h, rnd, walk=wwalk)
         parts.append(wp)
         if nm in ('Front_W', 'Front_E', 'North_C'):            # banners and torches on the main faces
-            red_banner(wp, Mwl @ Matrix.Translation((L * 0.5, -1.4, POD_H + h - 3.0)), 5.0, 14.0)
+            red_banner(BAN[0], Mwl @ Matrix.Translation((L * 0.5, -1.4, POD_H + h - 3.0)), 5.0, 14.0)
         if nm in ('Front_W', 'Front_E'):
             wall_torch(wp, Mwl, L * 0.22, POD_H + h - 9.0)
             wall_torch(wp, Mwl, L * 0.78, POD_H + h - 9.0)
@@ -538,7 +663,7 @@ def build_fortress(T):
             vines.append((Vector((x + (half + 0.6) * (1 if x > 0 else -1) * 0.0, y - half - 0.6, POD_H + top * 0.55),
                           ), 16))
     # gatehouse arch between the gate towers, portcullis, inner passage floor
-    gp = Part('Fortress_Gatehouse', C)
+    gp = Part('Fortress_Gatehouse', 'Castle_Entrance')
     Mg = Mt(0, -WALL_Y - WALL_T / 2)
     arch_in = round_arch(14.0, 14.0, 12)
     rect_minus_arch(gp, Mg, -gate_half + 0.5, gate_half - 0.5, POD_H, POD_H + 28.0,
@@ -549,6 +674,8 @@ def build_fortress(T):
     crenels(gp, Mg, -gate_half + 0.5, gate_half - 0.5, POD_H + 28.0, WALL_T, rnd)
     masonry(gp, Mg, -gate_half + 0.5, gate_half - 0.5, POD_H, POD_H + 25.0, rnd, 3.0, (3.5, 6.0), 1.0, backing=False,
             skip=lambda x, z, w_, h_: castle.inside([(x_, z_ + POD_H) for x_, z_ in round_arch(21.0, 14.0, 12)], x, z))
+    red_banner(BAN[0], Mg @ Matrix.Translation((0, -1.6, POD_H + 24.6)), 6.0, 6.5)
+    crest(gp, Mg @ Matrix.Translation((0, -1.4, POD_H + 21.2)), 2.6)
     for i in range(7):                                         # raised portcullis
         x = -6.0 + i * 2.0
         gp.box(Mg @ Vector((x, 1.5, POD_H + 18.5)), (0.45, 0.45, 6.0), 'JF_Iron')
@@ -557,7 +684,7 @@ def build_fortress(T):
         gp.box(Mg @ Vector((0, 1.5, POD_H + zz)), (13.0, 0.4, 0.4), 'JF_Iron')
     parts.append(gp)
     # courtyard: central paved way, statues on pedestals, planters with shrubs, guard platforms
-    yard = Part('Fortress_Courtyard', C)
+    yard = Part('Fortress_Courtyard', 'Castle_Main')
     for s in (-1, 1):
         for k, y in enumerate((-50.0, -36.0, -22.0)):
             bevel_box(yard, Mt(s * 15.0, y), (0, 0, POD_H + 1.2), (4.4, 4.4, 2.4), 'Castle_Trim', 0.25)
@@ -570,8 +697,8 @@ def build_fortress(T):
         brazier(yard, I4, s * 66.0, -40.0, POD_H + 8.0, lights if s < 0 else None, 'Fortress_Yard_Brazier')
     parts.append(yard)
     # --- inner terrace (keep platform) and its staircase
-    ter = Part('Fortress_Terrace', C)
-    tw = Part('Fortress_Walk_Terrace', C)
+    ter = Part('Fortress_Terrace', 'Castle_Main')
+    tw = Part('Fortress_Walk_Terrace', 'Castle_Main')
     bevel_box(ter, I4, (0, (TER_Y0 + TER_Y1) / 2, (POD_H + TER_H) / 2), (2 * TER_X - 0.6, TER_Y1 - TER_Y0 - 0.6,
               TER_H - POD_H), 'Castle_Stone_Dark', 0.0)
     for k, (Mf, span) in enumerate(faces4(0, (TER_Y0 + TER_Y1) / 2, TER_X, (TER_Y1 - TER_Y0) / 2)):
@@ -585,21 +712,27 @@ def build_fortress(T):
     flight(tw, I4, 0, TER_Y0, TER_H, POD_H, 26.0, rnd, True, ter)
     for s in (-1, 1):
         brazier(ter, I4, s * 17.5, TER_Y0 - 1.0 - (TER_H - POD_H) / RISE * TREAD, POD_H, None, None, 0.9)
-        brazier(ter, I4, s * 17.5, TER_Y0 + 2.5, TER_H, lights if s > 0 else None, 'Fortress_Terrace_Brazier', 1.0)
+        brazier(ter, I4, s * 32.0, TER_Y0 + 3.0, TER_H, lights if s > 0 else None, 'Fortress_Terrace_Brazier', 1.2)
     parts += [ter, tw]
     # --- the keep
-    kp, apex = build_keep(rnd, lights, vines)
-    parts += [kp, pod, walk, wwalk]
+    kp, ent, apex = build_keep(rnd, lights, vines)
+    parts += [kp, ent, pod, walk, wwalk, ROOF[0], BAN[0]]
+    # --- the two jungle guardians flanking the terrace stairs
+    for s in (-1, 1):
+        g = Part(f'Fortress_Guardian_Statue_{"LR"[s > 0]}', 'Castle_Guardian_Statues')
+        guardian(g, I4, rnd, s)                                # drawn at the origin, then placed 1.4x larger
+        bmesh.ops.transform(g.bm, matrix=Mt(s * 22.0, TER_Y0 + 6.5, TER_H) @ Matrix.Diagonal((1.4, 1.4, 1.4, 1.0)),
+                            verts=g.bm.verts)
+        parts.append(g)
+
     # --- overgrowth: vines, moss and roots on selected walls; shrubs in the planters
     from foliage import vine
-    vp = Part('Fortress_Vines', C)
+    planters = []
+    vp = Part('Fortress_Vines', 'Jungle_Vines')
     for item in vines:
         if item[0] == 'planter':
             q = item[1]
-            for k in range(5):
-                vp.ico(q + Vector((rnd.uniform(-1.8, 1.8), rnd.uniform(-1.2, 1.2), 0.6)), rnd.uniform(1.0, 1.6),
-                       rnd.choice(('Leaves_Mid', 'Leaves_Light', 'Tropical_Leaf', 'Flower_Pink')), 1, (1, 1, 0.8),
-                       smooth=False)
+            planters.append(q)
             continue
         top, ln = item
         for k in range(4):
@@ -627,10 +760,48 @@ def build_fortress(T):
         o.location = Mw @ q
         bpy.data.collections[LIGHTS].objects.link(o)
     dress_grounds(T, Mw, y_bot, rnd)
+    dress_castle(Mw, rnd, planters)
     gate = Mw @ Vector((0, y_bot - 34, 0))
     door = Mw @ Vector((0, KEEP_Y - 21.0 - 4.0, TER_H))
     return dict(keep=(kx, ky, kz), gate=tuple(gate), keep_door=tuple(door), height=apex * SCALE,
                 footprint=(2 * POD_X * SCALE, 2 * POD_Y * SCALE))
+
+
+def dress_castle(Mw, rnd, planters):
+    """jungle on the architecture itself (reusable assets, linked duplicates): tropical plants in the planters,
+    creeping vines up selected walls and tower faces, hanging vine clusters from wall tops and ledges, plants on the
+    wall walks and the keep balcony, palms on the keep's lower roof - windows, banners and the entrance stay clear"""
+    from floor1_detail import place
+    S = SCALE
+
+    def put(cat, kind, x, y, z, rot, sc):
+        q = Mw @ Vector((x, y, z))
+        place(cat, kind, q.x, q.y, q.z, rot, sc)
+    for q in planters:
+        for k in range(2):
+            put('Foliage', rnd.choice(('Monstera_Plant', 'Tropical_Plant', 'Red_Jungle_Plant', 'Monstera_Plant')),
+                q.x + rnd.uniform(-1, 1), q.y + rnd.uniform(-0.8, 0.8), q.z - 0.2, rnd.uniform(0, TAU), rnd.uniform(3.2, 4.2))
+    creep = [(-27.0, 8.1, TER_H, 0.0), (27.0, 8.1, TER_H, 0.0), (-31.2, 26.0, TER_H, -math.pi / 2),
+             (31.2, 36.0, TER_H, math.pi / 2), (-WALL_X - 3.0, -WALL_Y - 9.7, POD_H, 0.0),
+             (WALL_X + 4.0, -WALL_Y - 10.2, POD_H, 0.0), (WALL_X + 7.2, -2.0, POD_H, math.pi / 2),
+             (-WALL_X - 7.2, 2.5, POD_H, -math.pi / 2), (33.0, WALL_Y + 6.7, POD_H, math.pi),
+             (-WALL_X + 1.0, WALL_Y + 9.2, POD_H, math.pi), (-46.0, -WALL_Y - 3.6, POD_H, 0.0),
+             (52.0, -WALL_Y - 3.6, POD_H, 0.0), (-24.6, KEEP_Y - 17.0, TER_H + 28.0, 0.0, 3.4),
+             (24.6, KEEP_Y - 17.0, TER_H + 28.0, 0.0, 3.4), (-12.2, KEEP_Y - 11.6, TER_H + 52.5, 0.0, 3.0),
+             (24.0, KEEP_Y + 4.0, TER_H + 28.0, math.pi / 2)]
+    for x, y, z, rot, *sc in creep:                            # (keep vines sit on the corners, clear of the windows)
+        put('Cliffs', 'Creeping_Vines', x, y, z, rot, sc[0] if sc else rnd.uniform(5.0, 6.2))
+    for x, y, z, sc in ((-58.0, -WALL_Y - 3.4, POD_H + 18.0, 2.6), (40.0, -WALL_Y - 3.4, POD_H + 18.0, 2.8),
+                        (-23.0, KEEP_Y - 17.5, 64.0, 2.4), (23.0, KEEP_Y - 17.5, 64.0, 2.2),
+                        (WALL_X + 3.4, 34.0, POD_H + 28.0, 3.0)):
+        put('Cliffs', 'Vine_Cluster', x, y, z, 0.0 if abs(x) < WALL_X else math.pi / 2, sc)
+    for x, y in ((-72.0, -WALL_Y), (72.0, -WALL_Y), (-WALL_X, -50.0), (WALL_X, 50.0), (-WALL_X, 40.0)):
+        put('Foliage', rnd.choice(('Tropical_Plant', 'Jungle_Bush', 'Monstera_Plant')), x, y, POD_H + 24.0 if y == -WALL_Y
+            else POD_H + 26.0, rnd.uniform(0, TAU), 2.4)
+    for x in (-9.5, 9.5):                                       # balcony planters
+        put('Foliage', 'Tropical_Plant', x, KEEP_Y - 21.0 - 5.0, TER_H + 18.5 + 7.2, rnd.uniform(0, TAU), 1.8)
+    for x, y in ((-24.0, KEEP_Y - 18.0), (24.0, KEEP_Y - 18.0), (-26.0, KEEP_Y + 16.0), (26.0, KEEP_Y + 16.0)):
+        put('Trees', 'Tropical_Palm', x, y, TER_H + 28.0 + 1.2, rnd.uniform(0, TAU), rnd.uniform(2.2, 2.8))
 
 
 def dress_grounds(T, Mw, y_bot, rnd):
@@ -655,18 +826,34 @@ def dress_grounds(T, Mw, y_bot, rnd):
         near = abs(l.x) < POD_X + 22 and abs(l.y) < POD_Y + 22
         u = rnd.random()
         if u < (0.10 if near else 0.28):
-            kind = rnd.choice(('Tree_Large_Low', 'Tree_Large_High', 'Palm_Tree', 'Tree_Medium_Low', 'Palm_Tree'))
-            place('Trees', kind, q.x, q.y, z - 1, rnd.uniform(0, TAU), rnd.uniform(2.6, 4.2))
+            kind = rnd.choice(('Jungle_Canopy_Tree', 'Tropical_Palm', 'Banana_Tree', 'Flowering_Jungle_Tree',
+                               'Ancient_Jungle_Tree', 'Tropical_Palm', 'Jungle_Canopy_Tree'))
+            place('Trees', kind, q.x, q.y, z - 1, rnd.uniform(0, TAU), rnd.uniform(2.6, 3.8))
         elif u < 0.62:
-            place('Foliage', rnd.choice(('Tropical_Plant', 'Bush_03', 'Bush_01', 'Tropical_Plant', 'Fern')), q.x, q.y, z,
-                  rnd.uniform(0, TAU), rnd.uniform(2.2, 3.6))
+            place('Foliage', rnd.choice(('Monstera_Plant', 'Jungle_Bush', 'Tropical_Plant', 'Leafy_Shrub', 'Fern',
+                                         'Bamboo_Cluster' if not near else 'Jungle_Bush')), q.x, q.y, z,
+                  rnd.uniform(0, TAU), rnd.uniform(2.2, 3.4))
         elif u < 0.8:
-            place('Foliage', rnd.choice(('Flower_Cluster_Pink', 'Flower_Cluster_Yellow', 'Grass_Patch')), q.x, q.y, z,
-                  rnd.uniform(0, TAU), rnd.uniform(1.8, 2.8))
+            place('Foliage', rnd.choice(('Pink_Jungle_Plant', 'Red_Jungle_Plant', 'Purple_Accent_Plant', 'Ground_Cover',
+                                         'Jungle_Grass')), q.x, q.y, z, rnd.uniform(0, TAU), rnd.uniform(2.0, 3.0))
         else:
-            place('Rocks', rnd.choice(('Rock_Medium', 'Rock_Large')), q.x, q.y, z - 2, rnd.uniform(0, TAU),
-                  rnd.uniform(1.5, 3.0))
+            place('Rocks', rnd.choice(('Mossy_Boulder', 'Jungle_Rock_Large', 'Flat_Rock', 'Root_Rock')), q.x, q.y, z - 1.5,
+                  rnd.uniform(0, TAU), rnd.uniform(1.8, 3.0))
         n += 1
+    # the older civilisation under the fortress: ancient pillars and obelisks along the approach, ruined walls,
+    # statues and buried blocks round the podium corners (maintained near the gate, abandoned further out)
+    for s in (-1, 1):
+        for y, kind, sc in ((y_bot - 46, 'Ancient_Pillar', 3.4), (y_bot - 62, 'Obelisk', 3.2), (y_bot - 80, 'Ancient_Pillar', 3.4)):
+            q = Mw @ Vector((s * 26.0, y, 0))
+            place('Ruins', kind, q.x, q.y, float(ground_z(T, q.x, q.y)) - 0.4, 0.0, sc)
+        for x, y, kind in ((POD_X + 16, -POD_Y + 6, 'Jungle_Statue'), (POD_X + 26, 8, 'Ruin_Wall_Jungle'),
+                           (POD_X + 18, POD_Y + 14, 'Buried_Blocks'), (POD_X + 34, -40, 'Broken_Pillar'),
+                           (POD_X + 30, POD_Y - 12, 'Overgrown_Arch')):
+            q = Mw @ Vector((s * x, y, 0))
+            i, j = grid_index(T, q.x, q.y)
+            if T.land[i, j] and T.edge_d[i, j] > 40:
+                place('Ruins', kind, q.x, q.y, float(ground_z(T, q.x, q.y)) - 0.5,
+                      (math.pi / 2 if s > 0 else -math.pi / 2) if kind != 'Buried_Blocks' else rnd.uniform(0, TAU), 3.2)
     return n
 
 

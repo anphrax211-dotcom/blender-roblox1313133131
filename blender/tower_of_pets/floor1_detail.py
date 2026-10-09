@@ -303,6 +303,8 @@ def build_detail_assets():
     import floor1_village, floor1_fortress
     floor1_village.build_village_assets()
     floor1_fortress.build_fortress_assets()
+    import floor1_jungle
+    floor1_jungle.build_jungle_assets()
     mystic = {'Leaves_Light': 'Leaves_Mystic_Light', 'Leaves_Mid': 'Leaves_Mystic_Mid',
               'Leaves_Dark': 'Leaves_Mystic_Dark', 'Leaves_Highlight': 'Leaves_Mystic_Highlight'}
     for t in ('Tree_Large_Low', 'Tree_Medium_Low', 'Tree_Small_Low', 'Tree_Tall_Thin_Low', 'Bush_01', 'Bush_03'):
@@ -417,9 +419,9 @@ def tree_kind(rng, d):
     r = rng.random()
     if d.get('alpine'):
         return 'Tree_Tall_Thin_Low' if r < 0.8 else 'Tree_Medium_Low'
-    if d.get('jungle'):                                        # broad canopies, palms, tall thin trees
-        return ('Tree_Large_Low', 'Tree_Medium_Low', 'Palm_Tree', 'Tree_Tall_Thin_Low', 'Tree_Large_High')[
-            0 if r < 0.34 else 1 if r < 0.56 else 2 if r < 0.8 else 3 if r < 0.92 else 4]
+    if d.get('jungle'):                                        # the jungle set: canopy, ancient, palm, banana ...
+        import floor1_jungle
+        return floor1_jungle.pick_weighted(rng, floor1_jungle.JUNGLE_TREES)
     if d.get('mystic'):
         return ('Tree_Large_Mystic', 'Tree_Medium_Mystic', 'Tree_Tall_Thin_Mystic', 'Tree_Large_Low')[
             0 if r < 0.45 else 1 if r < 0.75 else 2 if r < 0.92 else 3]
@@ -428,6 +430,7 @@ def tree_kind(rng, d):
 
 
 def scatter(T):
+    from floor1_jungle import JUNGLE_BUSHES, JUNGLE_GROUND
     X, Y = T.X, T.Y
     keep = keepout_mask(T)
     grove = F.field_noise(X, Y, 321, 90 * W, 3)            # groves (high) and clearings (low)
@@ -475,7 +478,7 @@ def scatter(T):
     for x, y, o in zip(xs, ys, own):
         d = dress_of(F.AREAS[o])
         k = rng.choice(('Bush_01_Mystic', 'Bush_03_Mystic', 'Bush_02') if d.get('mystic') else
-                       ('Bush_03', 'Tropical_Plant', 'Bush_01', 'Tropical_Plant') if d.get('jungle') else
+                       JUNGLE_BUSHES if d.get('jungle') else
                        ('Bush_01', 'Bush_02', 'Bush_03'))
         s = rng.uniform(1.6, 3.2) * (1.3 if d.get('jungle') else 1.0)
         place('Foliage', k, float(x), float(y), float(ground_z(T, x, y)) - 0.2, rng.uniform(0, TAU), s)
@@ -484,13 +487,15 @@ def scatter(T):
     xs, ys, own, rng = pick(30.0, 3, lambda a: dress_of(a)['plants'], 'plants', 0.7, 4.0, 10.0, 4.0)
     for x, y, o in zip(xs, ys, own):
         d = dress_of(F.AREAS[o])
-        k = rng.choice(('Fern', 'Tropical_Plant', 'Fern', 'Ground_Plant_02') if d.get('jungle') else
+        k = rng.choice(JUNGLE_GROUND if d.get('jungle') else
                        ('Fern', 'Fern', 'Ground_Plant_01', 'Ground_Plant_02') if d.get('mystic') else ('Ground_Plant_01', 'Ground_Plant_02', 'Fern'))
         place('Foliage', k, float(x), float(y), float(ground_z(T, x, y)), rng.uniform(0, TAU), rng.uniform(1.4, 2.6))
         counts[k] = counts.get(k, 0) + 1
     xs, ys, own, rng = pick(26.0, 4, lambda a: dress_of(a)['flowers'], 'flowers', 0.6, 3.0, 10.0, 4.0, use_grove=-0.6)
     for x, y, o in zip(xs, ys, own):
-        k = rng.choice(('Flower_Cluster_Pink', 'Flower_Cluster_Yellow', 'Flower_Cluster_White', 'Flower_Cluster_Purple',
+        k = rng.choice(('Pink_Jungle_Plant', 'Red_Jungle_Plant', 'Flower_Cluster_Pink', 'Purple_Accent_Plant',
+                        'Pink_Jungle_Plant') if dress_of(F.AREAS[o]).get('jungle') else
+                       ('Flower_Cluster_Pink', 'Flower_Cluster_Yellow', 'Flower_Cluster_White', 'Flower_Cluster_Purple',
                         'Flower_Cluster_Pink'))
         place('Foliage', k, float(x), float(y), float(ground_z(T, x, y)), rng.uniform(0, TAU), rng.uniform(1.6, 3.0))
         counts[k] = counts.get(k, 0) + 1
@@ -515,6 +520,10 @@ def scatter(T):
                 if r < 0.6 else ('Rock_Small', rng.uniform(1.0, 2.6)))
         if a.name in ('Cloudridge_Peaks', 'Beast_Cave') and rng.random() < 0.25:
             k, s = 'Rock_Formation', rng.uniform(1.5, 3.5)
+        if dress_of(a).get('jungle'):                         # mossy jungle rocks
+            k = {'Rock_Large': 'Jungle_Rock_Large', 'Rock_Medium': 'Mossy_Boulder', 'Rock_Small': 'Flat_Rock',
+                 'Rock_Formation': 'Jungle_Rock_Formation'}[k] if rng.random() < 0.8 else 'Root_Rock'
+            s = s * 0.8
         place('Rocks', k, float(x), float(y), float(ground_z(T, x, y)) - 0.2 * s * 5, rng.uniform(0, TAU), s)
         counts[k] = counts.get(k, 0) + 1
     # fallen logs and stumps in the forests
@@ -960,6 +969,8 @@ def build_detail(T, falls):
     stats['cliff_dressing'] = dress_cliffs(T)
     stats['falls_dressed'] = dress_falls(T, falls)
     dress_landmarks(T)
+    import floor1_jungle
+    stats['jungle'] = floor1_jungle.dress_jungle(T)
     stats['background_islands'] = dress_background(T)
     per_cat = {}
     for p in PLACED:

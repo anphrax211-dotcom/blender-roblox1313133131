@@ -462,6 +462,55 @@ the stairs have 1.6-stud risers. It's about 920 × 760 studs and about 790 studs
   plants, keeping the approach and the view of the gate open.
 - **Cameras:** `CAM_F1_Fortress_Aerial`, `_Gate` and `_Keep`, and the existing `CAM_F1_Fortress_View`.
 
+**Jungle Fortress upgrade** (`floor1_fortress.py`, `floor1_jungle.py`)
+
+The same castle, made into an ancient jungle stronghold.
+
+- **Castle:**
+  - **Stone:** a weathered mix of warm grey, tan and mossy stone, with mossier feet on the podium.
+  - **Accents and roofs:** jade bands under the tower trim and terracotta-copper roofs.
+  - **Entrance:** jade-and-gold leaf pillars, carved leaf ornaments beside the arch, and the jungle crest (a jade
+    shield with a gold leaf crown) above the arch, on the gatehouse and near the top of the keep.
+  - **Towers:** carved guardian masks on the front towers.
+  - **Guardians:** two big stone jungle guardians (tiger and lizard temple beasts with glowing eyes, gold collars,
+    jade plates and moss) on plinths beside the keep stairs.
+  - **Braziers and stairs:** gold brazier bowls, and moss in selected step joints.
+- **Collections:**
+  - The castle is split into `Castle_Main`, `Castle_Towers`, `Castle_Roofs`, `Castle_Walls`, `Castle_Entrance`,
+    `Castle_Guardian_Statues`, `Castle_Banners` and `Jungle_Vines`, with the lamps in `Environmental_Lighting`.
+  - The asset library has `Jungle_Trees`, `Jungle_Plants`, `Jungle_Vines`, `Jungle_Rocks`, `Jungle_Cliffs`,
+    `Ancient_Ruins` and `Waterfalls_And_Water`.
+- **Reusable jungle assets.** Each one is a single mesh, placed only as linked duplicates (the Roblox scatter):
+  - **Trees:** Jungle Canopy, Ancient Jungle, Tropical Palm, Banana and Flowering Jungle trees.
+  - **Plants:** Monstera, Jungle Bush, Red, Pink and Purple accent plants, Leafy Shrub, Ground Cover, Jungle Grass,
+    Bamboo Cluster and Jungle Roots.
+  - **Vines:** Vine Cluster and Creeping Vines.
+  - **Rocks and cliffs:** Jungle Rock Large, Mossy Boulder, Rock Formation, Flat Rock, Root Rock, Cliff Segment and
+    Cliff Edge.
+  - **Ruins:** Ancient and Broken Pillars, Overgrown Arch, Jungle Statue, Ruin Wall, Obelisk, Mossy Stairs, Jungle
+    Gate, Buried Blocks, Broken Ruin Rock and Jungle Brazier.
+  - **Water:** Water Plant.
+
+  `CAM_F1_Jungle_Assets` renders them all on a showcase stage (off the map; not exported).
+- **On the castle:**
+  - tropical plants in the stair and courtyard planters;
+  - creeping vines on corners and selected walls and towers, kept clear of the windows, banners and entrance;
+  - hanging vine clusters from wall tops and ledges, and plants on the wall walks and balcony;
+  - palms on the keep's lower roof.
+- **Jungle region:**
+  - the jungle scatter uses the new trees, plants, flowers and mossy rocks;
+  - an older civilisation lines the fortress roads: pillar pairs, obelisks, statues and braziers beside the road,
+    and ruined walls, arches and buried blocks back in the trees;
+  - Jungle Gates where the roads reach and leave the plateau;
+  - vine clusters, cliff edges and cliff segments on the jungle rims, plants, mossy stones and water plants on the
+    river banks, and bamboo and root clusters in the clearings.
+- **Ground and water:** jungle grass, dark jungle floor, leaf-covered ground, rocky ground on slopes and mud by
+  rivers. The fortress roads get mossy stone paving, and the jungle rivers are turquoise.
+- **Roblox:**
+  - the new trees get trunk colliders;
+  - the gate, arch and stairs ruins get exact collision so riders pass through and over them;
+  - the Jungle Brazier gets a light.
+
 **Roblox delivery** (`exports/TowerOfPets/Floor1/`, see `IMPORT.md` there)
 - Terrain, water, bridges and landmarks are one FBX per group, about 2,900 MeshParts and 1.56M triangles. Each part
   has at most 6,000 triangles and is no wider than 1,900 studs.

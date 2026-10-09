@@ -403,7 +403,12 @@ def build_floor1_materials():
     N('F1_Grass_Valley', (0.18, 0.66, 0.30), (0.24, 0.74, 0.34), 0.85, 0.02, 0.05, 1.0)
     N('F1_Grass_Ruins', (0.52, 0.68, 0.22), (0.60, 0.74, 0.28), 0.85, 0.02, 0.05, 1.0)
     N('F1_Grass_Mystic', (0.08, 0.40, 0.20), (0.12, 0.46, 0.24), 0.85, 0.02, 0.05, 1.0)
-    N('F1_Grass_Jungle', (0.06, 0.46, 0.10), (0.10, 0.54, 0.14), 0.85, 0.02, 0.05, 1.0)
+    N('F1_Grass_Jungle', (0.16, 0.56, 0.08), (0.22, 0.64, 0.10), 0.85, 0.02, 0.05, 1.0)
+    N('F1_Jungle_Floor', (0.06, 0.34, 0.08), (0.09, 0.40, 0.10), 0.9, 0.02, 0.05, 1.0)
+    N('F1_Leafy_Ground', (0.34, 0.46, 0.12), (0.42, 0.50, 0.16), 0.9, 0.03, 0.08, 1.0)
+    N('F1_Rocky_Ground', (0.44, 0.42, 0.36), (0.52, 0.50, 0.42), 0.9, 0.05, 0.12, 0.8)
+    N('F1_Mossy_Stone', (0.40, 0.48, 0.30), (0.48, 0.54, 0.36), 0.85, 0.08, 0.15, 0.4)
+    P('F1_Water_Jungle', (0.06, 0.70, 0.72), 0.08, emit=0.15)
     N('F1_Swamp', (0.28, 0.42, 0.16), (0.34, 0.48, 0.20), 0.9, 0.02, 0.05, 1.0)
     P('F1_Path', (0.78, 0.60, 0.36), 0.9)
     P('F1_Sand', (0.92, 0.82, 0.55), 0.9)
@@ -850,7 +855,7 @@ class Terrain:
                 return 'F1_Path_Stone'
             stony = a is not None and (a.biome in (AR, JF) or a.name == 'Verdant_Village')
             if stony and v > (0.05 if a.biome in (AR, JF) else 0.35):
-                return 'F1_Path_Stone'
+                return 'F1_Mossy_Stone' if a.biome == JF and v > 0.45 else 'F1_Path_Stone'
             return 'F1_Path_Light' if v > 0.4 else 'F1_Path_Dark' if v < -0.45 else 'F1_Path'
         if bridge:
             return 'F1_Rock'
@@ -870,6 +875,15 @@ class Terrain:
             return 'F1_Rock_Dark' if dark else 'F1_Rock_Light'
         if swampy:
             return 'F1_Swamp'
+        if a.biome == JF and a.name != 'Sky_Temple':        # jungle ground: grass, dark floor, leaf litter, mud
+            if self.river_d[i, j] < 40 * (1 + v):
+                return 'F1_Mud' if v < 0.0 else 'F1_Jungle_Floor'
+            if slope > 0.4:
+                return 'F1_Rocky_Ground'
+            if v > 0.42:
+                return 'F1_Leafy_Ground'
+            if v < -0.3:
+                return 'F1_Jungle_Floor'
         return GRASS[a.biome]
 
 
@@ -1085,7 +1099,7 @@ def build_water(T):
     wf = Part('F1_Waterfalls', coll('Waterfalls', 'WATER').name)
     for name, pts, zw, w in RIVERS:
         wp = [(*px(x, y), zw) for x, y in pts]
-        ribbon(rv, densify(wp, 24.0), w + 1.0, 'F1_Water')
+        ribbon(rv, densify(wp, 24.0), w + 1.0, 'F1_Water_Jungle' if name.startswith(('Fortress', 'Beast')) else 'F1_Water')
         (ax, ay, _), (bx, by, _) = wp[-2], wp[-1]
         ang = math.degrees(math.atan2(by - ay, bx - ax))
         waterfall(wf, T, (bx, by), ang, zw, w, name + '_Falls', falls)

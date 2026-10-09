@@ -79,7 +79,7 @@ time, and tell me what you found before moving on.
 - `Floor1_Fortress` is the Jungle Fortress castle on the Fortress Heights plateau, about 920 × 760 studs and
   about 790 studs tall. Its walkable floors (`Fortress_Walk_*`: podium, courtyard, wall walks, terrace and stairs)
   get exact collision. The keep door is about (6710, 1260, 85).
-- `Floor1_Assets` is the asset library: 87 MeshParts such as `Tree_Large_Low`, `Rock_Large` and `Lantern_Wood`.
+- `Floor1_Assets` is the asset library: 124 MeshParts such as `Tree_Large_Low`, `Rock_Large` and `Lantern_Wood`.
 - ServerStorage holds the ModuleScripts `Floor1_Materials`, `Floor1_Scatter`, `Floor1_Lighting`, `Floor1_Lights`,
   `Floor1_Village` and a folder
   `Floor1_ScatterData` with 11 data modules.
